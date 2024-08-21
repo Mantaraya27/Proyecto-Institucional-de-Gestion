@@ -1,0 +1,21 @@
+{
+  "name": "Flask MySQL Dev",
+  "image": "mcr.microsoft.com/devcontainers/python:3.9",
+  "features": {
+    "ghcr.io/devcontainers/features/mysql:1": {
+      "version": "latest"
+    }
+  },
+  "postCreateCommand": "pip install -r requirements.txt",
+  "portsAttributes": {
+    "5000": {
+      "label": "Flask App",
+      "onAutoForward": "openPreview"
+    },
+    "3306": {
+      "label": "MySQL",
+      "onAutoForward": "notify"
+    }
+  },
+  "forwardPorts": [5000, 3306]
+}
