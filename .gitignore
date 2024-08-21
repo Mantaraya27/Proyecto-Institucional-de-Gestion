@@ -3,7 +3,6 @@ venv/
 .env/
 env/
 
-informatica.sql
 # Archivos de configuración y variables de entorno
 .env
 config.py
