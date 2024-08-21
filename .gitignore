@@ -1,0 +1,28 @@
+# Entorno virtual
+venv/
+.env/
+env/
+
+informatica.sql
+# Archivos de configuración y variables de entorno
+.env
+config.py
+
+# Archivos de caché y compilados
+__pycache__/
+*.pyc
+*.pyo
+
+# Bases de datos locales
+instance/
+*.db
+
+# Archivos de logs
+*.log
+
+# Archivos de migraciones
+migrations/
+
+# Archivos generados por el IDE
+.vscode/
+.idea/

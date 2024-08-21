@@ -1,0 +1,166 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 190vh;
+    background-color: #e3c7dc;
+    font-family: 'cambria', cursive;
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+    margin: 0; 
+    padding: 20px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu-row {
+    display: flex;
+    gap: 50px;
+    margin-bottom: 50px;
+}
+
+.menu-item {
+    width: 350px;
+    height: 180px;
+    margin: 20px;
+    background-color: #c98eb5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    font-size: 1.5em;
+    color: #000000;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.menu-item:hover {
+    background-color: #7e2065;
+    transform: scale(1.1);
+}
+
+.menu-item a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.cerrar-sesion {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: #c98eb5;
+    color: #000000;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.cerrar-sesion:hover {
+    background-color: #7e2065;
+    transform: scale(1.1);
+}
+
+.cerrar-sesion a {
+    color: inherit;
+    text-decoration: none;
+}
+.container {
+    text-align: center; /* Alinea el contenido al centro */
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Opcional: Ajusta el ancho del formulario */
+    margin-bottom: 20px; /* Espacio entre formularios */
+}
+
+.contact-form input,
+.contact-form select {
+    width: 100%; /* Ancho completo para inputs y selects */
+    padding: 10px; /* Espaciado interno */
+    margin-bottom: 10px; /* Espacio entre campos */
+    border: 1px solid #ccc; /* Borde gris */
+    border-radius: 5px; /* Bordes redondeados */
+}
+
+.contact-form button {
+    width: 100%; /* Ancho completo para el botón */
+    padding: 10px; /* Espaciado interno */
+    background-color: #c98eb5; /* Color de fondo */
+    color: #000000; /* Color de texto */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor de tipo puntero */
+    transition: background-color 0.3s ease; /* Transición suave */
+}
+
+.contact-form button:hover {
+    background-color: #7e2065; /* Cambio de color al pasar el mouse */
+}
+h1 {
+    text-align:left;
+}
+
+.forms {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.contact-form {
+    width: 45%;
+}
+
+.contact-form h1 {
+    margin-top: 0;
+}
+
+.list-container {
+    margin-top: 40px;
+}
+
+
+table, th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+}
+
+ul li {
+    margin-bottom: 10px;
+}
+.list-container {
+    display: flex;
+    justify-content: flex-end;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-left: auto; /* 将表格推到右侧 */
+}

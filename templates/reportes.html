@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+
+    <title>Panel de Administración</title>
+      <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #000000e0;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .content {
+            min-height: 100vh;
+            /* 确保内容容器的高度 */
+            margin-left: 250px;
+            /* 调整为侧边栏的宽度 */
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Estilos de la barra lateral */
+        .sidebar {
+            width: 250px;
+            background: #800020;
+            color: white;
+            height: 100%;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #a00030;
+        }
+
+        /* alert*/
+        .alert {
+            display: none;
+            padding: 20px;
+            background-color: #f44336;
+            /* Red */
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .closebtn:hover {
+            color: black;
+        }
+
+        /* Estilos de la barra superior */
+        .top-bar {
+            width: 100%;
+            /* Asegurar que la barra superior ocupe el ancho completo */
+            margin-left: 0;
+            /* Alinear correctamente la barra superior */
+            color: #000000;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .top-bar .menu-icon {
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+        }
+
+        .top-bar .profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .top-bar .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        /* Estilos del mini formulario de rasgos conductuales */
+        .select2-container .select2-selection--multiple {
+            background-color: #00000000;
+            color: #fff;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #333;
+            border: 1px solid #444;
+            color: #fff;
+        }
+
+        .select2-dropdown {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .select2-results__option {
+            background-color: #00000042;
+            color: #fff;
+        }
+
+        .select2-results__option--highlighted {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .mini-form-container {
+            margin-right: 10px;
+        }
+
+        /* Estilos de la tabla */
+        .list-container {
+            width: 100%;
+        }
+
+        table {
+            width: 97%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            margin-left: 50px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #e0e0e0b7;
+        }
+
+        th,
+        td {
+            padding: 9px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #00000000;
+        }
+
+        /* Estilos de la barra de búsqueda */
+        .search-container {
+            position: relative;
+            width: 80%;
+            margin-left: 50px;
+        }
+
+        .search-container input[type="text"] {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333333;
+            background-color: #f2f2f2;
+        }
+
+        .search-and-save-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 80%;
+            margin-left: 60px;
+            margin-bottom: 20px;
+        }
+
+        .search-container .fas.fa-search {
+            position: absolute;
+            top: 52%;
+            left: 10px;
+            transform: translateY(-50%);
+            color: #666666;
+        }
+
+        /* Estilos de la barra de búsqueda */
+        .barra {
+            background-color: #800020;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-radius: 18px;
+        }
+
+        .barra h2 {
+            margin: 0;
+            padding-bottom: 20px;
+        }
+
+        .barra input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333333;
+            background-color: #917f7f;
+            margin-bottom: 20px;
+        }
+
+        .select-warning {
+            width: 30%;
+            padding: 10px;
+            font-size: 14px;
+            color: red;
+            text-align: center;
+            display: none;
+        }
+
+        /* Estilos del contenedor del formulario */
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: rgba(34, 34, 34, 0.849)000e0;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Estilos de los campos de entrada */
+        .form-container input[type="text"],
+        .form-container input[type="date"],
+        .form-container select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #333;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        /* Estilos al enfocar en los campos de entrada */
+        .form-container input[type="text"]:focus,
+        .form-container input[type="date"]:focus,
+        .form-container select:focus {
+            border-color: #b80860;
+            box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+
+        .date-separator {
+            width: 105%;
+            height: 2px;
+            background-color: #444;
+            margin: 15px 0;
+            margin-left: -10px;
+            align-self: center;
+        }
+
+        /* Estilos de los botones */
+        .form-container button {
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #800020;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .form-container button:hover {
+            background-color: #a00030;
+        }
+
+        /* Estilos de botones pequeños */
+        .form-container .small-button {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #666;
+        }
+
+        .form-container .small-button:hover {
+            background-color: #888;
+        }
+
+        .form-container label {
+            margin-bottom: 5px;
+            color: white;
+        }
+        .custom-button {
+            background-color: #640512ee;
+            /* Color de fondo */
+            color: white;
+            /* Color del texto */
+            border: none;
+            margin-left: 7%;
+            /* Sin borde */
+            border-radius: 5px;
+            /* Bordes redondeados */
+            padding: 10px 20px;
+            /* Espaciado interno */
+            font-size: 16px;
+            /* Tamaño de la fuente */
+            cursor: pointer;
+            /* Cursor de mano al pasar sobre el botón */
+            transition: background-color 0.3s, transform 0.2s;
+            /* Transiciones suaves para color y transformación */
+        }
+
+        .custom-button:hover {
+            background-color: #d40b70;
+            /* Color de fondo en hover */
+            transform: scale(1.05);
+            /* Escala ligeramente el botón */
+        }
+
+        .custom-button:active {
+            background-color: #b90769;
+            /* Color de fondo en clic */
+            transform: scale(0.98);
+            /* Reduce ligeramente el tamaño del botón */
+        }
+
+        .custom-button:focus {
+            outline: none;
+            /* Elimina el borde de enfoque predeterminado */
+            box-shadow: 0 0 0 2px rgba(245, 4, 96, 0.5);
+            /* Agrega una sombra al enfoque */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="{{ url_for('admin') }}"><i class="fa fa-home"></i> Inicio</a></li>
+            <li><a href="#"><i class="fa fa-life-ring"></i> Soporte</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+        </ul>
+    </div>
+ 
+    <div class="content">
+        <div class="barra">
+            <h2 align="center">Lista de Alumnos - {{ espe }} {{ curso }}{{ 'er' if curso % 2 == 1 else 'do' }} Año, {{ seccion }}{{ 'era' if seccion % 2 == 1 else 'da' }} Sección</h2>
+        </div>
+
+        <div class="form-container">
+            <input type="text" id="fechaInput" placeholder="Selecciona una fecha">
+            <div class="date-separator"></div>
+            <p id="diaSemana"></p>
+
+            <select id="materiaSelect">
+                <option value="" disabled selected>Seleccione Materia</option>
+            </select>
+            <select id="horariosSelect">
+                <option value="" disabled selected>Seleccione Hora</option>
+            </select>
+            <div id="warningMessage" class="select-warning" style="display: none;">Este curso no tiene esta materia
+            </div>
+        </div>
+
+        <div class="search-and-save-container">
+            <div class="search-container">
+                <input type="text" id="busqueda" placeholder="Buscar...">
+                <i class="fas fa-search"></i>
+            </div>
+            <button class="custom-button" id="submit-btn" type="button">Guardar Registro</button>
+        </div>
+
+        <table id="tablaAlumnos">
+            <thead>
+                <tr>
+                    <th>Nº</th>
+                    <th>Alumno</th>
+                    <th>CI</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
+                    <th>Rasgos</th>
+                </tr>
+            </thead>
+            <tbody id="alumnosTable">
+                {% for alumno in alumnos if alumno[2] == curso and alumno[3] == seccion %}
+                <tr>
+                    <td>{{ alumno[0] }}</td>
+                    <td>{{ alumno[1] }}</td>
+                    <td class="CI">{{ alumno[5] }}</td>
+                    <td class="fechaCell">Por favor seleccione la fecha</td>
+                    <td class="horarioCell">Por favor seleccione el horario</td>
+                    <td>
+                        <div class="alert" id="alertBox">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                            Reporte ya existente.
+                        </div>
+                        <div class="mini-form-container">
+                            <select class="rasgoConductualSelect" multiple="multiple" style="width: 100%;"
+                                data-id="{{ alumno[5] }}">
+                                {% for rasgo in rasgos_conductuales %}
+                                <option value="{{ rasgo[0] }}" {% if rasgo[1]=="Presente" %} selected {% endif %}>
+                                    {{ rasgo[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializa Select2 en todos los select con clase .rasgoConductualSelect
+            $('.rasgoConductualSelect').select2({
+                placeholder: "Seleccione Rasgos",
+                allowClear: true
+            });
+
+            // Tu código existente para flatpickr y otros scripts
+            flatpickr("#fechaInput", {
+                onChange: function (selectedDates, dateStr, instance) {
+                    var materiaSelect = document.getElementById("materiaSelect");
+                    var diaSemanaP = document.getElementById("diaSemana");
+
+                    // 清空选项
+                    materiaSelect.innerHTML = '<option value="" disabled selected>Seleccione Materia</option>';
+
+                    if (selectedDates.length > 0) {
+                        var date = selectedDates[0];
+                        var diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                        var diaSemana = diasSemana[date.getDay()];
+                        es=diaSemana
+                        diaSemanaP.innerText = "Día de la semana: " + diaSemana;
+
+                        if (diaSemana === 'Sábado' || diaSemana === 'Domingo') {
+                            materiaSelect.innerHTML = '<option value="">Seleccione de lunes a viernes</option>';
+                        } else {
+                            var addedMaterias = new Set();
+                            {% for e in elid %}
+                            {% for materia in materias %}
+                            var e_horario = "{{ e[1] }}";
+                            var materia_id = "{{ materia[0] }}";
+                            var materia_nombre = "{{ materia[1] }}";
+                            var dia = "{{ e[3] }}";
+                            if (dia == diaSemana && e_horario == materia_id) {
+                                if (!addedMaterias.has(materia_id)) {
+                                    materiaSelect.innerHTML += '<option value="' + materia_id + '">' + materia_nombre + '</option>';
+                                    addedMaterias.add(materia_id);
+                                }
+                            }
+                            {% endfor %}
+                            {% endfor %}
+                        }
+
+                        var fechaCells = document.querySelectorAll('.fechaCell');
+                        fechaCells.forEach(function (cell) {
+                            cell.innerText = dateStr;
+                        });
+
+                    } else {
+                        diaSemanaP.innerText = "Por favor introduzca primero la fecha";
+                    }
+                }
+            });
+
+
+            var materiaSelect = document.getElementById('materiaSelect');
+            var horariosSelect = document.getElementById('horariosSelect');
+
+            materiaSelect.addEventListener('change', function () {
+                
+                const selectedMateria = materiaSelect.value;
+                horariosSelect.innerHTML = '<option value="" disabled selected>Seleccione Hora</option>';
+
+                if (selectedMateria) {
+                    const horarios = new Set();
+                    {% for materia in materias %}
+                    if ("{{ materia[0] }}" === selectedMateria) {
+                        {% for e in elid %}
+                        if ("{{ e[1] }}" === selectedMateria) {
+                            const horarioText = "{{ e[2] }}";
+                            if("{{ e[3] }}" === es) {
+                            if (!horarios.has(horarioText)) {
+                                horarios.add(horarioText);
+                                horariosSelect.innerHTML += '<option value="{{ e[0] }}">' + horarioText + '</option>';
+                            }
+                        }
+                        }
+                        {% endfor %}
+                    }
+                    {% endfor %}
+
+                    if (horarios.size === 0) {
+                        horariosSelect.innerHTML = '<option value="" disabled>No hay horarios disponibles</option>';
+                    }
+                }
+            });
+
+            horariosSelect.addEventListener('change', function () {
+                const selectedHorario = horariosSelect.options[horariosSelect.selectedIndex].text;
+
+                // Actualiza las celdas de horario en la tabla
+                var horarioCells = document.querySelectorAll('.horarioCell');
+                horarioCells.forEach(function (cell) {
+                    cell.innerText = selectedHorario;
+                });
+            });
+        });
+        document.querySelector('.custom-button').addEventListener('click', function () {
+            let data = {
+                fecha: document.getElementById('fechaInput').value,
+                materiaSelect: document.getElementById('materiaSelect').value,
+                horariosSelect: document.getElementById('horariosSelect').value,
+                items: []
+            };
+
+            document.querySelectorAll('.rasgoConductualSelect').forEach(select => {
+                // Encuentra el CI dentro de la misma fila que el select
+    const ci = select.closest('tr').querySelector('.CI').textContent.trim(); // Cambia '.ci' al selector correcto para la celda de CI
+
+    // Obtén los valores seleccionados del select
+    let selectedOptions = Array.from(select.selectedOptions).map(option => option.value);
+
+    // Añade el objeto con CI como ID y los valores seleccionados
+    data.items.push({ id: ci, values: selectedOptions });
+            });
+
+            const operation = "add";
+            console.log('Datos enviados:', data);
+            fetch(`/submit?operation=${operation}`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Ejecutado agregar') {
+                        window.location.reload();
+                    } else {
+                        console.error('jskdjsk:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+        function sendRequest() {
+            const operation = "add";
+            fetch(`/${operation}`)
+                .then(response => response.json())
+                .then(data => alert(data.message))
+                .catch(error => console.error('Error:', error));
+        }
+
+
+
+        const searchInput = document.getElementById('busqueda');
+
+        // Agrega un evento de entrada al campo de búsqueda
+        searchInput.addEventListener('input', function () {
+            // Obtén el valor del campo de búsqueda y convierte a minúsculas
+            const query = searchInput.value.toLowerCase();
+
+            // Obtén todas las filas de la tabla
+            const rows = document.querySelectorAll('#tablaAlumnos tbody tr');
+
+            rows.forEach(row => {
+                // Obtén todas las celdas de la fila
+                const cells = row.getElementsByTagName('td');
+                let rowVisible = false;
+
+                // Recorre las celdas de la fila
+                for (let i = 0; i < cells.length; i++) {
+                    const cellText = cells[i].textContent.toLowerCase();
+
+                    if (cellText.includes(query)) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+
+                // Muestra u oculta la fila en función de la búsqueda
+                row.style.display = rowVisible ? '' : 'none';
+            });
+        });
+
+
+
+
+
+        // Initialize alert box
+        function showAlert(message) {
+            var alertBox = document.getElementById("alertBox");
+            alertBox.innerText = message;
+            alertBox.style.display = "block";
+        }
+
+        // Validation logic for rasgoConductualSelect
+        $('.rasgoConductualSelect').on('change', function () {
+            var selectedOptions = $(this).val();
+            var warningMessage = '';
+
+            if (selectedOptions.includes('13')) {
+                if (selectedOptions.includes('11') || selectedOptions.includes('12')) {
+                    warningMessage = 'No se puede seleccionar "Presente" junto con "Ausente".';
+                    $(this).val(selectedOptions.filter(val => val !== '11' && val !== '12'));
+                }
+            } else if (selectedOptions.includes('11') && selectedOptions.includes('12')) {
+                warningMessage = 'No se puede seleccionar "Ausente" junto con otra opción "Ausente".';
+                $(this).val(selectedOptions.filter(val => val !== '12'));
+            }
+
+            if (warningMessage) {
+                var warningElement = $('<div class="select-warning"></div>').text(warningMessage);
+                $(this).closest('.mini-form-container').append(warningElement);
+                setTimeout(() => warningElement.fadeOut(() => warningElement.remove()), 3000);
+            }
+        });
+        rasgoConductualSelect.addEventListener('change', function () {
+                
+                
+            });
+           
+
+    </script>
+</body>
+
+</html>

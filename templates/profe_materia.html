@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Panel de Administración</title>
+
+    <style>
+        /* Estilos generales y de la barra lateral */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: rgb(43, 36, 36);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #800020;
+            color: rgb(255, 255, 255);
+            height: 100%;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+        }
+
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+
+        .formTitle {
+            color: white;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #a00030;
+        }
+
+        .formTitle {
+            color: white;
+        }
+
+        /* Estilos del contenido */
+        .content {
+            margin-left: 270px;
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            width: calc(100% - 270px);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: row;
+        }
+
+        /* Estilos de la barra superior */
+        .top-bar {
+            margin-left: 0;
+            color: #ecd9d9;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+
+        }
+
+        .top-bar .menu-icon {
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+        }
+
+        .top-bar .profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .top-bar .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        /* Estilos del formulario y botones */
+        .form-container {
+            width: 40%;
+            margin-left: 20px;
+            padding-left: 20px;
+            background-color: rgb(43, 36, 36);
+            box-shadow: 0 0 10px rgba(202, 82, 82, 0.1);
+            border-radius: 8px;
+            margin-right: 20px;
+            transition: width 0.3s ease;
+        }
+
+        .form-container h1 {
+            color: #eeecec;
+            text-align: center;
+        }
+
+        .contact-form input[type="text"],
+        .contact-form select {
+            display: flex;
+            width: 80%;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #2b2727;
+            border-radius: 4px;
+            background-color: #ebd6d6;
+        }
+
+        .contact-form button {
+            padding: 10px;
+            width: 100px;
+            margin-left: 38%;
+            background-color: #990d0d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .contact-form button:hover {
+            background-color: #790514;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-buttons button {
+            padding: 10px 20px;
+            background-color: #880909;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .form-buttons button:hover {
+            background-color: #c50e0e;
+            transform: scale(1.05);
+        }
+
+        .form-buttons button.active {
+            background-color: #880909;
+        }
+
+        .form-buttons button.active:hover {
+            background-color: #c50e0e;
+            transform: scale(1.05);
+        }
+
+        /* Estilos de la tabla */
+        .list-container {
+            width: 60%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: rgb(48, 45, 45);
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #bbadad;
+        }
+
+        td {
+            color: rgb(247, 226, 226);
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #bbadad;
+        }
+
+        /* Estilos de la barra de búsqueda */
+        .barra {
+            background-color: #850e2b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-radius: 18px;
+        }
+
+        .barra h2 {
+            margin: 0;
+            padding-bottom: 20px;
+        }
+
+        .barra input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333333;
+            outline: none;
+            background-color: #f2f2f2;
+            margin-bottom: 20px;
+        }
+
+        .barra button {
+            padding: 10px 20px;
+            background-color: #88091a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .barra button:hover {
+            background-color: #7e083f;
+        }
+
+        .search-container {
+            position: relative;
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+        .search-container input[type="text"] {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            /* Ajuste de padding para espacio del icono */
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333333;
+            background-color: #f2f2f2;
+        }
+
+        .search-container .fas.fa-search {
+            position: absolute;
+            top: 34%;
+            left: 10px;
+            transform: translateY(-50%);
+            color: #666666;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: none;
+            }
+
+            .sidebar.closed {
+                transform: none;
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .form-container {
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+            }
+
+            .list-container {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-bar .profile {
+                margin-top: 10px;
+            }
+        }
+        #confirmDeleteModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            height: 50%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+
+        .modal-content {
+            background-color: rgb(43, 36, 36);
+            /* 黑色背景 */
+            color: #ffffff;
+            /* 白色文字 */
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-buttons button {
+            background-color: #850e2b;
+            /* 红色按钮 */
+            color: #ffffff;
+            /* 白色文字 */
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .modal-buttons button:hover {
+            background-color: #7e083f;
+            /* 按钮悬停时的颜色稍微深一些 */
+        }
+        @media (max-width: 480px) {
+
+            .contact-form input[type="text"],
+            .contact-form select {
+                width: calc(100% - 10px);
+                margin: 5px;
+                padding: 8px;
+            }
+
+            .contact-form button {
+                padding: 8px;
+                width: 80px;
+            }
+
+            .form-buttons button {
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="{{ url_for('admin') }}"><i class="fa fa-home"></i> Inicio</a></li>
+            <li><a href="#"><i class="fa fa-life-ring"></i> Soporte</a></li>
+            <li><a href="{{url_for('materia')}}"><i class="fa fa-user-plus"></i>Agregar/Editar Materia</a></li>
+            <li><a href="{{url_for('profesor')}}"><i class="fa fa-user-plus"></i>Agregar/Editar Profesor</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div class="form-container">
+            <div class="top-bar">
+                <i class="fa fa-bars menu-icon" onclick="toggleSidebar()"></i>
+                <div class="profile">
+                    <span>Bienvenido, {{ session['role'].capitalize() }}</span>
+                    <img src="https://via.placeholder.com/40" alt="Foto de Perfil">
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                <button onclick="setFormMode('add')" class="active">Agregar</button>
+                <button onclick="setFormMode('edit')">Modificar</button>
+                <button onclick="setFormMode('delete')">Eliminar</button>
+            </div>
+
+            <form id="profmateForm" action="{{ url_for('add_profmate') }}" method="POST" class="contact-form">
+                <h1 id="formTitle">Agregar Relacion</h1>
+                <select name="materiaa" id="materia" required>
+                    {% if materias %}
+                    <option value="" disabled selected>Seleccione una materia</option>
+                    {% for materia in materias %}
+                    <option value="{{ materia[0] }}">{{ materia[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay materias disponibles</option>
+                    {% endif %}
+                </select>
+                <select name="profesoor" id="profesor" required>
+                    {% if profesor %}
+                    <option value="" disabled selected>Seleccione un profesor</option>
+                    {% for prof in profesor %}
+                    <option value="{{ prof[0] }}">{{ prof[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay profe</option>
+                    {% endif %}
+                </select>
+                <button type="submit" onclick="validar_profesor_materia(event)">Enviar</button>
+            </form>
+            <form id="editprofmateForm" action="{{ url_for('edit_profmate') }}" method="POST" class="contact-form"
+                style="display:none;">
+                <h1>Modificar Relacion</h1>
+                <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
+                    required>
+                <input type="text" name="old_profesor_id" id="edit_old_profesor_id" placeholder="id del profe" required>
+                <select name="new_materia_id" id="new_materia" required>
+                    {% if materias %}
+                    <option value="" disabled selected>Seleccione una materia</option>
+                    {% for materia in materias %}
+                    <option value="{{ materia[0] }}">{{ materia[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay materias disponibles</option>
+                    {% endif %}
+                </select>
+                <select name="new_profesor_id" id="new_profesor" required>
+                    {% if profesor %}
+                    <option value="" disabled selected>Seleccione un profesor</option>
+                    {% for prof in profesor %}
+                    <option value="{{ prof[0] }}">{{ prof[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay profe</option>
+                    {% endif %}
+                </select>
+                <button type="submit">Modificar</button>
+            </form>
+
+            <form id="deleteprofmateForm" action="{{ url_for('delete_profmate') }}" method="POST" class="contact-form"
+                style="display:none;">
+                <h1>Eliminar Relacion</h1>
+                <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
+                    required>
+                <input type="text" name="old_profesor_id" id="edit_old_profesor_id" placeholder="id del profe" required>
+                <button type="submit" onclick="showDeleteModal(event)">Eliminar</button>
+            </form>
+        </div>
+        <div class="list-container">
+            <div class="barra">
+                <h2>Lista de Relaciones</h2>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Buscar...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <table id="teacherTable">
+                <thead>
+                    <tr>
+                        <th>ID profe</th>
+                        <th>Nombre profe</th>
+                        <th>Apellido profe</th>
+                        <th>ID materia</th>
+                        <th>Materia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for relation in profmat %}
+                    <tr>
+                        <td>{{ relation[0] }}</td>
+                        <td>{{ relation[1] }}</td>
+                        <td>{{ relation[2] }}</td>
+                        <td>{{ relation[3] }}</td>
+                        <td>{{ relation[4] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <div id="confirmDeleteModal" style="display:none;">
+        <div class="modal-content">
+            <h2>ELIMINAR</h2>
+            <p>¿Estás seguro de eliminar este curso? <br>Si eliminas este curso también se eliminarán sus reportes.</p>
+            <div class="modal-buttons">
+                <button onclick="confirmDelete()">Eliminar</button>
+                <button onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        function showDeleteModal(event) {
+            event.preventDefault(); // Previene el envío automático del formulario
+            document.getElementById('confirmDeleteModal').style.display = 'block';
+        }
+
+        function confirmDelete() {
+            console.log("confirmDelete called");
+            document.getElementById('deleteprofmateForm').submit();
+        }
+
+        function closeModal() {
+            console.log("closeModal called");
+            document.getElementById('confirmDeleteModal').style.display = 'none';
+        }
+
+
+
+
+
+
+
+
+
+
+        async function validar_profesor_materia(event) {
+            event.preventDefault();
+
+            const materia_id_materia = document.getElementById('materia').value;
+            const profesor_id_profesor = document.getElementById('profesor').value;
+
+            if (!materia_id_materia || !profesor_id_profesor) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campos vacíos',
+                    text: 'Todos los campos son obligatorios.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch('/check_profemate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ materia_id_materia, profesor_id_profesor }),
+                });
+
+                const data = await response.json();
+
+                if (data.existe) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'La relación entre el profesor y la materia ya existe.',
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false // Oculta el botón de confirmación\
+                        
+                        
+                    });
+                } else {
+                    document.getElementById('profmateForm').submit();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de servidor',
+                    text: 'Hubo un problema al verificar la relación. Por favor, intente nuevamente.',
+                    timer: 3000,
+                    showConfirmButton: false, // Oculta el botón de confirmación\
+                    timerProgressBar: true
+                });
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        function setFormMode(mode, materia_id = '', profesor_id = '') {
+            var formTitle = document.getElementById('formTitle');
+            var teacherForm = document.getElementById('profmateForm');
+            var editTeacherForm = document.getElementById('editprofmateForm');
+            var deleteTeacherForm = document.getElementById('deleteprofmateForm');
+
+            // 重置表单
+            teacherForm.reset();
+            editTeacherForm.reset();
+            deleteTeacherForm.reset();
+
+            if (mode === 'add') {
+                formTitle.textContent = 'Agregar Relacion';
+                teacherForm.style.display = 'block';
+                editTeacherForm.style.display = 'none';
+                deleteTeacherForm.style.display = 'none';
+                teacherForm.action = "{{ url_for('add_profmate') }}";
+            } else if (mode === 'edit') {
+                formTitle.textContent = 'Modificar Relacion';
+                document.getElementById('edit_old_materia_id').value = materia_id;
+                document.getElementById('edit_old_profesor_id').value = profesor_id;
+                editTeacherForm.style.display = 'block';
+                teacherForm.style.display = 'none';
+                deleteTeacherForm.style.display = 'none';
+                editTeacherForm.action = "{{ url_for('edit_profmate') }}";
+            } else if (mode === 'delete') {
+                formTitle.textContent = 'Eliminar Relacion';
+                document.getElementById('edit_old_materia_id').value = materia_id;
+                document.getElementById('edit_old_profesor_id').value = profesor_id;
+                deleteTeacherForm.style.display = 'block';
+                teacherForm.style.display = 'none';
+                editTeacherForm.style.display = 'none';
+                deleteTeacherForm.action = "{{ url_for('delete_profmate') }}";
+            }
+
+            var buttons = document.querySelectorAll('.form-buttons button');
+            buttons.forEach(function (button) {
+                button.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function toggleSidebar() {
+            var sidebar = document.querySelector('.sidebar');
+            var content = document.querySelector('.content');
+            sidebar.classList.toggle('closed');
+            if (sidebar.classList.contains('closed')) {
+                content.style.marginLeft = '0';
+            } else {
+                content.style.marginLeft = '250px';
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function () {
+            var filter = this.value.toUpperCase();
+            var rows = document.querySelectorAll('#teacherTable tbody tr');
+
+            rows.forEach(function (row) {
+                var name = row.querySelector('td:nth-child(2)').textContent.toUpperCase();
+                var surname = row.querySelector('td:nth-child(3)').textContent.toUpperCase();
+                var id = row.querySelector('td:nth-child(1)').textContent.toUpperCase();
+
+                if (name.includes(filter) || surname.includes(filter) || id.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

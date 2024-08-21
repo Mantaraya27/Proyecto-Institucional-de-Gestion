@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script defer src="scripts.js"></script>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: rgb(43, 36, 36);
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #75053d;
+            color: #ece6e6;
+            height: 100vh;
+            position: fixed;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+            font-size: 18px;
+            background-color: #75053d;
+            border-radius: 1em;
+            border-style: solid;
+            border-color: #75053d;
+            margin-right: 6px;
+        }
+
+        .sidebar-menu {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-menu li i {
+            font-size: 20px;
+        }
+
+        .sidebar-menu li:hover {
+            background-color: #b10058;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            color: #ecf0f1;
+            padding: 10px 20px;
+            background-color: rgb(43, 36, 36);
+            width: 100%;
+            text-decoration: underline;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            margin-right: 10px;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background-color: #92024a;
+            text-align: center;
+            color: #ece6e6;
+            padding: 20px;
+            border-radius: 10%;
+            position: relative;
+            width: 150px;
+        }
+
+        .stat-item span {
+            display: block;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-item p {
+            margin: 0;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px; /* Ajusta la separación entre las tarjetas de los botones */
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+
+        .button-card {
+            background-color: #92024a;
+            padding: 20px;
+            border-radius: 10%;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 100%;
+            height: 210px; /* Ajusta el tamaño si es necesario */
+        }
+
+        .button-item {
+            background-color: #690325;
+            color: #ecf0f1;
+            width: 100px; /* Tamaño del botón circular */
+            height: 100px; /* Tamaño del botón circular */
+            border-radius: 50%; /* Asegura que el botón sea circular */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .button-card h4,
+        .button-card h3 {
+            background-color: #75053d;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .button-item:hover {
+            background-color: #db1ea2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>CTN</h1>
+        </div>
+        <ul class="sidebar-menu">
+            <li onclick="navigateTo('{{ url_for('reporte') }}')">
+                <i class="fas fa-book-open"></i> Crear Reporte
+            </li>
+            <li onclick="navigateTo('{{ url_for('alumnos') }}')">
+                <i class="fas fa-user-graduate"></i> Editar/Agregar Alumno
+            </li>
+            <li onclick="navigateTo('{{ url_for('materia') }}')">
+                <i class="fas fa-chalkboard-teacher"></i> Editar Materia
+            </li>
+            <li onclick="navigateTo('{{ url_for('profesor') }}')">
+                <i class="fas fa-chalkboard-teacher"></i> Editar Profesor
+            </li>
+            <li onclick="navigateTo('{{ url_for('horario') }}')">
+                <i class="fas fa-calendar-check"></i> Editar Horario
+            </li>
+            <li onclick="navigateTo('{{ url_for('conductuales') }}')">
+                <i class="fas fa-user"></i> Editar Rasgos Conductuales
+            </li>
+            <li onclick="navigateTo('{{ url_for('materia_profe') }}')">
+                <i class="fas fa-link"></i> Generar Relación<br> Materia - Profesor
+            </li>
+            <li onclick="navigateTo('{{ url_for('materia_hora') }}')">
+                <i class="fas fa-link"></i> Generar Relación<br> Horario - Materia
+            </li>
+            <li onclick="navigateTo('{{ url_for('login') }}')">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </li>
+            <li onclick="navigateTo('#')">
+                <i class="fas fa-life-ring"></i> Ayuda
+            </li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="topbar">
+            <div class="user-info">
+                <span>Administrator </span> <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span>{{ alumnoS }}</span>
+                <i class="fas fa-user"></i>
+                <p>Cantidad de Alumnos</p>
+            </div>
+            <div class="stat-item">
+                <span>{{ profesoreS }}</span>
+                <i class="fas fa-chalkboard-teacher"></i>
+                <p>Cantidad de Profesores</p>
+            </div>
+        </div>
+        <div class="button-grid">
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('reporte') }}')">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h4>Crear Reporte</h4>
+            </div>
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('alumnos') }}')">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h4>Editar Alumno</h4>
+            </div>
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('materia') }}')">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h4>Editar Materia</h4>
+            </div>
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('profesor') }}')">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h4>Editar Profesor</h4>
+            </div>
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('horario') }}')">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h4>Editar Curso</h4>
+            </div>
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('conductuales') }}')">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h4>Editar Rasgos</h4>
+            </div>
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('materia_profe') }}')">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h4>Generar Relación<br> Materia - Profesor</h4>
+            </div>
+            <div class="button-card">
+                <div class="button-item" onclick="navigateTo('{{ url_for('materia_hora') }}')">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h4>Generar Relación<br> Curso - Materia</h4>
+            </div>
+        </div>
+    </div>
+    <script>
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+    </script>
+</body>
+
+</html>
