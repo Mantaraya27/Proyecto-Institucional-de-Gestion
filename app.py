@@ -1401,5 +1401,3 @@ if __name__ == '__main__':
 
 #ajksjkfajksdjfkjggg
 #aaaaaaaaaaaa
-#holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-#dfasdasdasdasd
