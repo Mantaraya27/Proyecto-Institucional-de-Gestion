@@ -182,7 +182,7 @@
             <h1>CTN</h1>
         </div>
         <ul class="sidebar-menu">
-            <li onclick="navigateTo('{{ url_for('admin') }}')">
+            <li onclick="navigateTo('{{ url_for('admin', espe=session['espe']) }}')">
                 <i class="fas fa-home"></i> Inicio
             </li>
             <li onclick="navigateTo('{{ url_for('login') }}')">
