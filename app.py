@@ -1362,12 +1362,4 @@ def crear_app():
 
 if __name__ == '__main__':
     app = crear_app()
-<<<<<<< HEAD
     app.run(debug=True, host='0.0.0.0')
-
-
-# holiiii
-# goliii
-=======
-    app.run(debug=True, host='0.0.0.0')
->>>>>>> d6247bde6ba3db5d02f9c32095d05cd9f7fd7aba
