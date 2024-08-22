@@ -132,7 +132,7 @@
         }
 
         .button-card {
-            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz'}};
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#616161' if espe == 'Electrónica' }};
             padding: 20px;
             border-radius: 10%;
             text-align: center;
@@ -147,7 +147,7 @@
         }
 
         .button-item {
-            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz'}};
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' }};
             color: #ecf0f1;
             width: 100px; /* Tamaño del botón circular */
             height: 100px; /* Tamaño del botón circular */
@@ -235,7 +235,7 @@
         </div>
         <div class="button-grid">
             <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reporte') }}')">
+                <div class="button-item" onclick="navigateTo('{{ url_for('elegir_curso', espe = espe) }}')">
                     <i class="fas fa-book-open"></i>
                 </div>
                 <h4>Crear Reporte</h4>

@@ -46,6 +46,31 @@ def crear_app():
                     session['espe'] = 'Automotriz'
                     flash('Admin login successful')
                     return redirect(url_for('admin', espe=session['espe']))
+                elif ci == 'eik':
+                    session['role'] = 'administrador'
+                    session['espe'] = 'Electrónica'
+                    flash('Admin login successful')
+                    return redirect(url_for('admin', espe=session['espe']))
+                elif ci == 'edad':
+                    session['role'] = 'administrador'
+                    session['espe'] = 'Electricidad'
+                    flash('Admin login successful')
+                    return redirect(url_for('admin', espe=session['espe']))
+                elif ci == 'emca':
+                    session['role'] = 'administrador'
+                    session['espe'] = 'Electromecanica'
+                    flash('Admin login successful')
+                    return redirect(url_for('admin', espe=session['espe']))
+                elif ci == 'indu':
+                    session['role'] = 'administrador'
+                    session['espe'] = 'Mecánica Industrial'
+                    flash('Admin login successful')
+                    return redirect(url_for('admin', espe=session['espe']))
+                elif ci == 'qca':
+                    session['role'] = 'administrador'
+                    session['espe'] = 'Química'
+                    flash('Admin login successful')
+                    return redirect(url_for('admin', espe=session['espe']))
                 else:
                     flash('Invalid admin password')
             elif role == 'alumno':
