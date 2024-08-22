@@ -31,10 +31,21 @@ def crear_app():
             role = request.form['role']
             ci = request.form['ci']
             if role == 'admin':
-                if ci == '12345':
+                if ci == 'info':
                     session['role'] = 'administrador'
+                    session['espe'] = 'Informatica'
                     flash('Admin login successful')
-                    return redirect(url_for('admin'))
+                    return redirect(url_for('admin', espe=session['espe']))
+                elif ci == 'cc':
+                    session['role'] = 'administrador'
+                    session['espe'] = 'Construccion civil'
+                    flash('Admin login successful')
+                    return redirect(url_for('admin', espe=session['espe']))
+                elif ci == 'auto':
+                    session['role'] = 'administrador'
+                    session['espe'] = 'Automotriz'
+                    flash('Admin login successful')
+                    return redirect(url_for('admin', espe=session['espe']))
                 else:
                     flash('Invalid admin password')
             elif role == 'alumno':
@@ -48,7 +59,7 @@ def crear_app():
                     flash('Alumno login successful')
                     return redirect(url_for('mostrar'))
                 else:
-                    flash('Invalid CI for alumno')
+                    flash('Invalid CI for alumno')  
             elif role == 'enc':
                 if ci == '88888':
                     session['role'] = 'encargado'
@@ -59,10 +70,10 @@ def crear_app():
         return render_template('login.html')
 
 
-    @app.route('/admin')
-    def admin():
+    @app.route('/<espe>/admin')
+    def admin(espe):
         if 'role' in session and session['role'] == 'administrador':
-            return render_template('admin.html')
+            return render_template('admin.html', espe=espe)
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
