@@ -276,7 +276,7 @@ def crear_app():
     def materia(espe):
         if 'role' in session and session['role'] == 'administrador':
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM materia")
+            cur.execute("SELECT * FROM materia where especialidad = %s or especialidad = 'Plan Común'", (espe,))
             materia = cur.fetchall()
             cur.close()
             return render_template('materia.html', materia=materia, role=session['role'], espe=espe)
@@ -407,7 +407,7 @@ def crear_app():
     @app.route('/add_materia', methods=['POST'])
     def add_materia():
         nombre = request.form['nombre']
-        especialidad = session['espe']
+        especialidad = request.form['especialidad']
 
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s",
@@ -416,7 +416,7 @@ def crear_app():
 
         if materia_existente:
             flash('Ya existe una materia con los mismos datos')
-            return redirect(url_for("materia"))
+            return redirect(url_for("materia", espe = session['espe']))
 
         try:
             cur.execute(
@@ -438,7 +438,7 @@ def crear_app():
             try:
                 subject_id = request.form['subject_id']
                 nombre = request.form['nombre']
-                especialidad = session['espe']
+                especialidad = request.form['especialidad']
 
                 cur = mysql.connection.cursor()
 
@@ -494,7 +494,7 @@ def crear_app():
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('materia'))
+            return redirect(url_for('materia', espe=session['espe']))
         else:
             return redirect(url_for('login'))
 

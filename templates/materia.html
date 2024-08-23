@@ -21,7 +21,7 @@
 
         .sidebar {
             width: 250px;
-            background: #800020;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             color: rgb(255, 255, 255);
             height: 100%;
             padding: 20px;
@@ -43,6 +43,7 @@
         .sidebar ul {
             list-style: none;
             padding: 0;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
         }
 
         .sidebar ul li {
@@ -70,7 +71,11 @@
         }
 
         .sidebar ul li a:hover {
-            background-color: #a00030;
+            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+        }
+
+        .formTitle {
+            color: white;
         }
 
         /* Estilos del contenido */
@@ -88,7 +93,7 @@
         /* Estilos de la barra superior */
         .top-bar {
             margin-left: 0;
-            color: #eecece;
+            color: #ecd9d9;
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
@@ -115,6 +120,9 @@
             margin-left: 10px;
         }
 
+        .form-container p {
+            color: #fff;
+        }
         /* Estilos del formulario y botones */
         .form-container {
             width: 40%;
@@ -148,15 +156,15 @@
             padding: 10px;
             width: 100px;
             margin-left: 38%;
-            background-color: #990d0d;
-            color: white;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
 
         .contact-form button:hover {
-            background-color: #790514;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
         }
 
         .form-buttons {
@@ -168,8 +176,8 @@
 
         .form-buttons button {
             padding: 10px 20px;
-            background-color: #880909;
-            color: white;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -177,16 +185,16 @@
         }
 
         .form-buttons button:hover {
-            background-color: #c50e0e;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             transform: scale(1.05);
         }
 
         .form-buttons button.active {
-            background-color: #880909;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
         }
 
         .form-buttons button.active:hover {
-            background-color: #c50e0e;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             transform: scale(1.05);
         }
 
@@ -205,7 +213,7 @@
         table,
         th,
         td {
-            border: 1px solid #bbadad;
+            border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
         }
 
         td {
@@ -219,12 +227,13 @@
         }
 
         th {
-            background-color: #bbadad;
+            color: #fff;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
         }
 
         /* Estilos de la barra de búsqueda */
         .barra {
-            background-color: #850e2b;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
             color: white;
             display: flex;
             flex-direction: column;
@@ -236,6 +245,7 @@
         .barra h2 {
             margin: 0;
             padding-bottom: 20px;
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
         }
 
         .barra input[type="text"] {
@@ -252,7 +262,7 @@
 
         .barra button {
             padding: 10px 20px;
-            background-color: #88091a;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
             color: white;
             border: none;
             border-radius: 4px;
@@ -289,7 +299,50 @@
             color: #666666;
         }
 
+        #confirmDeleteModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            height: 50%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
 
+
+        .modal-content {
+            background-color: rgb(43, 36, 36);
+            /* 黑色背景 */
+            color: #ffffff;
+            /* 白色文字 */
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-buttons button {
+            background-color: #850e2b;
+            /* 红色按钮 */
+            color: #ffffff;
+            /* 白色文字 */
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .modal-buttons button:hover {
+            background-color: #7e083f;
+            /* 按钮悬停时的颜色稍微深一些 */
+        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -392,14 +445,7 @@
                 <p class="formTitle">La asignatura pertenece a:</p>
                 <select name="especialidad" id="especialidad" required>
                     <option value="Plan Común">Plan Común</option>
-                    <option value="Automotriz">Automotriz</option>
-                    <option value="Construccion Civil">Construcción Civil</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Electrónica">Electrónica</option>
-                    <option value="Electromecánica">Electromecánica</option>
-                    <option value="Mecánica Industrial">Mecánica Industrial</option>
-                    <option value="Informática">Informática</option>
-                    <option value="Química">Química</option>
+                    <option value="{{ espe }}">{{ espe }}</option>
                 </select>
                 <button type="submit" onclick="validar_materia(event)">Enviar</button>
             </form>
@@ -412,14 +458,7 @@
                 <input type="text" name="nombre" id="edit_nombre" placeholder="Nombre de la Asignatura" required>
                 <select name="especialidad" id="especialidad" required>
                     <option value="Plan Común">Plan Común</option>
-                    <option value="Automotriz">Automotriz</option>
-                    <option value="Construccion Civil">Construcción Civil</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Electrónica">Electrónica</option>
-                    <option value="Electromecánica">Electromecánica</option>
-                    <option value="Mecánica Industrial">Mecánica Industrial</option>
-                    <option value="Informática">Informática</option>
-                    <option value="Química">Química</option>
+                    <option value="{{ espe }}">{{ espe }}</option>
                 </select>
                 <button type="submit" onclick="validar_materia(event)">Modificar</button>
             </form>
