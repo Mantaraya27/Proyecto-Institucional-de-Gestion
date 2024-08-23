@@ -86,12 +86,48 @@ def crear_app():
                 else:
                     flash('Invalid CI for alumno')  
             elif role == 'enc':
-                if ci == '88888':
+                if ci == 'info':
                     session['role'] = 'encargado'
-                    flash('Encargado login successful')
-                    return redirect(url_for('reporte'))
+                    session['espe'] = 'Informatica'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
+                elif ci == 'cc':
+                    session['role'] = 'encargado'
+                    session['espe'] = 'Construccion civil'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
+                elif ci == 'auto':
+                    session['role'] = 'encargado'
+                    session['espe'] = 'Automotriz'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
+                elif ci == 'eik':
+                    session['role'] = 'encargado'
+                    session['espe'] = 'Electrónica'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
+                elif ci == 'edad':
+                    session['role'] = 'encargado'
+                    session['espe'] = 'Electricidad'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
+                elif ci == 'emca':
+                    session['role'] = 'encargado'
+                    session['espe'] = 'Electromecanica'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
+                elif ci == 'indu':
+                    session['role'] = 'encargado'
+                    session['espe'] = 'Mecánica Industrial'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
+                elif ci == 'qca':
+                    session['role'] = 'encargado'
+                    session['espe'] = 'Química'
+                    flash('Admin login successful')
+                    return redirect(url_for('elegir_curso', espe=session['espe']))
                 else:
-                    flash('Invalid encargado password')
+                    flash('Invalid admin password')
         return render_template('login.html')
 
 
