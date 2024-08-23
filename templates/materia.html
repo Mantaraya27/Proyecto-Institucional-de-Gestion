@@ -354,7 +354,7 @@
     <div class="sidebar">
         <h2>Admin Panel</h2>
         <ul>
-            <li><a href="{{ url_for('admin') }}"><i class="fa fa-home"></i> Inicio</a></li>
+            <li><a href="{{ url_for('admin'), espe=espe }}"><i class="fa fa-home"></i> Inicio</a></li>
             <li><a href="#"><i class="fa fa-life-ring"></i> Soporte</a></li>
             <li><a href="{{url_for('profesor')}}"><i class="fa fa-user-plus"></i>Agregar/Editar Profesor</a></li>
             <li><a href="{{url_for('materia_profe')}}"><i class="fa fa-user-plus"></i> Agregar Relacion con profesor</a>

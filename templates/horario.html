@@ -23,7 +23,7 @@
 
         .sidebar {
             width: 250px;
-            background: #800020;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             color: rgb(255, 255, 255);
             height: 100%;
             padding: 20px;
@@ -73,7 +73,11 @@
         }
 
         .sidebar ul li a:hover {
-            background-color: #a00030;
+            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+        }
+
+        .formTitle {
+            color: white;
         }
 
         /* Estilos del contenido */
@@ -118,6 +122,9 @@
             margin-left: 10px;
         }
 
+        .form-container p {
+            color: #fff;
+        }
         /* Estilos del formulario y botones */
         .form-container {
             width: 40%;
@@ -151,15 +158,15 @@
             padding: 10px;
             width: 100px;
             margin-left: 38%;
-            background-color: #990d0d;
-            color: white;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
 
         .contact-form button:hover {
-            background-color: #790514;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
         }
 
         .form-buttons {
@@ -171,8 +178,8 @@
 
         .form-buttons button {
             padding: 10px 20px;
-            background-color: #880909;
-            color: white;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -180,16 +187,16 @@
         }
 
         .form-buttons button:hover {
-            background-color: #c50e0e;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             transform: scale(1.05);
         }
 
         .form-buttons button.active {
-            background-color: #880909;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
         }
 
         .form-buttons button.active:hover {
-            background-color: #c50e0e;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             transform: scale(1.05);
         }
 
@@ -208,7 +215,7 @@
         table,
         th,
         td {
-            border: 1px solid #bbadad;
+            border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
         }
 
         td {
@@ -222,12 +229,13 @@
         }
 
         th {
-            background-color: #bbadad;
+            color: #fff;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
         }
 
         /* Estilos de la barra de búsqueda */
         .barra {
-            background-color: #850e2b;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
             color: white;
             display: flex;
             flex-direction: column;
@@ -239,6 +247,7 @@
         .barra h2 {
             margin: 0;
             padding-bottom: 20px;
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
         }
 
         .barra input[type="text"] {
@@ -255,7 +264,7 @@
 
         .barra button {
             padding: 10px 20px;
-            background-color: #88091a;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
             color: white;
             border: none;
             border-radius: 4px;
@@ -360,10 +369,6 @@
                 margin: 10px 0;
             }
 
-            .formTitle {
-                color: white;
-            }
-
             .list-container {
                 width: 100%;
                 margin: 10px 0;
@@ -404,9 +409,9 @@
     <div class="sidebar">
         <h2>Admin Panel</h2>
         <ul>
-            <li><a href="{{ url_for('admin') }}"><i class="fa fa-home"></i> Inicio</a></li>
+            <li><a href="{{ url_for('admin', espe=espe) }}"><i class="fa fa-home"></i> Inicio</a></li>
             <li><a href="#"><i class="fa fa-life-ring"></i> Soporte</a></li>
-            <li><a href="{{url_for('materia_hora')}}"><i class="fa fa-user-plus"></i>Agregar Relacion materia</a></li>
+            <li><a href="{{url_for('materia_hora', espe=espe)}}"><i class="fa fa-user-plus"></i>Agregar Relacion materia</a></li>
             <li><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Cerrar Sesión</a></li>
         </ul>
     </div>
@@ -432,18 +437,6 @@
                 <h1 class="formTitle">Agregar Curso</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="add">
 
-                <p class="formTitle">Especialidad</p>
-                <select name="especialidad" id="especialidad_add_time" required>
-                    <option value="Automotriz">Automotriz</option>
-                    <option value="Construccion civil">Construcción civil</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Electronica">Electrónica</option>
-                    <option value="Electromecanica">Electromecánica</option>
-                    <option value="Mecanica Industrial">Mecánica Industrial</option>
-                    <option value="Informatica">Informática</option>
-                    <option value="Quimica">Química</option>
-                </select>
-
                 <p class="formTitle">Curso</p>
                 <select name="curso" id="curso_add_time" required>
                     <option value="1">1</option>
@@ -453,8 +446,14 @@
 
                 <p class="formTitle">Sección</p>
                 <select name="seccion" id="seccion_add_time" required>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
+                    {% if espe == 'Química' or espe == 'Construccion civil' or espe == 'Electricidad' or espe == 'Electrónica' %}
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    {% else %}
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    {% endif %}
                 </select>
 
                 <button type="submit" onclick="return validarCurso(event);">Enviar</button>
@@ -466,17 +465,6 @@
                 <h1 id="formTitle">Modificar Curso</h1>
                 <input type="hidden" name="form_mode" id="form_mode_edit_time" value="edit">
                 <input type="text" name="horario_id" id="id_modif_time" placeholder="ID" required>
-                <p>Especialidad</p>
-                <select name="especialidad" id="especialidad_edit_time" required>
-                    <option value="Automotriz">Automotriz</option>
-                    <option value="Construccion civil">Construcción Civil</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Electronica">Electrónica</option>
-                    <option value="Electromecanica">Electromecánica</option>
-                    <option value="Mecanica Industrial">Mecánica Industrial</option>
-                    <option value="Informatica">Informática</option>
-                    <option value="Quimica">Química</option>
-                </select>
                 <p>Curso</p>
                 <select name="curso" id="curso_edit_time" required>
                     <option value="1">1</option>
@@ -485,8 +473,14 @@
                 </select>
                 <p>Sección</p>
                 <select name="seccion" id="seccion_edit_time" required>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
+                    {% if espe == 'Química' or espe == 'Construccion civil' or espe == 'Electricidad' or espe == 'Electrónica' %}
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    {% else %}
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    {% endif %}
                 </select>
                 <button type="submit">Modificar</button>
             </form>

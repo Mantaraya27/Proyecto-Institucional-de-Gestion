@@ -44,7 +44,7 @@
         /* Estilos de la barra lateral */
         .sidebar {
             width: 250px;
-            background: #800020;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             color: white;
             height: 100%;
             padding: 20px;
@@ -89,7 +89,7 @@
         }
 
         .sidebar ul li a:hover {
-            background-color: #a00030;
+            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
         }
 
         /* alert*/
@@ -244,7 +244,7 @@
 
         /* Estilos de la barra de búsqueda */
         .barra {
-            background-color: #800020;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
             color: white;
             display: flex;
             flex-direction: column;
@@ -255,7 +255,8 @@
 
         .barra h2 {
             margin: 0;
-            padding-bottom: 20px;
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+
         }
 
         .barra input[type="text"] {
@@ -355,9 +356,9 @@
             color: white;
         }
         .custom-button {
-            background-color: #640512ee;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
             /* Color de fondo */
-            color: white;
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
             /* Color del texto */
             border: none;
             margin-left: 7%;
@@ -375,14 +376,14 @@
         }
 
         .custom-button:hover {
-            background-color: #d40b70;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             /* Color de fondo en hover */
             transform: scale(1.05);
             /* Escala ligeramente el botón */
         }
 
         .custom-button:active {
-            background-color: #b90769;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
             /* Color de fondo en clic */
             transform: scale(0.98);
             /* Reduce ligeramente el tamaño del botón */
@@ -401,7 +402,7 @@
     <div class="sidebar">
         <h2>Admin Panel</h2>
         <ul>
-            <li><a href="{{ url_for('admin') }}"><i class="fa fa-home"></i> Inicio</a></li>
+            <li><a href="{{ url_for('admin', espe=espe) }}"><i class="fa fa-home"></i> Inicio</a></li>
             <li><a href="#"><i class="fa fa-life-ring"></i> Soporte</a></li>
             <li><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Cerrar Sesión</a></li>
         </ul>
