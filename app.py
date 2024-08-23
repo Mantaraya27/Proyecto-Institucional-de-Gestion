@@ -3,6 +3,7 @@ import re
 from flask_mysqldb import MySQL
 from flask import jsonify
 
+
 def crear_app():
     app = Flask(__name__)
     EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
@@ -12,7 +13,6 @@ def crear_app():
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mysql = MySQL(app)
-
 
     @app.route('/')
     def index():
@@ -24,55 +24,38 @@ def crear_app():
             return render_template('login.html', role=session['role'], alumnos=alumnos)
         return redirect(url_for('login'))
 
-
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
             role = request.form['role']
             ci = request.form['ci']
-            if role == 'admin':
-                if ci == 'info':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Informatica'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
-                elif ci == 'cc':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Construccion civil'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
-                elif ci == 'auto':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Automotriz'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
-                elif ci == 'eik':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Electrónica'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
-                elif ci == 'edad':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Electricidad'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
-                elif ci == 'emca':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Electromecanica'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
-                elif ci == 'indu':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Mecánica Industrial'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
-                elif ci == 'qca':
-                    session['role'] = 'administrador'
-                    session['espe'] = 'Química'
-                    flash('Admin login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
+
+            # Mapeo de CI para admins y encargados
+            role_especialidades = {
+                'info': 'Informatica',
+                'cc': 'Construccion civil',
+                'auto': 'Automotriz',
+                'eik': 'Electrónica',
+                'edad': 'Electricidad',
+                'emca': 'Electromecanica',
+                'indu': 'Mecánica Industrial',
+                'qca': 'Química'
+            }
+
+            if role == 'admin' or role == 'enc':
+                if ci in role_especialidades:
+                    session['role'] = 'administrador' if role == 'admin' else 'encargado'
+                    session['espe'] = role_especialidades[ci]
+                    flash('Login successful')
+
+                    # Redirige según el rol
+                    if role == 'admin':
+                        return redirect(url_for('admin', espe=session['espe']))
+                    elif role == 'enc':
+                        return redirect(url_for('elegir_curso', espe=session['espe']))
                 else:
-                    flash('Invalid admin password')
+                    flash('Invalid CI for admin/encargado')
+
             elif role == 'alumno':
                 cur = mysql.connection.cursor()
                 cur.execute("SELECT * FROM alumno WHERE ci = %s", [ci])
@@ -84,52 +67,12 @@ def crear_app():
                     flash('Alumno login successful')
                     return redirect(url_for('mostrar'))
                 else:
-                    flash('Invalid CI for alumno')  
-            elif role == 'enc':
-                if ci == 'info':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Informatica'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                elif ci == 'cc':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Construccion civil'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                elif ci == 'auto':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Automotriz'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                elif ci == 'eik':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Electrónica'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                elif ci == 'edad':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Electricidad'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                elif ci == 'emca':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Electromecanica'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                elif ci == 'indu':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Mecánica Industrial'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                elif ci == 'qca':
-                    session['role'] = 'encargado'
-                    session['espe'] = 'Química'
-                    flash('Admin login successful')
-                    return redirect(url_for('elegir_curso', espe=session['espe']))
-                else:
-                    flash('Invalid admin password')
-        return render_template('login.html')
+                    flash('Invalid CI for alumno')
 
+            else:
+                flash('Invalid role')
+
+        return render_template('login.html')
 
     @app.route('/<espe>/admin')
     def admin(espe):
@@ -139,7 +82,6 @@ def crear_app():
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
     # ///////////////////////////////////////////////////////////
-
 
     @app.route('/dashboard')
     def dashboard():
@@ -167,14 +109,12 @@ def crear_app():
             flash(f'Ocurrió un error al obtener los datos: {e}', 'error')
             return redirect(url_for('login'))
 
-
     @app.route('/logout')
     def logout():
         session.pop('role', None)
         session.pop('ci', None)
         flash('You have been logged out')
         return redirect(url_for('login'))
-
 
     @app.route('/add_contact', methods=['POST'])
     def add_contact():
@@ -191,7 +131,7 @@ def crear_app():
                 # Validar longitud del CI
                 if len(ci) < 7 or len(ci) > 8:
                     flash('El CI debe tener entre 7 y 8 caracteres', 'error')
-                    return redirect(url_for('alumnos', espe = session['espe']))
+                    return redirect(url_for('alumnos', espe=session['espe']))
 
                 cur = mysql.connection.cursor()
 
@@ -204,7 +144,7 @@ def crear_app():
 
                 if alumno_existente:
                     flash('Ya existe un alumno con los mismos datos', 'error')
-                    return redirect(url_for('alumnos', espe = session['espe']))
+                    return redirect(url_for('alumnos', espe=session['espe']))
 
                 # Verificar si el CI ya existe
                 cur.execute("SELECT * FROM alumno WHERE ci = %s", (ci,))
@@ -230,10 +170,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
-
-
-
     @app.route('/edit_contact', methods=['POST'])
     def edit_contact():
         if 'role' in session and session['role'] == 'administrador':
@@ -255,7 +191,7 @@ def crear_app():
 
                 if alumno_existente:
                     flash('Ya existe un alumno con estos datos')
-                    return redirect(url_for('alumnos', espe = session['espe']))
+                    return redirect(url_for('alumnos', espe=session['espe']))
 
                 # 更新记录
                 try:
@@ -273,7 +209,6 @@ def crear_app():
                 return redirect(url_for('alumnos', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/delete_contact', methods=['POST'])
     def delete_contact():
@@ -309,10 +244,9 @@ def crear_app():
                     mysql.connection.commit()
                 cur.close()
                 flash('Contact deleted successfully')
-            return redirect(url_for('alumnos', espe = session['espe']))
+            return redirect(url_for('alumnos', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/<espe>/alumnos')
     def alumnos(espe):
@@ -327,36 +261,28 @@ def crear_app():
                     cur.close()
                 else:
                     cur = mysql.connection.cursor()
-                    cur.execute("SELECT * FROM alumno where especialidad = %s", (espe,))
+                    cur.execute(
+                        "SELECT * FROM alumno where especialidad = %s", (espe,))
                     alumnos = cur.fetchall()
                     cur.close()
                 return render_template('alumno.html', role=session['role'], alumnos=alumnos, espe=espe)
         return redirect(url_for('login'))
 
-
     @app.route('/reporte')
     def reporte():
         return render_template('reporte.html')
 
-
     @app.route('/<espe>/materia')
     def materia(espe):
         if 'role' in session and session['role'] == 'administrador':
-            busqueda = request.args.get('busqueda', '').strip()
-            try:
-                cur = mysql.connection.cursor()
-                if busqueda:
-                    cur.execute("SELECT * FROM materia WHERE nombre LIKE %s OR id_materia LIKE %s",
-                                ('%' + busqueda + '%', '%' + busqueda + '%'))
-                else:
-                    cur.execute("SELECT * FROM materia")
-                materias = cur.fetchall()
-                cur.close()
-                return render_template('materia.html', role=session['role'], materias=materias)
-            except Exception as e:
-                flash(f'Error al obtener materias: {str(e)}')
-        return redirect(url_for('login'))
-
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT * FROM materia")
+            materia = cur.fetchall()
+            cur.close()
+            return render_template('materia.html', materia=materia, role=session['role'], espe=espe)
+        else:
+            flash('Access Denied. Please login as administrator.')
+            return redirect(url_for('login'))
 
     @app.route('/<espe>/conductuales')
     def conductuales(espe):
@@ -369,7 +295,6 @@ def crear_app():
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
-
 
     @app.route('/<espe>/profesor')
     def profesor(espe):
@@ -384,7 +309,6 @@ def crear_app():
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
-
 
     @app.route('/add_teacher', methods=['POST'])
     def add_teacher():
@@ -412,9 +336,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
     # ////////////////////////////////////////////////////
-
-
-
 
     @app.route('/edit_teacher', methods=['POST'])
     def edit_teacher():
@@ -446,10 +367,9 @@ def crear_app():
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('profesor', espe = session['espe']))
+            return redirect(url_for('profesor', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/delete_teacher', methods=['POST'])
     def delete_teacher():
@@ -479,11 +399,10 @@ def crear_app():
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('profesor', espe = session['espe']))
+            return redirect(url_for('profesor', espe=session['espe']))
         else:
             return redirect(url_for('login'))
     # ////////////////////////////////////////////////////////////////
-
 
     @app.route('/add_materia', methods=['POST'])
     def add_materia():
@@ -509,12 +428,9 @@ def crear_app():
             flash(f'Error al agregar materia: {str(e)}')
         finally:
             cur.close()
-        return redirect(url_for('materia', espe = session['espe']))
-
+        return redirect(url_for('materia', espe=session['espe']))
 
     # ////////////////////////////////////////////////////////////////
-
-
 
     @app.route('/edit_materia', methods=['POST'])
     def edit_materia():
@@ -550,7 +466,6 @@ def crear_app():
                     cur.close()
             return redirect(url_for('materia'))
 
-
     @app.route('/delete_materia', methods=['POST'])
     def delete_materia():
         if 'role' in session and session['role'] == 'administrador':
@@ -583,7 +498,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
     @app.route('/add_conductuales', methods=['POST'])
     def add_conductuales():
         if 'role' in session and session['role'] == 'administrador':
@@ -606,10 +520,9 @@ def crear_app():
                 finally:
                     cur.close()
 
-                return redirect(url_for('conductuales', espe = session['espe']))
+                return redirect(url_for('conductuales', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/edit_conductuales', methods=['POST'])
     def edit_conductuales():
@@ -641,7 +554,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
     @app.route('/delete_conductuales', methods=['POST'])
     def delete_conductuales():
         if 'role' in session and session['role'] == 'administrador':
@@ -662,23 +574,22 @@ def crear_app():
                     if 'cur' in locals() and cur:
                         cur.close()
 
-            return redirect(url_for('conductuales', espe = session['espe']))
+            return redirect(url_for('conductuales', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/<espe>/horario')
     def horario(espe):
         if 'role' in session and session['role'] == 'administrador':
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM horario where especialidad = %s", (espe,))
+            cur.execute(
+                "SELECT * FROM horario where especialidad = %s", (espe,))
             horarios = cur.fetchall()
             cur.close()
             return render_template('horario.html', horarios=horarios, role=session['role'], espe=espe)
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
-
 
     @app.route('/add_horario', methods=['POST'])
     def add_horario():
@@ -713,9 +624,6 @@ def crear_app():
 
         return redirect(url_for('horario', espe=especialidad))
 
-
-
-
     @app.route('/edit_horario', methods=['POST'])
     def edit_horario():
         if 'role' in session and session['role'] == 'administrador':
@@ -744,10 +652,9 @@ def crear_app():
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('horario', espe = especialidad))
+            return redirect(url_for('horario', espe=especialidad))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/delete_horario', methods=['POST'])
     def delete_horario():
@@ -768,10 +675,9 @@ def crear_app():
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('horario', espe = session['espe']))
+            return redirect(url_for('horario', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/<espe>/materia_profe')
     def materia_profe(espe):
@@ -796,7 +702,6 @@ def crear_app():
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
-
 
     @app.route('/add_profmate', methods=['POST'])
     def add_profmate():
@@ -830,10 +735,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
-
-
-
     @app.route('/edit_profmate', methods=['POST'])
     def edit_profmate():
         if 'role' in session and session['role'] == 'administrador':
@@ -860,7 +761,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
     @app.route('/delete_profmate', methods=['POST'])
     def delete_profmate():
         if 'role' in session and session['role'] == 'administrador':
@@ -878,10 +778,9 @@ def crear_app():
                     mysql.connection.rollback()
                 finally:
                     cur.close()
-                return redirect(url_for('materia_profe', espe = session['espe']))
+                return redirect(url_for('materia_profe', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
 
     @app.route('/<espe>/materia_hora')
     def materia_hora(espe):
@@ -889,7 +788,8 @@ def crear_app():
             cur = mysql.connection.cursor()
 
             # Obtener las materias disponibles
-            cur.execute("SELECT id_materia, nombre FROM materia where especialidad = %s or especialidad = 'Plan Comun'", (espe, ))
+            cur.execute(
+                "SELECT id_materia, nombre FROM materia where especialidad = %s or especialidad = 'Plan Comun'", (espe, ))
             materias = cur.fetchall()
 
             # Obtener los horarios disponibles
@@ -920,7 +820,6 @@ def crear_app():
             flash('Acceso denegado. Por favor, inicie sesión como administrador.')
             return redirect(url_for('login'))
 
-
     @app.route('/add_dethora', methods=['POST'])
     def add_dethora():
         if 'role' in session and session['role'] == 'administrador':
@@ -944,10 +843,6 @@ def crear_app():
                 return redirect(url_for('materia_hora', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
-
-
-
 
     @app.route('/edit_dethora', methods=['POST'])
     def edit_dethora():
@@ -977,7 +872,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
     @app.route('/delete_dethora', methods=['POST'])
     def delete_dethora():
         if 'role' in session and session['role'] == 'administrador':
@@ -999,7 +893,6 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
     @app.route('/<espe>')
     def elegir_curso(espe):
         if 'role' in session and (session['role'] == 'administrador' or session['role'] == 'encargado'):
@@ -1010,7 +903,6 @@ def crear_app():
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
-
 
     @app.route('/<espe>/<curso>/<seccion>')
     def reportes(espe, curso, seccion):
@@ -1078,7 +970,6 @@ def crear_app():
                 return render_template('reportes.html', role=session['role'], reportes=reportes, alumnos=alumnos, materias=materias, detalle_horario=detalle_horario, rasgos_conductuales=rasgos_conductuales, elid=elid, curso=int(curso), seccion=int(seccion), espe=espe, detr=detr, a=a)
         return redirect(url_for('login'))
 
-
     @app.route('/get_rasgos', methods=['GET'])
     def get_rasgos():
         ci = request.args.get('ci')
@@ -1098,7 +989,6 @@ def crear_app():
         cur.close()
 
         return jsonify(success=True, rasgos=[r[0] for r in rasgos])
-
 
     @app.route('/submit', methods=['POST'])
     def submit():
@@ -1168,7 +1058,6 @@ def crear_app():
         mysql.connection.commit()
         cur.close()
         return jsonify(message="Ejecutado agregar")
-
 
     @app.route('/mostrar')
     def mostrar():
@@ -1257,7 +1146,7 @@ def crear_app():
 
         except Exception as e:
             return jsonify({'error': 'Error interno del servidor'}), 500
-            
+
     @app.route('/check_matehora', methods=['POST'])
     def check_matehora():
         data = request.get_json()
@@ -1288,7 +1177,6 @@ def crear_app():
         except Exception as e:
             app.logger.error(f"Error: {e}")  # Log del error para depuración
             return jsonify({'error': 'Error interno del servidor'}), 500
-        
 
     @app.route('/check_profemate', methods=['POST'])
     def check_profemate():
@@ -1318,7 +1206,6 @@ def crear_app():
         except Exception as e:
             app.logger.error(f"Error: {e}")  # Log del error para depuración
             return jsonify({'error': 'Error interno del servidor'}), 500
-
 
     @app.route('/verificar_curso', methods=['POST'])
     def verificar_curso():
@@ -1400,7 +1287,6 @@ def crear_app():
 
     # ////////////////////////////////////////////////////////
 
-
     @app.route('/check_email', methods=['POST'])
     def check_email():
         data = request.get_json()
@@ -1432,13 +1318,14 @@ def crear_app():
     # ///////////////////////////////////////////////////////
     return app
 
+
 if __name__ == '__main__':
     app = crear_app()
     app.run(debug=True, host='0.0.0.0')
 
-#ajksjkfajksdjfkjggg
-#aaaaaaaaaaaa
+# ajksjkfajksdjfkjggg
+# aaaaaaaaaaaa
 
 # Sosa gei
 
-#luanygei
+# luanygei

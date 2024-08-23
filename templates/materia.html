@@ -354,12 +354,12 @@
     <div class="sidebar">
         <h2>Admin Panel</h2>
         <ul>
-            <li><a href="{{ url_for('admin'), espe=espe }}"><i class="fa fa-home"></i> Inicio</a></li>
+            <li><a href="{{ url_for('admin', espe=espe) }}"><i class="fa fa-home"></i> Inicio</a></li>
             <li><a href="#"><i class="fa fa-life-ring"></i> Soporte</a></li>
-            <li><a href="{{url_for('profesor')}}"><i class="fa fa-user-plus"></i>Agregar/Editar Profesor</a></li>
-            <li><a href="{{url_for('materia_profe')}}"><i class="fa fa-user-plus"></i> Agregar Relacion con profesor</a>
-            </li>
-            <li><a href="{{url_for('materia_hora')}}"><i class="fa fa-user-plus"></i> Agregar Relacion con curso</a>
+            <li><a href="{{ url_for('profesor', espe=espe) }}"><i class="fa fa-user-plus"></i> Agregar/Editar Profesor</a></li>
+            <li><a href="{{ url_for('materia_profe', espe=espe) }}"><i class="fa fa-user-plus"></i> Agregar Relación con Profesor</a></li>
+        </li>
+            <li><a href="{{url_for('materia_hora', espe=espe)}}"><i class="fa fa-user-plus"></i> Agregar Relacion con curso</a>
             </li>
             <li><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Cerrar Sesión</a></li>
         </ul>
@@ -451,7 +451,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for materia in materias %}
+                    {% for materia in materia %}
                     <tr>
                         <td>{{ materia[0]}}</td>
                         <td>{{ materia[1] }}</td>
