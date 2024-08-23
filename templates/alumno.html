@@ -141,7 +141,7 @@
         .contact-form select {
             display: flex;
             width: 80%;
-            gap: 10px;
+            gap: 10px; 
             margin: 20px 0;
             padding: 10px;
             border: 1px solid #2b2727;
@@ -416,8 +416,8 @@
             <form id="studentForm" action="{{ url_for('add_contact') }}" method="POST" class="contact-form">
                 <h1 class="formTitle">Agregar Alumno</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="add">
-                <input type="text" name="nombre" id="nombre" placeholder="Nombre" required>
-                <input type="text" name="apellido" id="apellido" placeholder="Apellido" required>
+                <input type="text" name="nombre" id="nombre" placeholder="Nombre"oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');" required>
+                <input type="text" name="apellido" id="apellido" placeholder="Apellido" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');" required>
                 <p class="formTitle">Curso</p>
                 <select name="curso" id="curso" required>
                     <option value="1">1</option>
@@ -436,12 +436,12 @@
                     {% endif %}
                 </select>
                 <p class="formTitle">Número de cedula</p>
-                <input type="text" name="ci" id="ci" placeholder="CI" required>
+                <input type="text" name="ci" id="ci" placeholder="CI" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
 
                 <p class="formTitle">Correo Electronico encargado</p>
                 <input type="email" name="correo_encargado" id="correo_encargado" required>
                 <!-- Este campo oculto debe estar presente solo en modo de edición -->
-                <input type="hidden" id="current_ci" name="current_ci" value="{{ current_ci_value }}">
+                <input type="hidden" id="current_ci" name="current_ci" value="{{ current_ci_value }}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
 
 
                 <button type="submit" onclick="validar_alumno(event)">Enviar</button>
@@ -454,7 +454,7 @@
                 <h1 id="formTitleDelete">Eliminar Alumno</h1>
                 <input type="hidden" name="form_mode" id="form_mode_delete" value="delete">
 
-                <input type="text" name="ci" id="ci_delete" placeholder="CI" required>
+                <input type="text" name="ci" id="ci_delete" placeholder="CI"oninput="this.value = this.value.replace(/[^0-9]/g, '');"  >
 
                 <button type="submit" id="deleteButton" onclick="confirmarEliminacion(event)">Enviar</button>
             </form>
