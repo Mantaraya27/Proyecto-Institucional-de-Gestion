@@ -276,7 +276,7 @@ def crear_app():
     def materia(espe):
         if 'role' in session and session['role'] == 'administrador':
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM materia where especialidad = %s or especialidad = 'Plan Común'", (espe,))
+            cur.execute("SELECT * FROM materia")
             materia = cur.fetchall()
             cur.close()
             return render_template('materia.html', materia=materia, role=session['role'], espe=espe)
@@ -407,7 +407,7 @@ def crear_app():
     @app.route('/add_materia', methods=['POST'])
     def add_materia():
         nombre = request.form['nombre']
-        especialidad = request.form['especialidad']
+        especialidad = session['espe']
 
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s",
@@ -416,7 +416,7 @@ def crear_app():
 
         if materia_existente:
             flash('Ya existe una materia con los mismos datos')
-            return redirect(url_for("materia", espe = session['espe']))
+            return redirect(url_for("materia"))
 
         try:
             cur.execute(
@@ -438,7 +438,7 @@ def crear_app():
             try:
                 subject_id = request.form['subject_id']
                 nombre = request.form['nombre']
-                especialidad = request.form['especialidad']
+                especialidad = session['espe']
 
                 cur = mysql.connection.cursor()
 
@@ -494,7 +494,7 @@ def crear_app():
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('materia', espe=session['espe']))
+            return redirect(url_for('materia'))
         else:
             return redirect(url_for('login'))
 
@@ -1262,6 +1262,38 @@ def crear_app():
             print(f'Error en check_profe: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
 
+    @app.route('/check_profe_edit', methods=['POST'])
+    def check_profe_edit():
+        data = request.get_json()
+        nombre = data.get('nombre')
+        apellido = data.get('apellido')
+        id_profesor = data.get('id_profesor')  # ID del profesor que se está editando
+
+        # Verificación de campos vacíos
+        if not nombre or not apellido or not id_profesor:
+            return jsonify({'error': 'Los campos "nombre", "apellido" y "id_profesor" son obligatorios'}), 400
+
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            cur.execute(
+                "SELECT * FROM profesor WHERE nombre = %s AND apellido = %s AND id_profesor != %s",
+                (nombre, apellido, id_profesor)
+            )
+            profesor_existente = cur.fetchone()
+            cur.close()
+
+            # Devolver respuesta JSON
+            if profesor_existente:
+                return jsonify({'existe': True, 'mismo_id': False})
+            else:
+                return jsonify({'existe': False, 'mismo_id': True})
+
+        except Exception as e:
+            # Registro del error para depuración
+            print(f'Error en check_profe_edit: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+    
     @app.route('/check_ci', methods=['POST'])
     def check_ci():
         data = request.get_json()
