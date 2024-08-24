@@ -276,7 +276,7 @@ def crear_app():
     def materia(espe):
         if 'role' in session and session['role'] == 'administrador':
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM materia")
+            cur.execute("SELECT * FROM materia where especialidad = %s or especialidad = 'Plan Común'", (espe,))
             materia = cur.fetchall()
             cur.close()
             return render_template('materia.html', materia=materia, role=session['role'], espe=espe)
@@ -692,7 +692,7 @@ def crear_app():
             """, (espe, ))
             profmat = cur.fetchall()
 
-            cur.execute("SELECT * FROM materia")
+            cur.execute("SELECT * FROM materia where especialidad = 'Plan Comun' or especialidad = %s", (espe,))
             materias = cur.fetchall()
             cur.execute("SELECT * FROM profesor")
             profesor = cur.fetchall()
