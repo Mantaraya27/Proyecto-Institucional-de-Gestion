@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte</title>
-    <!-- 引入 jsPDF 库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         table {
@@ -12,101 +12,186 @@
             border-collapse: collapse;
             margin-top: 20px;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #000;
             padding: 8px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
         .barra {
             margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="barra">
         <label for="monthSelect">Seleccione el Mes:</label>
         <select id="monthSelect">
             <option value="" selected disabled>Seleccione un mes</option>
-            <option value="1">Enero</option>
-            <option value="2">Febrero</option>
-            <option value="3">Marzo</option>
-            <option value="4">Abril</option>
-            <option value="5">Mayo</option>
-            <option value="6">Junio</option>
-            <option value="7">Julio</option>
-            <option value="8">Agosto</option>
-            <option value="9">Septiembre</option>
+            <option value="01">Enero</option>
+            <option value="02">Febrero</option>
+            <option value="03">Marzo</option>
+            <option value="04">Abril</option>
+            <option value="05">Mayo</option>
+            <option value="06">Junio</option>
+            <option value="07">Julio</option>
+            <option value="08">Agosto</option>
+            <option value="09">Septiembre</option>
             <option value="10">Octubre</option>
             <option value="11">Noviembre</option>
             <option value="12">Diciembre</option>
         </select>
     </div>
-    <table id="tablaAlumnos">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Especialidad</th>
-                <th>CI</th>
-                <th>Fecha</th>
-                <th>Horario</th>
-                <th>Materia</th>
-                <th>Rasgos</th>
-            </tr>
-        </thead>
-        <tbody id="alumnosTable">
-            {% for alumno in alum %}
-                {% for r in rep %}
-                    {% if r[3] == alumno[0] %}
-                        {% for desc in rasgos_desc_dict[r[0]] %}
-                            <tr>
-                                <td>{{ alumno[1] }}</td>
-                                <td>{{ alumno[2] }}</td>  
-                                <td>{{ alumno[5] }}</td>
-                                <td>{{ alumno[6] }}</td> 
-                                <td>{{ r[2] }}</td>
-                                <td>{{ r[1] }}</td>
-                                <td>{{ mat_dict[r[0]] }}</td>
-                                <td>{{ desc }}</td>
-                            </tr>
-                        {% endfor %}
-                    {% endif %}
+
+    {% for alumno in alum %}
+    {% set alumno_reports = rep | selectattr('3', 'equalto', alumno[0]) | list %}
+
+    {% if alumno_reports %}
+    <div class="alumno-container">
+        <h2>{{ alumno[1] }} {{ alumno[2] }} - {{ alumno[5] }}</h2>
+
+        <table border="1" class="tablaAlumnos">
+            <thead>
+                <tr>
+                    <th>Materia</th>
+                    <th>Horario</th>
+                    <th>Fecha</th>
+                    <th>Rasgos Conductuales</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in alumno_reports %}
+                <tr data-fecha="{{ report[2] }}">
+                    <td>{{ mat_dict[report[0]] }}</td>
+                    <td>{{ report[1] }}</td>
+                    <td>{{ report[2] }}</td>
+                    <td>
+                        {% if rasgos_desc_dict[report[0]] %}
+                        <ul>
+                            {% for rasgo in rasgos_desc_dict[report[0]] %}
+                            <li>{{ rasgo }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        Ninguno
+                        {% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% endfor %}
+
     <button onclick="generatePDF()">生成PDF并下载</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
 
     <script>
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // 把表格内容转换为文本
-            const content = document.getElementById('tablaAlumnos').outerHTML;
-            
-            // 保存并下载PDF
-            doc.save('reporte.pdf')；
-        }
+
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const visibleAlumnoContainers = document.querySelectorAll('.alumno-container:not([style*="display: none"])');
+
+    let startY = 10; // PDF 页面中的起始位置
+
+    visibleAlumnoContainers.forEach(container => {
+        // 获取学生姓名和报告表格
+        const studentName = container.querySelector('h2').innerText;
+        const table = container.querySelector('table');
+
+        // 将学生姓名添加到 PDF
+        doc.setFontSize(18); // 设置学生姓名的字体大小
+        doc.text(studentName, 10, startY); // 在当前 Y 位置插入学生姓名
+
+        // 将表格转换为 PDF
+        doc.autoTable({
+            html: table,
+            startY: startY + 10,
+            styles: {
+                fontSize: 10,
+                cellPadding: 4,
+                valign: 'middle',
+                halign: 'center',
+                overflow: 'linebreak',
+                lineWidth: 0.5,
+                lineColor: [0, 0, 0],
+                fillColor: [240, 240, 240],
+                textColor: [0, 0, 0]
+            },
+            headStyles: {
+                fillColor: [255, 255, 255],
+                textColor: [0, 0, 0]
+            },
+            didDrawCell: (data) => {
+                if (data.column.index === 3) {
+                    const text = data.cell.raw.innerText || data.cell.text || '';
+                    const lines = doc.splitTextToSize(text, data.cell.width - data.cell.padding('horizontal'));
+
+                    if (data.cell.textPos) {
+                        doc.text(lines, data.cell.textPos.x, data.cell.textPos.y + 2);
+                    }
+
+                    data.cell.text = '';
+                }
+            }
+        });
+
+        // 更新 startY 为下一个表格的起始位置
+        startY = doc.lastAutoTable.finalY + 30;
+    });
+
+    // 保存 PDF
+    doc.save('reporte.pdf');
+}
+
+
+
+
 
         document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('monthSelect').addEventListener('change', function () {
-                const selectedMonth = this.value.padStart(2, '0'); 
-                const rows = document.querySelectorAll('#tablaAlumnos tbody tr');
-                rows.forEach(row => {
-                    const dateText = row.cells[4].textContent;
-                    const month = dateText.split('-')[1];
-                    if (month === selectedMonth) {
-                        row.style.display = '';
+            const monthSelect = document.getElementById('monthSelect');
+
+            monthSelect.addEventListener('change', function () {
+                const selectedMonth = this.value;
+
+                // 遍历所有的 .alumno-container
+                document.querySelectorAll('.alumno-container').forEach(container => {
+                    const rows = container.querySelectorAll('tbody tr');
+                    let hasVisibleRows = false;
+
+                    rows.forEach(row => {
+                        const reportDate = row.getAttribute('data-fecha');
+                        const reportMonth = reportDate.split('-')[1];
+
+                        if (reportMonth === selectedMonth) {
+                            row.style.display = '';
+                            hasVisibleRows = true; // 如果有可见的行，标记为 true
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    // 如果没有可见的行，隐藏整个容器
+                    if (!hasVisibleRows) {
+                        container.style.display = 'none';
                     } else {
-                        row.style.display = 'none';
+                        container.style.display = '';
                     }
                 });
             });
         });
     </script>
 </body>
+
 </html>

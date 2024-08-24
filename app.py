@@ -1123,8 +1123,10 @@ def crear_app():
     @app.route('/<espe>/<curso>/<seccion>/imprimir')
     def imprimir(espe, curso, seccion):
         print(f"Current role: {session.get('role')}")
+        
         if session.get('role') == 'administrador' or session.get('role') == 'enc':
             cur = mysql.connection.cursor()
+            
             # 初始化变量
             alum = []
             rep = []
@@ -1133,76 +1135,67 @@ def crear_app():
 
             try:
                 # 获取学生信息
-                cur.execute("SELECT * FROM alumno WHERE especialidad = %s and curso =%s and seccion = %s", (espe, curso, seccion))
+                cur.execute("SELECT * FROM alumno WHERE especialidad = %s AND curso = %s AND seccion = %s", (espe, curso, seccion))
                 alum = cur.fetchall()
                 print(f"Students: {alum}")  # 调试输出
 
-                # 获取学生ID
-                cur.execute("SELECT id_alumno FROM alumno WHERE especialidad = %s and curso =%s and seccion = %s", (espe, curso, seccion))
-                idalumno = cur.fetchall()
-                print(f"Student IDs: {idalumno}")  # 调试输出
-
-                if idalumno:
-                    # 假设 idalumno 是一个包含多个 ID 的列表
-                    idalumno_list = [row[0] for row in idalumno]  # 提取 idalumno 列表中的所有 ID
+                # 如果有学生
+                if alum:
+                    # 获取学生ID
+                    idalumno_list = [alumno[0] for alumno in alum]
                     print(f"ID Alumno List: {idalumno_list}")  # 打印 ID 列表
 
-                    # 创建占位符字符串，比如 (%s, %s, %s...)
-                    placeholders = ', '.join(['%s'] * len(idalumno_list))
+                    if idalumno_list:
+                        # 创建占位符字符串 (%s, %s, %s...)
+                        placeholders = ', '.join(['%s'] * len(idalumno_list))
 
-                    # 查询多个报告信息
-                    query = f"SELECT * FROM reporte WHERE alumno_id_alumno IN ({placeholders})"
-                    cur.execute(query, tuple(idalumno_list))
+                        # 查询多个报告信息
+                        query = f"SELECT * FROM reporte WHERE alumno_id_alumno IN ({placeholders})"
+                        cur.execute(query, tuple(idalumno_list))
+                        rep = cur.fetchall()
+                        print(f"Reports: {rep}")  # 调试输出
 
-                    # 获取查询结果
-                    rep = cur.fetchall()
-                    print(f"Reports: {rep}")
-                    # 调试输出
+                        # 获取每个报告的ID和对应的行为特征ID
+                        idrep_list = [report[0] for report in rep]
+                        print(f"ID Report List: {idrep_list}")  # 打印 ID Report 列表
 
-                    # 获取每个报告的ID和对应的行为特征ID
-                    idrep_list = []
-                    rasgos_dict = {}
-                    for report in rep:
-                        idrep = report[0]
-                        idrep_list.append(idrep)
+                        # 创建行为特征字典
+                        for idrep in idrep_list:
+                            cur.execute("SELECT rasgos_conductuales_id_rasgo FROM detalle_reporte WHERE reporte_id_reporte=%s", (idrep,))
+                            rasgos_ids = cur.fetchall()
+                            rasgos_desc_dict[idrep] = [r[0] for r in rasgos_ids]
+                        
+                        print(f"Rasgos dictionary: {rasgos_desc_dict}")  # 调试输出
 
-                        # 获取每个报告对应的行为特征ID
-                        cur.execute("SELECT rasgos_conductuales_id_rasgo FROM detalle_reporte WHERE reporte_id_reporte=%s", (idrep,))
-                        rasgos_ids = cur.fetchall()
-                        rasgos_dict[idrep] = [r[0] for r in rasgos_ids]
+                        # 获取学科ID和名称
+                        for idrep in idrep_list:
+                            cur.execute("SELECT materia_id_materia FROM reporte WHERE id_reporte=%s", (idrep,))
+                            mat_id = cur.fetchone()
+                            if mat_id:
+                                cur.execute("SELECT nombre FROM materia WHERE id_materia=%s", (mat_id[0],))
+                                mat_name = cur.fetchone()
+                                if mat_name:
+                                    mat_dict[idrep] = mat_name[0]
+                        
+                        print(f"Materia dictionary: {mat_dict}")  # 调试输出
 
-                    print(f"Rasgos dictionary: {rasgos_dict}")  # 调试输出
-
-                    # 获取学科ID和名称
-                    for idrep in idrep_list:
-                        cur.execute("SELECT materia_id_materia FROM reporte WHERE id_reporte=%s", (idrep,))
-                        mat = cur.fetchone()
-                        if mat:
-                            mat = mat[0]
-                            cur.execute("SELECT nombre FROM materia WHERE id_materia=%s", (mat,))
-                            mat_name = cur.fetchone()
-                            if mat_name:
-                                mat_dict[idrep] = mat_name[0]
-
-                    print(f"Materia dictionary: {mat_dict}")  # 调试输出
-
-                    # 获取所有行为特征描述
-                    for idrep, rasgos_ids in rasgos_dict.items():
-                        rasgos_desc_dict[idrep] = [] 
-                        for idrasgo in rasgos_ids:
-                            cur.execute("SELECT descripcion FROM rasgos_conductuales WHERE id_rasgo=%s", (idrasgo,))
-                            desc = cur.fetchone()
-                            if desc:
-                                rasgos_desc_dict[idrep].append(desc[0])
-
-                    print(f"Rasgos descriptions: {rasgos_desc_dict}")  # 调试输出
+                        # 获取行为特征描述
+                        for idrep, rasgos_ids in rasgos_desc_dict.items():
+                            rasgos_desc_dict[idrep] = []
+                            for idrasgo in rasgos_ids:
+                                cur.execute("SELECT descripcion FROM rasgos_conductuales WHERE id_rasgo=%s", (idrasgo,))
+                                desc = cur.fetchone()
+                                if desc:
+                                    rasgos_desc_dict[idrep].append(desc[0])
+                        
+                        print(f"Rasgos descriptions: {rasgos_desc_dict}")  # 调试输出
 
             except Exception as e:
                 print(f"Error: {e}")
             finally:
                 cur.close()
 
-            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict,espe=session['espe'] )
+            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict, espe=session.get('espe'))
         else:
             return "Unauthorized", 403
 
