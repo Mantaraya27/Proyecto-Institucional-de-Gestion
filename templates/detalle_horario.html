@@ -447,7 +447,7 @@
                     {% if horarios %}
                     <option value="" disabled selected>Seleccione el id del curso</option>
                     {% for curs in horarios %}
-                    <option value="{{ curs[0] }}">{{curs[3]}} {{ curs[1] }}° {{curs[2]}}°</option>
+                    <option value="{{ curs[0] }}">{{curs[1]}} {{ curs[2] }}° {{curs[3]}}°</option>
                     {% endfor %}
                     {% else %}
                     <option value="">No hay cursos</option>
@@ -525,7 +525,7 @@
                     {% if horarios %}
                     <option value="" disabled selected>Seleccione el id del curso</option>
                     {% for curs in horarios %}
-                    <option value="{{ curs[0] }}">{{curs[3]}} {{ curs[1] }}° {{curs[2]}}°</option>
+                    <option value="{{ curs[0] }}">{{curs[1]}} {{ curs[2] }}° {{curs[3]}}°</option>
                     {% endfor %}
                     {% else %}
                     <option value="">No hay cursos</option>

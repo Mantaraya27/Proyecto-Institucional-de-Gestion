@@ -1120,8 +1120,8 @@ def crear_app():
             cur.close()
             return render_template('mt.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
 
-    @app.route('/imprimir/<espe>/')
-    def imprimir(espe):
+    @app.route('/<espe>/<curso>/<seccion>/imprimir')
+    def imprimir(espe, curso, seccion):
         print(f"Current role: {session.get('role')}")
         if session.get('role') == 'administrador' or session.get('role') == 'enc':
             cur = mysql.connection.cursor()
@@ -1133,12 +1133,12 @@ def crear_app():
 
             try:
                 # 获取学生信息
-                cur.execute("SELECT * FROM alumno WHERE especialidad = %s", (espe,))
+                cur.execute("SELECT * FROM alumno WHERE especialidad = %s and curso =%s and seccion = %s", (espe, curso, seccion))
                 alum = cur.fetchall()
                 print(f"Students: {alum}")  # 调试输出
 
                 # 获取学生ID
-                cur.execute("SELECT id_alumno FROM alumno WHERE especialidad = %s", (espe,))
+                cur.execute("SELECT id_alumno FROM alumno WHERE especialidad = %s and curso =%s and seccion = %s", (espe, curso, seccion))
                 idalumno = cur.fetchall()
                 print(f"Student IDs: {idalumno}")  # 调试输出
 
