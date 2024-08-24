@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte</title>
+    <!-- 引入 jsPDF 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .barra {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="barra">
+        <label for="monthSelect">Seleccione el Mes:</label>
+        <select id="monthSelect">
+            <option value="" selected disabled>Seleccione un mes</option>
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+        </select>
+    </div>
+    <table id="tablaAlumnos">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Especialidad</th>
+                <th>CI</th>
+                <th>Fecha</th>
+                <th>Horario</th>
+                <th>Materia</th>
+                <th>Rasgos</th>
+            </tr>
+        </thead>
+        <tbody id="alumnosTable">
+            {% for alumno in alum %}
+                {% for r in rep %}
+                    {% if r[3] == alumno[0] %}
+                        {% for desc in rasgos_desc_dict[r[0]] %}
+                            <tr>
+                                <td>{{ alumno[1] }}</td>
+                                <td>{{ alumno[2] }}</td>  
+                                <td>{{ alumno[5] }}</td>
+                                <td>{{ alumno[6] }}</td> 
+                                <td>{{ r[2] }}</td>
+                                <td>{{ r[1] }}</td>
+                                <td>{{ mat_dict[r[0]] }}</td>
+                                <td>{{ desc }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <button onclick="generatePDF()">生成PDF并下载</button>
+
+    <script>
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // 把表格内容转换为文本
+            const content = document.getElementById('tablaAlumnos').outerHTML;
+            
+            // 保存并下载PDF
+            doc.save('reporte.pdf')；
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('monthSelect').addEventListener('change', function () {
+                const selectedMonth = this.value.padStart(2, '0'); 
+                const rows = document.querySelectorAll('#tablaAlumnos tbody tr');
+                rows.forEach(row => {
+                    const dateText = row.cells[4].textContent;
+                    const month = dateText.split('-')[1];
+                    if (month === selectedMonth) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

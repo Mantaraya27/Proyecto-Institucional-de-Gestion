@@ -1121,6 +1121,89 @@ def crear_app():
             cur.close()
             return render_template('mt.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
 
+
+
+    @app.route('/imprimir/<espe>')
+    def imprimir(espe):
+        print(f"Current role: {session.get('role')}")
+        if session.get('role') == 'administrador' or session.get('role') == 'enc':
+            cur = mysql.connection.cursor()
+
+            # 初始化变量
+            alum = []
+            rep = []
+            mat_dict = {}
+            rasgos_desc_dict = {}
+
+            try:
+                # 获取学生信息
+                cur.execute("SELECT * FROM alumno WHERE especialidad = %s", (espe,))
+                alum = cur.fetchall()
+                print(f"Students: {alum}")  # 调试输出
+
+                # 获取学生ID
+                cur.execute("SELECT id_alumno FROM alumno WHERE especialidad = %s", (espe,))
+                idalumno = cur.fetchall()
+                print(f"Student IDs: {idalumno}")  # 调试输出
+
+                if idalumno:
+                    idalumno = idalumno[0][0]  # 修正为 idalumno[0][0] 以提取实际值
+
+                    # 获取报告信息
+                    cur.execute("SELECT * FROM reporte WHERE alumno_id_alumno=%s", (idalumno,))
+                    rep = cur.fetchall()
+                    print(f"Reports: {rep}")  # 调试输出
+
+                    # 获取每个报告的ID和对应的行为特征ID
+                    idrep_list = []
+                    rasgos_dict = {}
+                    for report in rep:
+                        idrep = report[0]
+                        idrep_list.append(idrep)
+
+                        # 获取每个报告对应的行为特征ID
+                        cur.execute("SELECT rasgos_conductuales_id_rasgo FROM detalle_reporte WHERE reporte_id_reporte=%s", (idrep,))
+                        rasgos_ids = cur.fetchall()
+                        rasgos_dict[idrep] = [r[0] for r in rasgos_ids]
+
+                    print(f"Rasgos dictionary: {rasgos_dict}")  # 调试输出
+
+                    # 获取学科ID和名称
+                    for idrep in idrep_list:
+                        cur.execute("SELECT materia_id_materia FROM reporte WHERE id_reporte=%s", (idrep,))
+                        mat = cur.fetchone()
+                        if mat:
+                            mat = mat[0]
+                            cur.execute("SELECT nombre FROM materia WHERE id_materia=%s", (mat,))
+                            mat_name = cur.fetchone()
+                            if mat_name:
+                                mat_dict[idrep] = mat_name[0]
+
+                    print(f"Materia dictionary: {mat_dict}")  # 调试输出
+
+                    # 获取所有行为特征描述
+                    for idrep, rasgos_ids in rasgos_dict.items():
+                        rasgos_desc_dict[idrep] = []
+                        for idrasgo in rasgos_ids:
+                            cur.execute("SELECT descripcion FROM rasgos_conductuales WHERE id_rasgo=%s", (idrasgo,))
+                            desc = cur.fetchone()
+                            if desc:
+                                rasgos_desc_dict[idrep].append(desc[0])
+
+                    print(f"Rasgos descriptions: {rasgos_desc_dict}")  # 调试输出
+
+            except Exception as e:
+                print(f"Error: {e}")
+            finally:
+                cur.close()
+
+            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
+        else:
+            return "Unauthorized", 403
+
+
+
+
     @app.route('/check_materia', methods=['POST'])
     def check_materia():
         data = request.get_json()

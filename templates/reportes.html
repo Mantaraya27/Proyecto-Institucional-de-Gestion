@@ -411,6 +411,7 @@
     <div class="content">
         <div class="barra">
             <h2 align="center">Lista de Alumnos - {{ espe }} {{ curso }}{{ 'er' if curso % 2 == 1 else 'do' }} Año, {{ seccion }}{{ 'era' if seccion % 2 == 1 else 'da' }} Sección</h2>
+            <div><a href="{{ url_for('imprimir',espe=espe)}}">Imprimir</a></div>
         </div>
 
         <div class="form-container">
@@ -476,7 +477,7 @@
             </tbody>
         </table>
     </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
