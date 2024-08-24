@@ -1121,14 +1121,11 @@ def crear_app():
             cur.close()
             return render_template('mt.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
 
-
-
-    @app.route('/imprimir/<espe>')
+    @app.route('/imprimir/<espe>/')
     def imprimir(espe):
         print(f"Current role: {session.get('role')}")
         if session.get('role') == 'administrador' or session.get('role') == 'enc':
             cur = mysql.connection.cursor()
-
             # 初始化变量
             alum = []
             rep = []
@@ -1147,12 +1144,21 @@ def crear_app():
                 print(f"Student IDs: {idalumno}")  # 调试输出
 
                 if idalumno:
-                    idalumno = idalumno[0][0]  # 修正为 idalumno[0][0] 以提取实际值
+                    # 假设 idalumno 是一个包含多个 ID 的列表
+                    idalumno_list = [row[0] for row in idalumno]  # 提取 idalumno 列表中的所有 ID
+                    print(f"ID Alumno List: {idalumno_list}")  # 打印 ID 列表
 
-                    # 获取报告信息
-                    cur.execute("SELECT * FROM reporte WHERE alumno_id_alumno=%s", (idalumno,))
+                    # 创建占位符字符串，比如 (%s, %s, %s...)
+                    placeholders = ', '.join(['%s'] * len(idalumno_list))
+
+                    # 查询多个报告信息
+                    query = f"SELECT * FROM reporte WHERE alumno_id_alumno IN ({placeholders})"
+                    cur.execute(query, tuple(idalumno_list))
+
+                    # 获取查询结果
                     rep = cur.fetchall()
-                    print(f"Reports: {rep}")  # 调试输出
+                    print(f"Reports: {rep}")
+                    # 调试输出
 
                     # 获取每个报告的ID和对应的行为特征ID
                     idrep_list = []
@@ -1183,7 +1189,7 @@ def crear_app():
 
                     # 获取所有行为特征描述
                     for idrep, rasgos_ids in rasgos_dict.items():
-                        rasgos_desc_dict[idrep] = []
+                        rasgos_desc_dict[idrep] = [] 
                         for idrasgo in rasgos_ids:
                             cur.execute("SELECT descripcion FROM rasgos_conductuales WHERE id_rasgo=%s", (idrasgo,))
                             desc = cur.fetchone()
@@ -1197,7 +1203,7 @@ def crear_app():
             finally:
                 cur.close()
 
-            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
+            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict,espe=session['espe'] )
         else:
             return "Unauthorized", 403
 
