@@ -661,9 +661,56 @@
             return true;
         }
         async function confirmarEliminacion(event) {
-            // Evita el comportamiento predeterminado del botón si se usa `event`
-            if (event) event.preventDefault();
+    // Evita el comportamiento predeterminado del botón si se usa `event`
+    if (event) event.preventDefault();
 
+    const ci = document.getElementById('ci_delete').value.trim();
+
+    // Verifica que el CI no esté vacío y sea un número
+    if (!ci || isNaN(ci)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Por favor, ingrese un CI válido.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    try {
+        // Verifica si el CI existe
+        const response = await fetch('/check_ci', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ci }),
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else if (!data.existe) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El CI proporcionado no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            // Muestra mensaje de confirmación antes de eliminar
             Swal.fire({
                 title: '¿Estás seguro?',
                 text: 'Una vez eliminado, no podrás recuperar este alumno.',
@@ -680,6 +727,19 @@
                 }
             });
         }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar el CI. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    }
+}
+
 
 
 

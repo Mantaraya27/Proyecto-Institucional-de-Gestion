@@ -276,7 +276,7 @@ def crear_app():
     def materia(espe):
         if 'role' in session and session['role'] == 'administrador':
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM materia")
+            cur.execute("SELECT * FROM materia where especialidad = %s or especialidad = 'Plan Común'", (espe,))
             materia = cur.fetchall()
             cur.close()
             return render_template('materia.html', materia=materia, role=session['role'], espe=espe)
@@ -407,8 +407,7 @@ def crear_app():
     @app.route('/add_materia', methods=['POST'])
     def add_materia():
         nombre = request.form['nombre']
-        especialidad = session['espe']
-
+        especialidad = request.form['especialidad']
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s",
                     (nombre, especialidad))
@@ -435,10 +434,10 @@ def crear_app():
     @app.route('/edit_materia', methods=['POST'])
     def edit_materia():
         if request.method == 'POST':
+            nombre = request.form['nombre']
+            especialidad = request.form['especialidad']
+            subject_id = request.form['subject_id']
             try:
-                subject_id = request.form['subject_id']
-                nombre = request.form['nombre']
-                especialidad = session['espe']
 
                 cur = mysql.connection.cursor()
 
@@ -449,7 +448,7 @@ def crear_app():
 
                 if existing_subject:
                     flash('Ya existe una materia con este nombre y especialidad')
-                    return redirect(url_for("materia"))
+                    return redirect(url_for("materia", espe=session['espe']))
 
                 # Actualizar la materia
                 cur.execute("UPDATE materia SET nombre = %s, especialidad = %s WHERE id_materia = %s",
@@ -464,7 +463,7 @@ def crear_app():
             finally:
                 if 'cur' in locals() and cur:
                     cur.close()
-            return redirect(url_for('materia'))
+            return redirect(url_for("materia", espe=session['espe']))
 
     @app.route('/delete_materia', methods=['POST'])
     def delete_materia():
@@ -494,7 +493,7 @@ def crear_app():
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('materia'))
+                return redirect(url_for("materia", espe=session['espe']))
         else:
             return redirect(url_for('login'))
 
@@ -693,7 +692,7 @@ def crear_app():
             """, (espe, ))
             profmat = cur.fetchall()
 
-            cur.execute("SELECT * FROM materia")
+            cur.execute("SELECT * FROM materia where especialidad = 'Plan Comun' or especialidad = %s", (espe,))
             materias = cur.fetchall()
             cur.execute("SELECT * FROM profesor")
             profesor = cur.fetchall()
@@ -1213,17 +1212,54 @@ def crear_app():
     @app.route('/check_materia', methods=['POST'])
     def check_materia():
         data = request.get_json()
+        id_materia = data.get('id')
         nombre = data.get('nombre')
-        especialidad = session['espe']
+        especialidad = data.get('especialidad')
 
-        if not nombre or not especialidad:
-            return jsonify({'error': 'Los campos "nombre" y "especialidad" son obligatorios'}), 400
+        if not id_materia or not nombre or not especialidad:
+            return jsonify({'error': 'Los campos "id", "nombre" y "especialidad" son obligatorios'}), 400
+
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            
+            # Primero verificar si la asignatura existe
+            cur.execute("SELECT * FROM materia WHERE id_materia = %s", (id_materia,))
+            materia_existente = cur.fetchone()
+            
+            if not materia_existente:
+                cur.close()
+                return jsonify({'existe': False, 'error': 'La asignatura no existe'})
+            
+            # Luego verificar si existe una asignatura con el mismo nombre y especialidad
+            cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s AND id_materia != %s", (nombre, especialidad, id_materia))
+            materia_conflictiva = cur.fetchone()
+            cur.close()
+
+            # Devolver respuesta JSON
+            if materia_conflictiva:
+                return jsonify({'existe': True})
+            else:
+                return jsonify({'existe': False})
+
+        except Exception as e:
+            print(f'Error en check_materia: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+
+
+    @app.route('/check_delete_materia', methods=['POST'])
+    def check_delete_materia():
+        data = request.get_json()
+        subject_id = data.get('subject_id')
+
+        if not subject_id or not subject_id.isdigit():
+            return jsonify({'error': 'ID de asignatura inválido'}), 400
 
         try:
             # Conectar a la base de datos
             cur = mysql.connection.cursor()
             cur.execute(
-                "SELECT * FROM materia WHERE nombre = %s AND especialidad = %s", (nombre, especialidad))
+                "SELECT * FROM materia WHERE id_materia = %s", (subject_id,))
             materia_existente = cur.fetchone()
             cur.close()
 
@@ -1234,7 +1270,9 @@ def crear_app():
                 return jsonify({'existe': False})
 
         except Exception as e:
+            print(f'Error en check_delete_materia: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
+
 
     @app.route('/check_matehora', methods=['POST'])
     def check_matehora():
