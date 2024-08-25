@@ -1400,13 +1400,17 @@ def crear_app():
         data = request.get_json()
         curso = data.get('curso')
         seccion = data.get('seccion')
+        espe = data.get('espe')  # Recibir la especialidad
 
-        if not curso or not seccion:
-            return jsonify({'error': 'Los campos "curso" y "seccion" son obligatorios'}), 400
+        if not curso or not seccion or not espe:
+            return jsonify({'error': 'Los campos "curso", "seccion" y "especialidad" son obligatorios'}), 400
 
         try:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM horario WHERE curso = %s AND seccion = %s", (curso, seccion))
+            cur.execute(
+                "SELECT * FROM horario WHERE curso = %s AND seccion = %s AND especialidad = %s", 
+                (curso, seccion, espe)
+            )
             curso_existente = cur.fetchone()
             cur.close()
 
@@ -1418,6 +1422,9 @@ def crear_app():
         except Exception as e:
             print(f'Error en check_curso: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
+
+
+
 
     @app.route('/check_curso_edit', methods=['POST'])
     def check_curso_edit():

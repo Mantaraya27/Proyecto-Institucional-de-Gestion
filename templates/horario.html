@@ -436,6 +436,7 @@
             <form id="form_add_time" action="{{ url_for('add_horario') }}" method="POST" class="contact-form">
                 <h1 class="formTitle">Agregar Curso</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="add">
+                <input type="hidden" name="espe" id="espe_add_time" value="{{ espe }}">
 
                 <p class="formTitle">Curso</p>
                 <select name="curso" id="curso_add_time" required>
@@ -594,43 +595,28 @@
 
     const curso = document.getElementById('curso_add_time').value.trim();
     const seccion = document.getElementById('seccion_add_time').value.trim();
-
-    // Verifica que los campos no estén vacíos
-    if (!curso || !seccion) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Campos Vacíos',
-            text: 'Por favor, complete todos los campos antes de enviar.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-        });
-        return;
-    }
+    const espe = document.getElementById('espe_add_time').value.trim();
 
     try {
-        // Verifica si el curso y la sección ya existen utilizando una ruta Flask
         const response = await fetch('/check_curso', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ curso, seccion }),
+            body: JSON.stringify({ curso, seccion, espe }),
         });
 
         const data = await response.json();
-
         if (data.existe) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'El curso y la sección ya existen.',
+                text: 'Este curso ya existe en esta especialidad.',
                 timer: 3000,
                 timerProgressBar: true,
                 showConfirmButton: false,
             });
         } else {
-            // Si el curso no existe, muestra un mensaje de éxito y envía el formulario
             Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
@@ -654,6 +640,8 @@
         });
     }
 }
+
+
 async function validarCurso_edit(event) {
     event.preventDefault();
 
