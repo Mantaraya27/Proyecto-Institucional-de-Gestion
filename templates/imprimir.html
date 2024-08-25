@@ -112,7 +112,8 @@ function generatePDF() {
 
         // 将学生姓名添加到 PDF
         doc.setFontSize(18); // 设置学生姓名的字体大小
-        doc.text(studentName, 10, startY); // 在当前 Y 位置插入学生姓名
+        doc.setFont("helvetica", "bold"); // 设置字体为粗体
+        doc.text(studentName, 15, startY); // 在当前 Y 位置插入学生姓名
 
         // 将表格转换为 PDF
         doc.autoTable({
