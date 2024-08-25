@@ -300,35 +300,7 @@
             color: #666666;
         }
 
-        #confirmDeleteModal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 50%;
-            height: 50%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-
-        .modal-content {
-            background-color: rgb(43, 36, 36);
-            /* 黑色背景 */
-            color: #ffffff;
-            /* 白色文字 */
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
+       
 
         .modal-buttons button {
             background-color: #850e2b;
@@ -434,7 +406,9 @@
 
             <form id="profmateForm" action="{{ url_for('add_profmate') }}" method="POST" class="contact-form">
                 <h1 id="formTitle">Agregar Relacion</h1>
-                <select name="materiaa" id="materia" required>
+            
+                <!-- Campo para la materia -->
+                <select name="materia_id_materia" id="materia" required>
                     {% if materias %}
                     <option value="" disabled selected>Seleccione una materia</option>
                     {% for materia in materias %}
@@ -444,7 +418,9 @@
                     <option value="">No hay materias disponibles</option>
                     {% endif %}
                 </select>
-                <select name="profesoor" id="profesor" required>
+            
+                <!-- Campo para el profesor -->
+                <select name="profesor_id_profesor" id="profesor" required>
                     {% if profesor %}
                     <option value="" disabled selected>Seleccione un profesor</option>
                     {% for prof in profesor %}
@@ -454,14 +430,16 @@
                     <option value="">No hay profe</option>
                     {% endif %}
                 </select>
-                <button type="submit" onclick="validar_profesor_materia(event)">Enviar</button>
+            
+                <button type="submit" onclick="validar_profesor_materia_add(event)">Enviar</button>
             </form>
+            
             <form id="editprofmateForm" action="{{ url_for('edit_profmate') }}" method="POST" class="contact-form"
                 style="display:none;">
                 <h1>Modificar Relacion</h1>
                 <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
-                    required>
-                <input type="text" name="old_profesor_id" id="edit_old_profesor_id" placeholder="id del profe" required>
+                oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                <input type="text" name="old_profesor_id" id="edit_old_profesor_id" placeholder="id del profe" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
                 <select name="new_materia_id" id="new_materia" required>
                     {% if materias %}
                     <option value="" disabled selected>Seleccione una materia</option>
@@ -482,16 +460,16 @@
                     <option value="">No hay profe</option>
                     {% endif %}
                 </select>
-                <button type="submit">Modificar</button>
+                <button type="submit" onclick="validar_profesor_materia_edit(event)">Modificar</button>
             </form>
 
             <form id="deleteprofmateForm" action="{{ url_for('delete_profmate') }}" method="POST" class="contact-form"
                 style="display:none;">
                 <h1>Eliminar Relacion</h1>
-                <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
+                <input type="text" name="old_materia_id" id="delete_old_materia_id" placeholder="id de la materia"
                     required>
-                <input type="text" name="old_profesor_id" id="edit_old_profesor_id" placeholder="id del profe" required>
-                <button type="submit" onclick="showDeleteModal(event)">Eliminar</button>
+                <input type="text" name="old_profesor_id" id="delete_old_profesor_id" placeholder="id del profe" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                <button type="submit" onclick="validar_profesor_materia_delete(event)">Eliminar</button>
             </form>
         </div>
         <div class="list-container">
@@ -506,21 +484,21 @@
             <table id="teacherTable">
                 <thead>
                     <tr>
+                        <th>ID materia</th>
+                        <th>Materia</th>
                         <th>ID profe</th>
                         <th>Nombre profe</th>
                         <th>Apellido profe</th>
-                        <th>ID materia</th>
-                        <th>Materia</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for relation in profmat %}
                     <tr>
+                        <td>{{ relation[3] }}</td>
+                        <td>{{ relation[4] }}</td>
                         <td>{{ relation[0] }}</td>
                         <td>{{ relation[1] }}</td>
                         <td>{{ relation[2] }}</td>
-                        <td>{{ relation[3] }}</td>
-                        <td>{{ relation[4] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -529,110 +507,238 @@
     </div>
 
 
-
-    <div id="confirmDeleteModal" style="display:none;">
-        <div class="modal-content">
-            <h2>ELIMINAR</h2>
-            <p>¿Estás seguro de eliminar este curso? <br>Si eliminas este curso también se eliminarán sus reportes.</p>
-            <div class="modal-buttons">
-                <button onclick="confirmDelete()">Eliminar</button>
-                <button onclick="closeModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
-        function showDeleteModal(event) {
-            event.preventDefault(); // Previene el envío automático del formulario
-            document.getElementById('confirmDeleteModal').style.display = 'block';
+    
+    
+async function validar_profesor_materia_add(event) {
+    event.preventDefault();
+
+    const materia_id_materia = document.getElementById('materia').value.trim();
+    const profesor_id_profesor = document.getElementById('profesor').value.trim();
+
+    if (!materia_id_materia || !profesor_id_profesor) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Todos los campos son obligatorios.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch('/check_profemate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ materia_id_materia, profesor_id_profesor }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
         }
 
-        function confirmDelete() {
-            console.log("confirmDelete called");
-            document.getElementById('deleteprofmateForm').submit();
+        const data = await response.json();
+
+        if (data.existe) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La relación entre el profesor y la materia ya existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            // Muestra mensaje de éxito antes de enviar el formulario
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'La relación entre el profesor y la materia se ha añadido con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                document.getElementById('profmateForm').submit();
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar la relación. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    }
+}
+
+
+
+        async function validar_profesor_materia_edit(event) {
+    event.preventDefault();
+
+    const old_materia_id = document.getElementById('edit_old_materia_id').value.trim();
+    const old_profesor_id = document.getElementById('edit_old_profesor_id').value.trim();
+    const new_materia_id = document.getElementById('new_materia').value.trim();
+    const new_profesor_id = document.getElementById('new_profesor').value.trim();
+
+    if (!old_materia_id || !old_profesor_id || !new_materia_id || !new_profesor_id) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campos vacíos',
+            text: 'Todos los campos son obligatorios.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch('/check_profmate_edit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ old_materia_id, old_profesor_id, new_materia_id, new_profesor_id }),
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            return;
         }
 
-        function closeModal() {
-            console.log("closeModal called");
-            document.getElementById('confirmDeleteModal').style.display = 'none';
-        }
-
-
-
-
-
-
-
-
-
-
-        async function validar_profesor_materia(event) {
-            event.preventDefault();
-
-            const materia_id_materia = document.getElementById('materia').value;
-            const profesor_id_profesor = document.getElementById('profesor').value;
-
-            if (!materia_id_materia || !profesor_id_profesor) {
+        if (data.existe_relacion_antigua) {
+            if (data.existe_nueva_relacion) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Campos vacíos',
-                    text: 'Todos los campos son obligatorios.',
+                    title: 'Error',
+                    text: 'La nueva relación ya existe.',
                     timer: 3000,
                     timerProgressBar: true,
                     showConfirmButton: false
                 });
-                return;
-            }
-
-            try {
-                const response = await fetch('/check_profemate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ materia_id_materia, profesor_id_profesor }),
-                });
-
-                const data = await response.json();
-
-                if (data.existe) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'La relación entre el profesor y la materia ya existe.',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        showConfirmButton: false // Oculta el botón de confirmación\
-                        
-                        
-                    });
-                } else {
-                    document.getElementById('profmateForm').submit();
-                }
-            } catch (error) {
-                console.error('Error:', error);
+            } else {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error de servidor',
-                    text: 'Hubo un problema al verificar la relación. Por favor, intente nuevamente.',
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: 'Relación modificada con éxito.',
                     timer: 3000,
-                    showConfirmButton: false, // Oculta el botón de confirmación\
-                    timerProgressBar: true
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    document.getElementById('editprofmateForm').submit();
                 });
             }
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La relación antigua no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar la relación. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+    }
+}
+
+async function validar_profesor_materia_delete(event) {
+    event.preventDefault();
+
+    const materia_id_materia = document.getElementById('delete_old_materia_id').value.trim();
+    const profesor_id_profesor = document.getElementById('delete_old_profesor_id').value.trim();
+
+    // Validación de campos vacíos
+    if (!materia_id_materia || !profesor_id_profesor) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Todos los campos son obligatorios.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch('/check_profemate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ materia_id_materia, profesor_id_profesor }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
         }
 
+        const data = await response.json();
+
+        if (data.existe) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción eliminará la relación.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteprofmateForm').submit();
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La relación entre el profesor y la materia no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar la relación. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    }
+}
 
 
 

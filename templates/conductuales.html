@@ -684,17 +684,31 @@ async function validarConductual_delete(event) {
             return false;
         }
 
-        // Confirmar eliminación y enviar el formulario
-        Swal.fire({
-            icon: 'success',
-            title: 'Éxito',
-            text: 'Rasgo conductual eliminado con éxito.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-        }).then(() => {
-            document.getElementById('deleteTeacherForm').submit();
+        // Confirmación de eliminación
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción eliminará el rasgo conductual de forma permanente.',
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
         });
+
+        if (result.isConfirmed) {
+            // Confirmar eliminación y enviar el formulario
+            Swal.fire({
+                icon: 'success',
+                title: 'Eliminado',
+                text: 'Rasgo conductual eliminado con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                document.getElementById('deleteTeacherForm').submit();
+            });
+        }
     } catch (error) {
         console.error('Error:', error);
         Swal.fire({
@@ -707,6 +721,7 @@ async function validarConductual_delete(event) {
         });
     }
 }
+
 
 
 

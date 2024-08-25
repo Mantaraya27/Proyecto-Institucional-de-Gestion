@@ -499,6 +499,7 @@ async function validar_materia_add(event) {
                 timerProgressBar: true,
                 showConfirmButton: false,
             });
+            return;
         } else {
             // Muestra mensaje de éxito antes de enviar el formulario
             Swal.fire({
@@ -509,7 +510,8 @@ async function validar_materia_add(event) {
                 timerProgressBar: true,
                 showConfirmButton: false,
             }).then(() => {
-                document.getElementById('subjectForm').submit();
+                // Usa setTimeout para asegurar que el formulario se envía después de cerrar la alerta
+                    document.getElementById('subjectForm').submit();
             });
         }
     } catch (error) {
@@ -524,6 +526,7 @@ async function validar_materia_add(event) {
         });
     }
 }
+
  
 async function validar_materia_edit(event) {
     event.preventDefault();

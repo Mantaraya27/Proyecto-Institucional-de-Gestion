@@ -415,7 +415,7 @@ def crear_app():
 
         if materia_existente:
             flash('Ya existe una materia con los mismos datos')
-            return redirect(url_for("materia"))
+            return redirect(url_for('materia', espe=session['espe']))
 
         try:
             cur.execute(
@@ -724,33 +724,54 @@ def crear_app():
     def add_profmate():
         if 'role' in session and session['role'] == 'administrador':
             if request.method == 'POST':
-                materia_id = request.form['materiaa']
-                profesor_id = request.form['profesoor']
+                materia_id_materia = request.form.get('materia_id_materia')
+                profesor_id_profesor = request.form.get('profesor_id_profesor')
 
-                # Check if the relationship already exists
+                # Verificación de datos obligatorios
+                if not materia_id_materia or not profesor_id_profesor:
+                    flash('Todos los campos son obligatorios')
+                    return redirect(url_for('materia_profe', espe=session.get('espe')))
+
                 try:
                     cur = mysql.connection.cursor()
+                    
+                    # Verifica si la relación ya existe
                     cur.execute(
-                        "SELECT COUNT(*) FROM materia_por_profesor WHERE materia_id_materia = %s AND profesor_id_profesor = %s", (materia_id, profesor_id))
+                        "SELECT COUNT(*) FROM materia_por_profesor WHERE materia_id_materia = %s AND profesor_id_profesor = %s", 
+                        (materia_id_materia, profesor_id_profesor))
                     count = cur.fetchone()[0]
 
                     if count > 0:
                         flash('Esta relación ya existe')
-                        return redirect(url_for('materia_profe', espe=session['espe']))
+                    else:
+                        # Verifica si las materias y profesores existen
+                        cur.execute("SELECT COUNT(*) FROM materia WHERE id_materia = %s", (materia_id_materia,))
+                        if cur.fetchone()[0] == 0:
+                            flash('La materia no existe')
+                            return redirect(url_for('materia_profe', espe=session.get('espe')))
+                        
+                        cur.execute("SELECT COUNT(*) FROM profesor WHERE id_profesor = %s", (profesor_id_profesor,))
+                        if cur.fetchone()[0] == 0:
+                            flash('El profesor no existe')
+                            return redirect(url_for('materia_profe', espe=session.get('espe')))
 
-                    # If not exists, insert the new relation
-                    cur.execute(
-                        "INSERT INTO materia_por_profesor (materia_id_materia, profesor_id_profesor) VALUES (%s, %s)", (materia_id, profesor_id))
-                    mysql.connection.commit()
-                    flash('Relación agregada exitosamente')
+                        # Inserta la nueva relación
+                        cur.execute(
+                            "INSERT INTO materia_por_profesor (materia_id_materia, profesor_id_profesor) VALUES (%s, %s)", 
+                            (materia_id_materia, profesor_id_profesor))
+                        mysql.connection.commit()
+                        flash('Relación agregada exitosamente')
+
                 except Exception as e:
                     mysql.connection.rollback()
                     flash(f'Error al agregar relación: {str(e)}')
                 finally:
                     cur.close()
-                return redirect(url_for('materia_profe', espe=session['espe']))
+                    
+                return redirect(url_for('materia_profe', espe=session.get('espe')))
         else:
             return redirect(url_for('login'))
+    
 
     @app.route('/edit_profmate', methods=['POST'])
     def edit_profmate():
@@ -1223,39 +1244,18 @@ def crear_app():
     @app.route('/check_materia', methods=['POST'])
     def check_materia():
         data = request.get_json()
-        id_materia = data.get('id')
         nombre = data.get('nombre')
         especialidad = data.get('especialidad')
 
-        if not id_materia or not nombre or not especialidad:
-            return jsonify({'error': 'Los campos "id", "nombre" y "especialidad" son obligatorios'}), 400
+        # Aquí deberías consultar la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT COUNT(*) FROM materia WHERE nombre = %s AND especialidad = %s", (nombre, especialidad))
+        count = cur.fetchone()[0]
+        cur.close()
 
-        try:
-            # Conectar a la base de datos
-            cur = mysql.connection.cursor()
-            
-            # Primero verificar si la asignatura existe
-            cur.execute("SELECT * FROM materia WHERE id_materia = %s", (id_materia,))
-            materia_existente = cur.fetchone()
-            
-            if not materia_existente:
-                cur.close()
-                return jsonify({'existe': False, 'error': 'La asignatura no existe'})
-            
-            # Luego verificar si existe una asignatura con el mismo nombre y especialidad
-            cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s AND id_materia != %s", (nombre, especialidad, id_materia))
-            materia_conflictiva = cur.fetchone()
-            cur.close()
+        return jsonify({'existe': count > 0})
 
-            # Devolver respuesta JSON
-            if materia_conflictiva:
-                return jsonify({'existe': True})
-            else:
-                return jsonify({'existe': False})
 
-        except Exception as e:
-            print(f'Error en check_materia: {e}')
-            return jsonify({'error': 'Error interno del servidor'}), 500
 
 
     @app.route('/check_delete_materia', methods=['POST'])
@@ -1344,6 +1344,56 @@ def crear_app():
         except Exception as e:
             app.logger.error(f"Error: {e}")  # Log del error para depuración
             return jsonify({'error': 'Error interno del servidor'}), 500
+        
+    @app.route('/check_profmate_edit', methods=['POST'])
+    def check_profmate_edit():
+        data = request.get_json()
+        old_materia_id = data.get('old_materia_id')
+        old_profesor_id = data.get('old_profesor_id')
+        new_materia_id = data.get('new_materia_id')
+        new_profesor_id = data.get('new_profesor_id')
+
+        if not old_materia_id or not old_profesor_id or not new_materia_id or not new_profesor_id:
+            return jsonify({'error': 'Todos los campos son obligatorios'}), 400
+
+        try:
+            cur = mysql.connection.cursor()
+
+            # Verifica si la relación antigua existe
+            cur.execute(
+                "SELECT COUNT(*) FROM materia_por_profesor WHERE materia_id_materia = %s AND profesor_id_profesor = %s",
+                (old_materia_id, old_profesor_id)
+            )
+            existe_relacion_antigua = cur.fetchone()[0] > 0
+
+            if not existe_relacion_antigua:
+                cur.close()
+                return jsonify({'error': 'La relación antigua no existe'}), 404
+
+            # Verifica si la nueva relación ya existe
+            cur.execute(
+                "SELECT COUNT(*) FROM materia_por_profesor WHERE materia_id_materia = %s AND profesor_id_profesor = %s",
+                (new_materia_id, new_profesor_id)
+            )
+            existe_nueva_relacion = cur.fetchone()[0] > 0
+
+            cur.close()
+
+            return jsonify({
+                'existe_relacion_antigua': existe_relacion_antigua,
+                'existe_nueva_relacion': existe_nueva_relacion
+            })
+
+        except Exception as e:
+            print(f'Error en check_profmate_edit: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+
+
+
+
+
+
+
 
     @app.route('/check_curso', methods=['POST'])
     def check_curso():
