@@ -495,45 +495,10 @@ def crear_app():
                             "DELETE FROM detalle_reporte WHERE reporte_id_reporte = %s", 
                             (reporte_id,)
                         )
-
-                    # 2. Elimina los reportes
-                    for reporte in reportes:
-                        reporte_id = reporte[0]
-                        print(f"Eliminando reporte ID: {reporte_id}")
-                        cur.execute(
-                            "DELETE FROM reporte WHERE id_reporte = %s", 
-                            (reporte_id,)
-                        )
-
-                    # 3. Elimina las relaciones en detalle_horario
-                    print("Obteniendo profesores relacionados con la materia ID:", subject_id)
-                    cur.execute(
-                        "SELECT DISTINCT profesor_id_profesor FROM detalle_horario WHERE materia_id_materia = %s", 
-                        (subject_id,)
-                    )
-                    profesores = cur.fetchall()
-                    print(f"Profesores relacionados con la materia ID {subject_id}: {profesores}")
-
-                    cur.execute(
-                        "DELETE FROM detalle_horario WHERE materia_id_materia = %s", 
-                        (subject_id,)
-                    )
-
-                    # 4. Elimina las relaciones en materia_por_profesor
-                    for profesor in profesores:
-                        profesor_id = profesor[0]
-                        print(f"Eliminando materia_por_profesor para profesor ID: {profesor_id}")
-                        cur.execute(
-                            "DELETE FROM materia_por_profesor WHERE profesor_id_profesor = %s AND materia_id_materia = %s", 
-                            (profesor_id, subject_id)
-                        )
-
-                    # 5. Finalmente, elimina la materia de la tabla materia
-                    print(f"Eliminando materia ID: {subject_id}")
-                    cur.execute(
-                        "DELETE FROM materia WHERE id_materia = %s", 
-                        (subject_id,)
-                    )
+                    cur.execute("Delete from reporte where materia_id_materia = %s", (subject_id, ))
+                    cur.execute("DELETE FROM detalle_horario WHERE materia_id_materia = %s", (subject_id,))
+                    cur.execute("delete from materia_por_profesor where materia_id_materia=%s", (subject_id,))
+                    cur.execute("delete from materia where id_materia=%s", (subject_id, ))
 
                     mysql.connection.commit()
                     print("Materia eliminada exitosamente.")
@@ -1887,7 +1852,24 @@ def crear_app():
 
         except Exception as e:
             return jsonify({'error': str(e)})
-
+    @app.route('/<ci_alumno>/get_reporte', methods=['GET'])
+    def get_reporte(ci_alumno):
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT id_alumno from alumno where ci = %s", (ci_alumno, ))
+            resultado = cur.fetchone()
+            if(resultado):
+                id_alumno = resultado
+                cur.execute("SELECT * FROM reporte WHERE Alumno_id_alumno = %s", (id_alumno,))
+                reporte = cur.fetchall()
+                print(reporte)
+                cur.close()
+                return jsonify(reporte)
+            else:
+                return jsonify({'error': 'Alumno no encontrado'}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
     # ///////////////////////////////////////////////////////
     
     return app
