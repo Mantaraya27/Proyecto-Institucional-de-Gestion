@@ -1426,13 +1426,29 @@ def crear_app():
         seccion = data.get('seccion')
         id_horario = data.get('id_horario')  # ID del curso que se está editando
 
+        # Imprimir valores recibidos
+        print(f'Recibido: curso={curso}, seccion={seccion}, id_horario={id_horario}')
+
         # Verificación de campos vacíos
         if not curso or not seccion or not id_horario:
+            print('Error: Campos vacíos')
             return jsonify({'error': 'Los campos "curso", "seccion" e "id_horario" son obligatorios'}), 400
 
         try:
             # Conectar a la base de datos
             cur = mysql.connection.cursor()
+            print('Conexión a la base de datos establecida.')
+
+            # Verificar si el ID existe
+            cur.execute("SELECT * FROM horario WHERE id_horario = %s", (id_horario,))
+            id_existente = cur.fetchone()
+
+            if not id_existente:
+                print('Error: ID no existe')
+                cur.close()
+                return jsonify({'error': 'ID no existe'}), 404
+
+            # Verificar si el curso ya existe (excluyendo el ID actual)
             cur.execute(
                 "SELECT * FROM horario WHERE curso = %s AND seccion = %s AND id_horario != %s",
                 (curso, seccion, id_horario)
@@ -1442,14 +1458,52 @@ def crear_app():
 
             # Devolver respuesta JSON
             if curso_existente:
+                print('Curso existente encontrado.')
                 return jsonify({'existe': True, 'mismo_id': False})
             else:
+                print('Curso no encontrado.')
                 return jsonify({'existe': False, 'mismo_id': True})
 
         except Exception as e:
             # Registro del error para depuración
             print(f'Error en check_curso_edit: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
+
+    @app.route('/check_curso_delete', methods=['POST'])
+    def check_curso_delete():
+        data = request.get_json()
+        id_horario = data.get('id_horario')  # ID del curso que se va a eliminar
+
+        # Imprimir valores recibidos
+        print(f'Recibido: id_horario={id_horario}')
+
+        # Verificación de campos vacíos
+        if not id_horario:
+            print('Error: Campo vacío')
+            return jsonify({'error': 'El campo "id_horario" es obligatorio'}), 400
+
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            print('Conexión a la base de datos establecida.')
+
+            # Verificar si el ID existe
+            cur.execute("SELECT * FROM horario WHERE id_horario = %s", (id_horario,))
+            id_existente = cur.fetchone()
+
+            if not id_existente:
+                print('Error: ID no existe')
+                cur.close()
+                return jsonify({'error': 'ID no existe'}), 404
+
+            # Devolver respuesta JSON
+            return jsonify({'existe': True})
+
+        except Exception as e:
+            # Registro del error para depuración
+            print(f'Error en check_curso_delete: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+
 
     @app.route('/check_profe', methods=['POST'])
     def check_profe():

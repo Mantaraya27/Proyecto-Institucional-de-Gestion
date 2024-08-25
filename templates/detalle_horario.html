@@ -299,50 +299,7 @@
             color: #666666;
         }
 
-        #confirmDeleteModal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 50%;
-            height: 50%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-
-        .modal-content {
-            background-color: rgb(43, 36, 36);
-            /* 黑色背景 */
-            color: #ffffff;
-            /* 白色文字 */
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .modal-buttons button {
-            background-color: #850e2b;
-            /* 红色按钮 */
-            color: #ffffff;
-            /* 白色文字 */
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        .modal-buttons button:hover {
-            background-color: #7e083f;
-            /* 按钮悬停时的颜色稍微深一些 */
-        }
+        
 
         @media (max-width: 768px) {
             .sidebar {
@@ -504,7 +461,7 @@
                     <option value="16:50-18:00">16:50-18:00</option>
                     <option value="17:25-18:00">17:25-18:00</option>
                 </select>
-                <button type="submit" onclick="validar_matehora(event)">Enviar</button>
+                <button type="submit">Enviar</button>
             </form>
             <form id="editForm" action="{{ url_for('edit_dethora') }}" method="POST" class="contact-form">
                 <h1 id="formTitle">Editar Relación</h1>
@@ -591,7 +548,7 @@
                 <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
                     required>
                 <input type="text" name="old_horario_id" id="edit_old_horario_id" placeholder="id del curso" required>
-                <button type="submit" onclick="showDeleteModal(event)">Eliminar</button>
+                <button type="submit">Eliminar</button>
             </form>
         </div>
         <div class="list-container">
@@ -631,33 +588,11 @@
         </div>
     </div>
 
-    <div id="confirmDeleteModal" style="display:none;">
-        <div class="modal-content">
-            <h2>ELIMINAR</h2>
-            <p>¿Estás seguro de eliminar este curso? <br>Si eliminas este curso también se eliminarán sus reportes.</p>
-            <div class="modal-buttons">
-                <button onclick="confirmDelete()">Eliminar</button>
-                <button onclick="closeModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    
 
     <script>
 
-        function showDeleteModal(event) {
-            event.preventDefault(); // Previene el envío automático del formulario
-            document.getElementById('confirmDeleteModal').style.display = 'block';
-        }
-
-        function confirmDelete() {
-            console.log("confirmDelete called");
-            document.getElementById('deleteForm').submit();
-        }
-
-        function closeModal() {
-            console.log("closeModal called");
-            document.getElementById('confirmDeleteModal').style.display = 'none';
-        }
+      
         async function validar_matehora(event) {
             event.preventDefault();
 
@@ -716,41 +651,6 @@
                 });
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -830,6 +730,7 @@
                 }
             });
         });
+
     </script>
 
 

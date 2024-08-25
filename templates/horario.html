@@ -657,33 +657,34 @@
 async function validarCurso_edit(event) {
     event.preventDefault();
 
-    
-
     const id = document.getElementById('id_modif_time').value.trim();
     const curso = document.getElementById('curso_edit_time').value.trim();
-    const seccion = document.getElementById('seccion_edit_time').value.trim(); // Obtener el ID del profesor
-    
+    const seccion = document.getElementById('seccion_edit_time').value.trim();
+
+    console.log(`Enviando datos: id_horario=${id}, curso=${curso}, seccion=${seccion}`);
+
     try {
         const response = await fetch('/check_curso_edit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id, curso, seccion }),
+            body: JSON.stringify({ id_horario: id, curso, seccion }), // Envía `id_horario` en lugar de `id`
         });
         
         const data = await response.json();
-        if (!id ) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Campos vacíos',
-                    text: 'Todos los campos son obligatorios.',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
-                return false;
-            }
+
+        if (!id || !curso || !seccion) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Campos vacíos',
+                text: 'Todos los campos son obligatorios.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            return false;
+        }
 
         if (data.existe && !data.mismo_id) {
             Swal.fire({
@@ -692,17 +693,16 @@ async function validarCurso_edit(event) {
                 text: 'Este curso ya existe.',
                 timer: 3000,
                 timerProgressBar: true,
-                showConfirmButton: false, // Oculta el sbotón de confirmación
+                showConfirmButton: false,
             });
         } else {
-            // Muestra mensaje de éxito antes de enviar el formulario
             Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: ' Curso actualizado con éxito.',
+                text: 'Curso actualizado con éxito.',
                 timer: 3000,
                 timerProgressBar: true,
-                showConfirmButton: false, // Oculta el botón de confirmación
+                showConfirmButton: false,
             }).then(() => {
                 document.getElementById('form_edit_time').submit();
             });
@@ -715,62 +715,174 @@ async function validarCurso_edit(event) {
             text: 'Hubo un problema al verificar el curso. Por favor, intente nuevamente.',
             timer: 3000,
             timerProgressBar: true,
-            showConfirmButton: false, // Oculta el botón de confirmación
+            showConfirmButton: false,
         });
     }
 }
-async function validarCurso_delete(event) {
+
+async function validarCurso_edit(event) {
     event.preventDefault();
 
-    const id_profesor = document.getElementById('id_delete_time').value.trim();
+    const id = document.getElementById('id_modif_time').value.trim();
+    const curso = document.getElementById('curso_edit_time').value.trim();
+    const seccion = document.getElementById('seccion_edit_time').value.trim();
 
-    if (!id_profesor) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo ID del curso es obligatorio.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false, // Oculta el botón de confirmación
-        });
-        return;
-    }
+    console.log(`Enviando datos: id_horario=${id}, curso=${curso}, seccion=${seccion}`);
 
     try {
-        // Mostrar alerta de confirmación antes de eliminar
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Esta acción no se puede deshacer.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Enviar el formulario después de la confirmación
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Eliminado',
-                    text: 'El curso ha sido eliminado.',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false, // Oculta el botón de confirmación
-                }).then(() => {
-                    document.getElementById('form_delete_time').submit();
-                });
-            }
+        const response = await fetch('/check_curso_edit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id_horario: id, curso, seccion }), // Envía `id_horario` en lugar de `id`
         });
+        
+        const data = await response.json();
+
+        if (response.status === 404 && data.error === 'ID no existe') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El ID del curso no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+            return false;
+        }
+
+        if (response.status === 400) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Campos vacíos',
+                text: 'Todos los campos son obligatorios.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            return false;
+        }
+
+        if (data.existe && !data.mismo_id) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Este curso ya existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Curso actualizado con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                document.getElementById('form_edit_time').submit();
+            });
+        }
     } catch (error) {
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error de servidor',
-            text: 'Hubo un problema al eliminar el profesor. Por favor, intente nuevamente.',
+            text: 'Hubo un problema al verificar el curso. Por favor, intente nuevamente.',
             timer: 3000,
             timerProgressBar: true,
-            showConfirmButton: false, // Oculta el botón de confirmación
+            showConfirmButton: false,
+        });
+    }
+}
+
+async function validarCurso_delete(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('id_delete_time').value.trim();
+
+    if (!id) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campos vacíos',
+            text: 'El ID es obligatorio.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+        return false;
+    }
+
+    try {
+        const response = await fetch('/check_curso_delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id_horario: id }),
+        });
+
+        const data = await response.json();
+
+        if (response.status === 404 && data.error === 'ID no existe') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El ID del curso no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+            return false;
+        }
+
+        if (data.existe) {
+            // Mensaje de confirmación
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás recuperar este curso después de eliminarlo!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario confirma, envía el formulario
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Eliminación exitosa',
+                        text: 'Curso eliminado con éxito.',
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                    }).then(() => {
+                        document.getElementById('form_delete_time').submit();
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo eliminar el curso. Verifique el ID e intente nuevamente.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar el curso. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
         });
     }
 }
