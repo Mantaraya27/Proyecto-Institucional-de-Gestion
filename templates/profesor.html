@@ -589,12 +589,36 @@
         async function validar_profesor_edit(event) {
     event.preventDefault();
 
-    
-
     const nombre = document.getElementById('edit_nombre').value.trim();
     const apellido = document.getElementById('edit_apellido').value.trim();
     const id_profesor = document.getElementById('edit_teacher_ids').value.trim(); // Obtener el ID del profesor
     
+    // Verificar si los campos están vacíos
+    if (!nombre || !apellido || !id_profesor) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campos vacíos',
+            text: 'Todos los campos son obligatorios.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        return false;
+    }
+
+    // Verificar si el nombre y apellido son iguales
+    if (nombre.toLowerCase() === apellido.toLowerCase()) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El nombre y el apellido no pueden ser iguales.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        return false;
+    }
+
     try {
         const response = await fetch('/check_profe_edit', {
             method: 'POST',
@@ -605,28 +629,19 @@
         });
         
         const data = await response.json();
-        if (!nombre || !apellido) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Campos vacíos',
-                    text: 'Todos los campos son obligatorios.',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
-                return false;
-            }
-        if (nombre.toLowerCase() === apellido.toLowerCase()) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'El nombre y el apellido no pueden ser iguales.',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton:false,
-                });
-                return false;
-            }
+        
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            return false;
+        }
+
         if (data.existe && !data.mismo_id) {
             Swal.fire({
                 icon: 'error',
@@ -634,7 +649,7 @@
                 text: 'El profesor con este nombre y apellido ya existe.',
                 timer: 3000,
                 timerProgressBar: true,
-                showConfirmButton: false, // Oculta el botón de confirmación
+                showConfirmButton: false
             });
         } else {
             // Muestra mensaje de éxito antes de enviar el formulario
@@ -644,7 +659,7 @@
                 text: 'Profesor actualizado con éxito.',
                 timer: 3000,
                 timerProgressBar: true,
-                showConfirmButton: false, // Oculta el botón de confirmación
+                showConfirmButton: false
             }).then(() => {
                 document.getElementById('editTeacherForm').submit();
             });
@@ -657,10 +672,11 @@
             text: 'Hubo un problema al verificar el profesor. Por favor, intente nuevamente.',
             timer: 3000,
             timerProgressBar: true,
-            showConfirmButton: false, // Oculta el botón de confirmación
+            showConfirmButton: false
         });
     }
 }
+
 
       
 async function validar_profesor_delete(event) {
@@ -681,31 +697,53 @@ async function validar_profesor_delete(event) {
     }
 
     try {
-        // Mostrar alerta de confirmación antes de eliminar
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Esta acción no se puede deshacer.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Enviar el formulario después de la confirmación
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Eliminado',
-                    text: 'El profesor ha sido eliminado.',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false, // Oculta el botón de confirmación
-                }).then(() => {
-                    document.getElementById('deleteTeacherForm').submit();
-                });
-            }
+        const response = await fetch('/check_profe_delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id_profesor }),
         });
+        
+        const data = await response.json();
+
+        if (response.ok) {
+            // Mostrar alerta de confirmación antes de eliminar
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar alerta de éxito después de la eliminación
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Eliminado',
+                        text: 'El profesor ha sido eliminado.',
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false, // Oculta el botón de confirmación
+                    }).then(() => {
+                        document.getElementById('deleteTeacherForm').submit();
+                    });
+                }
+            });
+        } else {
+            // Mostrar alerta de error si el ID no existe
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error || 'Hubo un problema al eliminar el profesor. Por favor, intente nuevamente.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false, // Oculta el botón de confirmación
+            });
+        }
     } catch (error) {
         console.error('Error:', error);
         Swal.fire({
@@ -718,6 +756,8 @@ async function validar_profesor_delete(event) {
         });
     }
 }
+
+
 
 
 

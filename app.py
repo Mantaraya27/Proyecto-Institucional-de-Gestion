@@ -1435,15 +1435,22 @@ def crear_app():
         data = request.get_json()
         nombre = data.get('nombre')
         apellido = data.get('apellido')
-        id_profesor = data.get('id_profesor')  # ID del profesor que se está editando
+        id_profesor = data.get('id_profesor')
 
-        # Verificación de campos vacíos
         if not nombre or not apellido or not id_profesor:
             return jsonify({'error': 'Los campos "nombre", "apellido" y "id_profesor" son obligatorios'}), 400
 
         try:
-            # Conectar a la base de datos
             cur = mysql.connection.cursor()
+            
+            # Verificar si el ID del profesor existe
+            cur.execute("SELECT * FROM profesor WHERE id_profesor = %s", (id_profesor,))
+            profesor_existente = cur.fetchone()
+            if not profesor_existente:
+                cur.close()
+                return jsonify({'error': 'El ID del profesor no existe'}), 404
+
+            # Verificar si existe otro profesor con el mismo nombre y apellido pero diferente ID
             cur.execute(
                 "SELECT * FROM profesor WHERE nombre = %s AND apellido = %s AND id_profesor != %s",
                 (nombre, apellido, id_profesor)
@@ -1451,16 +1458,42 @@ def crear_app():
             profesor_existente = cur.fetchone()
             cur.close()
 
-            # Devolver respuesta JSON
             if profesor_existente:
                 return jsonify({'existe': True, 'mismo_id': False})
             else:
                 return jsonify({'existe': False, 'mismo_id': True})
 
         except Exception as e:
-            # Registro del error para depuración
             print(f'Error en check_profe_edit: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
+        
+    @app.route('/check_profe_delete', methods=['POST'])
+    def check_profe_delete():
+        data = request.get_json()
+        id_profesor = data.get('id_profesor')
+
+        if not id_profesor:
+            return jsonify({'error': 'El campo ID del Profesor es obligatorio'}), 400
+
+        try:
+            cur = mysql.connection.cursor()
+
+            # Verificar si el ID del profesor existe
+            cur.execute("SELECT * FROM profesor WHERE id_profesor = %s", (id_profesor,))
+            profesor_existente = cur.fetchone()
+            
+            if not profesor_existente:
+                cur.close()
+                return jsonify({'error': 'El ID del profesor no existe'}), 404
+
+            # Si el ID existe, devolver una respuesta positiva para permitir la eliminación
+            cur.close()
+            return jsonify({'existe': True})
+
+        except Exception as e:
+            print(f'Error en check_profe_delete: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+
     
     @app.route('/check_ci', methods=['POST'])
     def check_ci():
@@ -1486,6 +1519,110 @@ def crear_app():
             return jsonify({'error': 'Ocurrió un error al verificar el CI: ' + str(e)})
 
     # ////////////////////////////////////////////////////////
+    @app.route('/check_conductuales', methods=['POST'])
+    def check_conductuales():
+        if 'role' in session and session['role'] == 'administrador':
+            data = request.get_json()
+            descripcion = data.get('descripcion')
+
+            try:
+                cur = mysql.connection.cursor()
+                # Verifica si la descripción ya existe
+                cur.execute("SELECT * FROM rasgos_conductuales WHERE descripcion = %s", (descripcion,))
+                existing_record = cur.fetchone()
+
+                if existing_record:
+                    return jsonify({'existe': True, 'message': 'El rasgo conductual ya existe.'}), 400
+
+                # Si no existe, inserta el nuevo rasgo
+                cur.execute("INSERT INTO rasgos_conductuales (descripcion) VALUES (%s)", (descripcion,))
+                mysql.connection.commit()
+
+                return jsonify({'existe': False, 'message': 'Rasgo conductual agregado exitosamente.'}), 200
+
+            except Exception as e:
+                mysql.connection.rollback()
+                return jsonify({'existe': False, 'message': f'Error al agregar rasgo: {str(e)}'}), 500
+
+            finally:
+                cur.close()
+        else:
+            return jsonify({'existe': False, 'message': 'No autorizado'}), 403
+        
+    @app.route('/check_conductuales_edit', methods=['POST'])
+    def check_conductuales_edit():
+        data = request.get_json()
+        descripcion = data.get('descripcion')
+        id_rasgo = data.get('id_rasgo')  # ID del rasgo conductual que se está editando
+
+        # Verificación de campos vacíos
+        if not descripcion or not id_rasgo:
+            return jsonify({'error': 'Los campos "descripcion" e "id_rasgo" son obligatorios'}), 400
+
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            
+            # Verificar si el ID existe
+            cur.execute("SELECT * FROM rasgos_conductuales WHERE id_rasgo = %s", (id_rasgo,))
+            rasgo_existente = cur.fetchone()
+            
+            if not rasgo_existente:
+                cur.close()
+                return jsonify({'error': 'ID no existe'}), 404
+            
+            # Verifica si existe otro rasgo con la misma descripción pero diferente ID
+            cur.execute(
+                "SELECT * FROM rasgos_conductuales WHERE descripcion = %s AND id_rasgo != %s",
+                (descripcion, id_rasgo)
+            )
+            rasgo_existente = cur.fetchone()
+            cur.close()
+
+            # Devolver respuesta JSON
+            if rasgo_existente:
+                return jsonify({'existe': True, 'mismo_id': False})
+            else:
+                return jsonify({'existe': False, 'mismo_id': True})
+
+        except Exception as e:
+            # Registro del error para depuración
+            print(f'Error en check_conductuales_edit: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+        
+    @app.route('/check_conductuales_delete', methods=['POST'])
+    def check_conductuales_delete():
+        data = request.get_json()
+        id_conductual = data.get('id_conductual')
+
+        # Verificación de campos vacíos
+        if not id_conductual:
+            return jsonify({'error': 'El campo "id_conductual" es obligatorio'}), 400
+
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            
+            # Verificar si el ID existe
+            cur.execute("SELECT * FROM rasgos_conductuales WHERE id_rasgo = %s", (id_conductual,))
+            rasgo_existente = cur.fetchone()
+            cur.close()
+
+            if not rasgo_existente:
+                return jsonify({'error': 'ID no existe'}), 404
+
+            # Devolver respuesta JSON
+            return jsonify({'existe': True})
+
+        except Exception as e:
+            # Registro del error para depuración
+            print(f'Error en check_conductuales_delete: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+
+
+
+
+
 
     @app.route('/check_email', methods=['POST'])
     def check_email():
@@ -1516,8 +1653,8 @@ def crear_app():
             return jsonify({'error': str(e)})
 
     # ///////////////////////////////////////////////////////
+    
     return app
-
 
 if __name__ == '__main__':
     app = crear_app()

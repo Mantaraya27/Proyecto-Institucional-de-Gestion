@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <title>Panel de Administración</title>
     <style>
         /* Estilos generales y de la barra lateral */
@@ -431,21 +433,22 @@
             <form id="teacherForm" action="{{ url_for('add_conductuales') }}" method="POST" class="contact-form">
                 <h1 id="formTitle">Agregar Rasgo Conductual</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="add">
-                <input type="text" name="descripcion" id="descripcion" placeholder="Descripcion" required>
-                <button type="submit">Enviar</button>
+                <input type="text" name="descripcion" id="descripcion" placeholder="Descripción" required>
+                <button type="submit" onclick="validarConductual_add(event)">Enviar</button>
             </form>
+            
 
             <form id="editTeacherForm" action="{{ url_for('edit_conductuales') }}" method="POST" class="contact-form" style="display:none;">
                 <h1>Modificar Rasgo Conductual</h1>
-                <input type="text" name="conductual_id" id="edit_teacher_ids" placeholder="ID del Rasgo Conductual" required>
+                <input type="text" name="conductual_id" id="edit_conductual_id" placeholder="ID del Rasgo Conductual" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
                 <input type="text" name="descripcion" id="edit_descripcion" placeholder="Descripcion" required>
-                <button type="submit">Enviar</button>
+                <button type="submit" onclick="validarConductual_edit(event)">Enviar</button>
             </form>
 
             <form id="deleteTeacherForm" action="{{ url_for('delete_conductuales') }}" method="POST" class="contact-form" style="display:none;">
                 <h1>Eliminar Rasgo Conductual</h1>
-                <input type="text" name="conductual_id" id="delete_teacher_ids" placeholder="ID del Rasgo Conductual" required>
-                <button type="submit" onclick="showDeleteModal()">Eliminar</button>
+                <input type="text" name="conductual_id" id="delete_conductual_id" placeholder="ID del Rasgo Conductual" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                <button type="submit" onclick="validarConductual_delete(event)">Eliminar</button>
             </form>
         </div>
 
@@ -475,17 +478,7 @@
             </table>
         </div>
     </div>
-    <div id="confirmDeleteModal">
-        <div class="modal-content">
-            <h2>ELIMINAR</h2>
-            <p>Estas de seguro de eliminar este rasgo? <br>Si eliminas este rasgo tambien se va a eliminar todas las relaciones de este rasgo
-            </p>
-            <div class="modal-buttons">
-                <button onclick="confirmDelete()">Eliminar</button>
-                <button onclick="closeModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    
     <script>
         function setFormMode(mode) {
             document.getElementById('form_mode').value = mode;
@@ -502,21 +495,233 @@
                 document.getElementById('deleteTeacherForm').style.display = 'block';
             }
         }
-        function showDeleteModal() {
-            event.preventDefault(); // 防止表单提交
-            document.getElementById('confirmDeleteModal').style.display = 'block';
+
+async function validarConductual_add(event) {
+    event.preventDefault(); // Prevents form from submitting
+
+    const descripcion = document.getElementById('descripcion').value.trim();
+    
+    if (!descripcion) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos Vacíos',
+            text: 'Por favor, complete el campo de descripción antes de enviar.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    const submitButton = event.target;
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch('{{ url_for("check_conductuales") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ descripcion }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: data.message || 'Rasgo conductual agregado exitosamente.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                document.getElementById('teacherForm').submit();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Hubo un problema al agregar el rasgo conductual. Por favor, inténtelo nuevamente.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de Servidor',
+            text: 'Hubo un problema al enviar los datos. Por favor, inténtelo nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    } finally {
+        submitButton.disabled = false;
+    }
+}
+
+async function validarConductual_edit(event) {
+    event.preventDefault();
+
+    const id_rasgo = document.getElementById('edit_conductual_id').value.trim();
+    const descripcion = document.getElementById('edit_descripcion').value.trim();
+
+    try {
+        const response = await fetch('/check_conductuales_edit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id_rasgo, descripcion }),
+        });
+
+        const data = await response.json();
+
+        // Manejar casos de error en la validación
+        if (response.status === 404 && data.error === 'ID no existe') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El ID no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+            return false;
         }
 
-        function confirmDelete() {
-            console.log("confirmDelete called");
-            document.getElementById('deleteTeacherForm').action = "{{ url_for('delete_conductuales') }}";
+        // Validar campos vacíos
+        if (!id_rasgo || !descripcion) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Campos vacíos',
+                text: 'Todos los campos son obligatorios.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+            return false;
+        }
+
+        // Verificar si ya existe un rasgo con la misma descripción y diferente ID
+        if (data.existe && !data.mismo_id) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ya existe un rasgo conductual con esta descripción.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            // Confirmar éxito y enviar el formulario
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Rasgo conductual actualizado con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                document.getElementById('editTeacherForm').submit();
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar el rasgo conductual. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    }
+}
+async function validarConductual_delete(event) {
+    event.preventDefault(); // Evita el envío del formulario hasta que se realicen las validaciones
+
+    const id_conductual = document.getElementById('delete_conductual_id').value.trim();
+
+    // Verificar que el campo ID no esté vacío
+    if (!id_conductual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campo vacío',
+            text: 'El campo ID del rasgo conductual es obligatorio.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        return false;
+    }
+
+    try {
+        // Enviar una solicitud para verificar si el ID del rasgo conductual existe
+        const response = await fetch('/check_conductuales_delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id_conductual }),
+        });
+
+        const data = await response.json();
+
+        // Manejar respuesta si el ID no existe
+        if (response.status === 404 && data.error === 'ID no existe') {
+            Swal.fire({
+                icon: 'error',
+                title: 'ID no existe',
+                text: 'El ID del rasgo conductual que intenta eliminar no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            return false;
+        }
+
+        // Confirmar eliminación y enviar el formulario
+        Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Rasgo conductual eliminado con éxito.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        }).then(() => {
             document.getElementById('deleteTeacherForm').submit();
-        }
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar el rasgo conductual. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    }
+}
 
-        function closeModal() {
-            console.log("closeModal called");
-            document.getElementById('confirmDeleteModal').style.display = 'none';
-        }
+
+
+
+
+
+
+
+
+
+
+
+
+        
+     
 
         function toggleSidebar() {
             var sidebar = document.querySelector('.sidebar');
@@ -525,27 +730,25 @@
             content.classList.toggle('full-width');
         }
 
-        function searchTable() {
-            var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("teacherTable");
-            tr = table.getElementsByTagName("tr");
+        document.getElementById('searchInput').addEventListener('input', function () {
+    var filter = this.value.toUpperCase();
+    var rows = document.querySelectorAll('#teacherTable tbody tr');
 
-            for (i = 1; i < tr.length; i++) {
-                tr[i].style.display = "none";
-                td = tr[i].getElementsByTagName("td");
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = "";
-                            break;
-                        }
-                    }
-                }
-            }
+    rows.forEach(function (row) {
+        var id = row.querySelector('td:nth-child(1)').textContent.toUpperCase();
+        var descripcion = row.querySelector('td:nth-child(2)').textContent.toUpperCase();
+
+        if (id.includes(filter) || descripcion.includes(filter)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
         }
+    });
+});
+
+        
+        
+
     </script>
 </body>
 
