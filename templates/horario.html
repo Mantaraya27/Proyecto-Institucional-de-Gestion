@@ -456,7 +456,7 @@
                     {% endif %}
                 </select>
 
-                <button type="submit" onclick="return validarCurso(event);">Enviar</button>
+                <button type="submit" onclick="return validarCurso_add(event);">Enviar</button>
             </form>
 
 
@@ -482,7 +482,7 @@
                         <option value="2">2</option>
                     {% endif %}
                 </select>
-                <button type="submit">Modificar</button>
+                <button type="submit" onclick="validarCurso_edit(event)">Modificar</button>
             </form>
 
             <form id="form_delete_time" action="{{ url_for('delete_horario') }}" method="POST" class="contact-form"
@@ -492,7 +492,7 @@
 
                 <input type="text" name="horario_id" id="id_delete_time" placeholder="ID" required>
 
-                <button type="submit" onclick="showDeleteModal(event)">Eliminar</button>
+                <button type="submit" onclick="validarCurso_delete(event)">Eliminar</button>
             </form>
         </div>
 
@@ -528,32 +528,10 @@
         </div>
     </div>
 
-    <div id="confirmDeleteModal" style="display:none;">
-        <div class="modal-content">
-            <h2>ELIMINAR</h2>
-            <p>¿Estás seguro de eliminar este curso? <br>Si eliminas este curso también se eliminarán sus reportes.</p>
-            <div class="modal-buttons">
-                <button onclick="confirmDelete()">Eliminar</button>
-                <button onclick="closeModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    
 
     <script>
-        function showDeleteModal(event) {
-            event.preventDefault(); // Previene el envío automático del formulario
-            document.getElementById('confirmDeleteModal').style.display = 'block';
-        }
-
-        function confirmDelete() {
-            console.log("confirmDelete called");
-            document.getElementById('form_delete_time').submit();
-        }
-
-        function closeModal() {
-            console.log("closeModal called");
-            document.getElementById('confirmDeleteModal').style.display = 'none';
-        }
+        
 
         function setFormMode(event, mode) {
             var formTitle = document.getElementById('formTitle');
@@ -611,47 +589,195 @@
             });
         });
 
-        async function validarCurso(event) {
-            event.preventDefault(); // Previene el envío automático del formulario
+        async function validarCurso_add(event) {
+    event.preventDefault();
 
-            const curso = document.getElementById('curso_add_time').value;
-            const seccion = document.getElementById('seccion_add_time').value;
-            const especialidad = document.getElementById('especialidad_add_time').value;
+    const curso = document.getElementById('curso_add_time').value.trim();
+    const seccion = document.getElementById('seccion_add_time').value.trim();
 
-            try {
-                const response = await fetch('/verificar_curso', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ curso, seccion, especialidad })
-                });
+    // Verifica que los campos no estén vacíos
+    if (!curso || !seccion) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos Vacíos',
+            text: 'Por favor, complete todos los campos antes de enviar.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+        return;
+    }
 
-                const data = await response.json();
-                if (data.existe) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'El curso con estos datos ya existe.',
-                        timer: 3000, // Tiempo que la alerta permanecerá visible
-                        showConfirmButton: false, // Oculta el botón de confirmación\
-                        timerProgressBar: true
-                    });
-                } else {
-                    // Si los datos no existen, envía el formulario
-                    document.getElementById('form_add_time').submit();
-                }
-            } catch (error) {
-                console.error('Error al verificar el curso:', error);
+    try {
+        // Verifica si el curso y la sección ya existen utilizando una ruta Flask
+        const response = await fetch('/check_curso', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ curso, seccion }),
+        });
+
+        const data = await response.json();
+
+        if (data.existe) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El curso y la sección ya existen.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            // Si el curso no existe, muestra un mensaje de éxito y envía el formulario
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Curso agregado con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                document.getElementById('form_add_time').submit();
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar el curso. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    }
+}
+async function validarCurso_edit(event) {
+    event.preventDefault();
+
+    
+
+    const id = document.getElementById('id_modif_time').value.trim();
+    const curso = document.getElementById('curso_edit_time').value.trim();
+    const seccion = document.getElementById('seccion_edit_time').value.trim(); // Obtener el ID del profesor
+    
+    try {
+        const response = await fetch('/check_curso_edit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id, curso, seccion }),
+        });
+        
+        const data = await response.json();
+        if (!id ) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo verificar el curso. Intente nuevamente.',
+                    title: 'Campos vacíos',
+                    text: 'Todos los campos son obligatorios.',
                     timer: 3000,
+                    timerProgressBar: true,
                     showConfirmButton: false
                 });
+                return false;
             }
+
+        if (data.existe && !data.mismo_id) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Este curso ya existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false, // Oculta el sbotón de confirmación
+            });
+        } else {
+            // Muestra mensaje de éxito antes de enviar el formulario
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: ' Curso actualizado con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false, // Oculta el botón de confirmación
+            }).then(() => {
+                document.getElementById('form_edit_time').submit();
+            });
         }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar el profesor. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false, // Oculta el botón de confirmación
+        });
+    }
+}
+async function validarCurso_delete(event) {
+    event.preventDefault();
+
+    const id_profesor = document.getElementById('id_delete_time').value.trim();
+
+    if (!id_profesor) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El campo ID del curso es obligatorio.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false, // Oculta el botón de confirmación
+        });
+        return;
+    }
+
+    try {
+        // Mostrar alerta de confirmación antes de eliminar
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción no se puede deshacer.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Enviar el formulario después de la confirmación
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'El curso ha sido eliminado.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false, // Oculta el botón de confirmación
+                }).then(() => {
+                    document.getElementById('form_delete_time').submit();
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al eliminar el profesor. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false, // Oculta el botón de confirmación
+        });
+    }
+}
+
+
+
+
 
     </script>
 

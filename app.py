@@ -627,33 +627,51 @@ def crear_app():
     def edit_horario():
         if 'role' in session and session['role'] == 'administrador':
             if request.method == 'POST':
+                horario_id = request.form.get('horario_id')
+                curso = request.form.get('curso')
+                seccion = request.form.get('seccion')
+                especialidad = session.get('espe')
+
+                # Validar campos vacíos
+                if not all([horario_id, curso, seccion, especialidad]):
+                    flash('Todos los campos son obligatorios')
+                    return redirect(url_for('horario', espe=especialidad))
+
                 try:
-                    horario_id = request.form['horario_id']
-                    curso = request.form['curso']
-                    seccion = request.form['seccion']
-                    especialidad = session['espe']
                     cur = mysql.connection.cursor()
-                    cur.execute("Select * from horario where curso=%s, seccion =%s, especialidad=%s",
-                                (curso, seccion, especialidad))
-                    a = cur.fetchall()
-                    if a:
-                        return redirect(url_for("horario", session['espe']))
-                    if curso and seccion and especialidad:
-                        cur.execute("UPDATE horario SET curso = %s, seccion = %s, especialidad = %s WHERE id_horario = %s", (
-                            curso, seccion, especialidad, horario_id))
+                    
+                    # Verificar si el horario con los mismos datos ya existe
+                    cur.execute("""
+                        SELECT * FROM horario 
+                        WHERE curso = %s AND seccion = %s AND especialidad = %s
+                    """, (curso, seccion, especialidad))
+                    
+                    if cur.fetchall():
+                        flash('El horario con los mismos datos ya existe')
+                        return redirect(url_for('horario', espe=especialidad))
+
+                    # Actualizar el horario
+                    cur.execute("""
+                        UPDATE horario 
+                        SET curso = %s, seccion = %s, especialidad = %s 
+                        WHERE id_horario = %s
+                    """, (curso, seccion, especialidad, horario_id))
+                    
                     mysql.connection.commit()
                     flash('Horario modificado exitosamente')
-                except KeyError as e:
-                    flash(f'Error: {e} no encontrado en el formulario')
+
                 except Exception as e:
-                    flash(f'Error al modificar horario: {str(e)}')
                     mysql.connection.rollback()
+                    flash(f'Error al modificar horario: {str(e)}')
+
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-            return redirect(url_for('horario', espe=especialidad))
+
+                return redirect(url_for('horario', espe=especialidad))
         else:
             return redirect(url_for('login'))
+
 
     @app.route('/delete_horario', methods=['POST'])
     def delete_horario():
@@ -1327,31 +1345,61 @@ def crear_app():
             app.logger.error(f"Error: {e}")  # Log del error para depuración
             return jsonify({'error': 'Error interno del servidor'}), 500
 
-    @app.route('/verificar_curso', methods=['POST'])
-    def verificar_curso():
+    @app.route('/check_curso', methods=['POST'])
+    def check_curso():
         data = request.get_json()
         curso = data.get('curso')
         seccion = data.get('seccion')
-        especialidad = data.get('especialidad')
 
-        if not curso or not seccion or not especialidad:
-            return jsonify({'error': 'Todos los campos son obligatorios'})
+        if not curso or not seccion:
+            return jsonify({'error': 'Los campos "curso" y "seccion" son obligatorios'}), 400
 
         try:
-            with mysql.connection.cursor() as cur:
-                # Verificar si ya existe el horario
-                cur.execute("SELECT * FROM horario WHERE curso = %s AND seccion = %s AND especialidad = %s",
-                            (curso, seccion, especialidad))
-                horario_existente = cur.fetchone()
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT * FROM horario WHERE curso = %s AND seccion = %s", (curso, seccion))
+            curso_existente = cur.fetchone()
+            cur.close()
 
-            # Devolver respuesta JSON
-            if horario_existente:
+            if curso_existente:
                 return jsonify({'existe': True})
             else:
                 return jsonify({'existe': False})
 
         except Exception as e:
-            return jsonify({'error': str(e)})
+            print(f'Error en check_curso: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
+
+    @app.route('/check_curso_edit', methods=['POST'])
+    def check_curso_edit():
+        data = request.get_json()
+        curso = data.get('curso')
+        seccion = data.get('seccion')
+        id_horario = data.get('id_horario')  # ID del curso que se está editando
+
+        # Verificación de campos vacíos
+        if not curso or not seccion or not id_horario:
+            return jsonify({'error': 'Los campos "curso", "seccion" e "id_horario" son obligatorios'}), 400
+
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            cur.execute(
+                "SELECT * FROM horario WHERE curso = %s AND seccion = %s AND id_horario != %s",
+                (curso, seccion, id_horario)
+            )
+            curso_existente = cur.fetchone()
+            cur.close()
+
+            # Devolver respuesta JSON
+            if curso_existente:
+                return jsonify({'existe': True, 'mismo_id': False})
+            else:
+                return jsonify({'existe': False, 'mismo_id': True})
+
+        except Exception as e:
+            # Registro del error para depuración
+            print(f'Error en check_curso_edit: {e}')
+            return jsonify({'error': 'Error interno del servidor'}), 500
 
     @app.route('/check_profe', methods=['POST'])
     def check_profe():
