@@ -679,39 +679,71 @@
 
 
       
-async function validar_profesor_delete(event) {
+async function validar_materia_delete(event) {
     event.preventDefault();
 
-    const id_profesor = document.getElementById('delete_teacher_ids').value.trim();
+    // Obtén el valor del ID de la materia y la especialidad actual
+    const subjectId = document.getElementById('delete_subject_id').value.trim();
+    const espe = document.getElementById('especialidad').value.trim(); // Obtén el valor de 'especialidad'
 
-    if (!id_profesor) {
+    // Verifica que el ID no esté vacío y sea un número
+    if (!subjectId || isNaN(subjectId)) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'El campo ID del Profesor es obligatorio.',
+            text: 'Por favor, ingrese un ID de materia válido.',
             timer: 3000,
             timerProgressBar: true,
-            showConfirmButton: false, // Oculta el botón de confirmación
+            showConfirmButton: false,
         });
         return;
     }
 
     try {
-        const response = await fetch('/check_profe_delete', {
+        // Verifica si la materia existe y pertenece a la especialidad usando /check_delete_materia
+        const response = await fetch('/check_delete_materia', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id_profesor }),
+            body: JSON.stringify({ subject_id: subjectId }), // Solo enviar 'subject_id'
         });
-        
+
         const data = await response.json();
 
-        if (response.ok) {
-            // Mostrar alerta de confirmación antes de eliminar
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else if (!data.existe) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La materia con el ID proporcionado no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else if (data.espe !== espe && (data.espe !== 'Plan Común' || espe !== 'Plan Común')) {
+            // Mensaje si el ID pertenece a una especialidad diferente que no sea Plan Común
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: `El ID introducido pertenece a la especialidad: ${data.espe}. No puedes eliminarlo desde otra especialidad.`,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            // Muestra mensaje de confirmación antes de eliminar
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "Esta acción no se puede deshacer.",
+                text: 'Una vez eliminado, no podrás recuperar esta materia.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -720,28 +752,8 @@ async function validar_profesor_delete(event) {
                 cancelButtonText: 'Cancelar',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Mostrar alerta de éxito después de la eliminación
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Eliminado',
-                        text: 'El profesor ha sido eliminado.',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        showConfirmButton: false, // Oculta el botón de confirmación
-                    }).then(() => {
-                        document.getElementById('deleteTeacherForm').submit();
-                    });
+                    document.getElementById('deleteForm').submit(); // Asegúrate de tener un formulario con ID 'deleteForm' para manejar la eliminación
                 }
-            });
-        } else {
-            // Mostrar alerta de error si el ID no existe
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.error || 'Hubo un problema al eliminar el profesor. Por favor, intente nuevamente.',
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false, // Oculta el botón de confirmación
             });
         }
     } catch (error) {
@@ -749,13 +761,14 @@ async function validar_profesor_delete(event) {
         Swal.fire({
             icon: 'error',
             title: 'Error de servidor',
-            text: 'Hubo un problema al eliminar el profesor. Por favor, intente nuevamente.',
+            text: 'Hubo un problema al verificar la materia. Por favor, intente nuevamente.',
             timer: 3000,
             timerProgressBar: true,
-            showConfirmButton: false, // Oculta el botón de confirmación
+            showConfirmButton: false,
         });
     }
 }
+
 
 
 

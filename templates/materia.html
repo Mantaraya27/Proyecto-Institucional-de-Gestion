@@ -422,8 +422,8 @@
             <form id="deleteSubjectForm" action="{{ url_for('delete_materia') }}" method="POST" class="contact-form"
                 style="display:none;">
                 <h1>Eliminar Asignatura</h1>
+                <input type="hidden" name="espe" id="espe" value="{{ espe }}">
                 <input type="text" name="subject_id" id="delete_subject_id" placeholder="ID de la Asignatura" required>
-
                 <button type="submit" onclick="validar_materia_delete(event)">Enviar</button>
             </form>
         </div>
@@ -534,9 +534,9 @@ async function validar_materia_edit(event) {
     // Validar que los campos no estén vacíos
     const id = document.getElementById('edit_subject_id').value.trim();
     const nombre = document.getElementById('edit_nombre').value.trim();
-    const especialidad = document.getElementById('especialidad').value;
+    const espe = document.getElementById('especialidad').value; // Usar 'especialidad'
 
-    if (!id || !nombre || !especialidad) {
+    if (!id || !nombre || !espe) {
         Swal.fire({
             icon: 'warning',
             title: 'Campos Vacíos',
@@ -549,12 +549,12 @@ async function validar_materia_edit(event) {
     }
 
     try {
-        const response = await fetch('/check_materia', {
+        const response = await fetch('/check_materia_edit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id, nombre, especialidad }),
+            body: JSON.stringify({ id, nombre, espe }), // Enviar 'id', 'nombre' y 'espe' en la solicitud
         });
 
         const data = await response.json();
@@ -569,6 +569,19 @@ async function validar_materia_edit(event) {
                 showConfirmButton: false,
             });
         } else if (data.existe) {
+            // Verifica si el ID pertenece a una especialidad diferente
+            if (data.espe && data.espe !== espe) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: `El ID introducido pertenece a la especialidad: ${data.espe}. `,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+                return;
+            }
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -604,11 +617,15 @@ async function validar_materia_edit(event) {
 }
 
 
+
+
+
 async function validar_materia_delete(event) {
     event.preventDefault();
 
-    // Obtén el valor del ID de la asignatura
+    // Obtén el valor del ID de la asignatura y especialidad
     const subjectId = document.getElementById('delete_subject_id').value.trim();
+    const espe = document.getElementById('espe').value.trim(); // Asegúrate de que 'espe' esté disponible en tu HTML
 
     // Verifica que el ID no esté vacío y sea un número
     if (!subjectId || isNaN(subjectId)) {
@@ -630,28 +647,22 @@ async function validar_materia_delete(event) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ subject_id: subjectId }),
+            body: JSON.stringify({ subject_id: subjectId, espe }), // Envía 'subject_id' y 'espe' en la solicitud
         });
 
         const data = await response.json();
-        
-        if (data.existe) {
-            // Muestra mensaje de confirmación antes de eliminar
+        console.log('Response data:', data); // Imprime la respuesta para depuración
+
+        if (data.error) {
             Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Esta acción no se puede deshacer.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('deleteSubjectForm').submit();
-                }
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
             });
-        } else {
+        } else if (!data.existe) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -659,6 +670,31 @@ async function validar_materia_delete(event) {
                 timer: 3000,
                 timerProgressBar: true,
                 showConfirmButton: false,
+            });
+        } else if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Una vez eliminada, no podrás recuperar esta asignatura.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Envía el formulario de eliminación
+                    document.getElementById('deleteSubjectForm').submit(); // Asegúrate de tener un formulario con ID 'deleteSubjectForm' para manejar la eliminación
+                }
             });
         }
     } catch (error) {
@@ -673,6 +709,12 @@ async function validar_materia_delete(event) {
         });
     }
 }
+
+
+
+
+
+
 
 
 

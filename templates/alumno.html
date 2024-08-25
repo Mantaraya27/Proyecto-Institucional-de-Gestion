@@ -416,6 +416,7 @@
             <form id="studentForm" action="{{ url_for('add_contact') }}" method="POST" class="contact-form">
                 <h1 class="formTitle">Agregar Alumno</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="add">
+                <input type="hidden" name="espe" id="espe" value="{{ espe }}">
                 <input type="text" name="nombre" id="nombre" placeholder="Nombre"oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');" required>
                 <input type="text" name="apellido" id="apellido" placeholder="Apellido" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');" required>
                 <p class="formTitle">Curso</p>
@@ -434,7 +435,7 @@
                         <option value="1">1</option>
                         <option value="2">2</option>
                     {% endif %}
-                </select>
+                </select>   
                 <p class="formTitle">Número de cedula</p>
                 <input type="text" name="ci" id="ci" placeholder="CI" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
 
@@ -453,7 +454,7 @@
                 style="display: none;">
                 <h1 id="formTitleDelete">Eliminar Alumno</h1>
                 <input type="hidden" name="form_mode" id="form_mode_delete" value="delete">
-
+                <input type="hidden" name="espe" id="espe" value="{{ espe }}">
                 <input type="text" name="ci" id="ci_delete" placeholder="CI"oninput="this.value = this.value.replace(/[^0-9]/g, '');">
 
                 <button type="submit" id="deleteButton" onclick="confirmarEliminacion(event)">Enviar</button>
@@ -665,13 +666,14 @@
     if (event) event.preventDefault();
 
     const ci = document.getElementById('ci_delete').value.trim();
+    const espe = document.getElementById('espe').value.trim(); // Obtén el valor de 'espe'
 
-    // Verifica que el CI no esté vacío y sea un número
-    if (!ci || isNaN(ci)) {
+    // Verifica que el CI no esté vacío, sea numérico y tenga entre 7 y 8 caracteres
+    if (!ci || isNaN(ci) || ci.length < 7 || ci.length > 8) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Por favor, ingrese un CI válido.',
+            text: 'Por favor, ingrese un CI válido (7-8 dígitos).',
             timer: 3000,
             timerProgressBar: true,
             showConfirmButton: false,
@@ -680,13 +682,13 @@
     }
 
     try {
-        // Verifica si el CI existe
+        // Verifica si el CI y espe existen
         const response = await fetch('/check_ci', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ ci }),
+            body: JSON.stringify({ ci, espe }), // Incluye 'espe' en la solicitud
         });
 
         const data = await response.json();
@@ -705,6 +707,16 @@
                 icon: 'error',
                 title: 'Error',
                 text: 'El CI proporcionado no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else if (data.espe !== espe) {
+            // Mensaje si el CI existe pero con una especialidad diferente
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: `El CI proporcionado ya pertenece a la especialidad: ${data.espe}.`,
                 timer: 3000,
                 timerProgressBar: true,
                 showConfirmButton: false,
@@ -744,122 +756,142 @@
 
 
 
-        async function validar_alumno(event) {
-            event.preventDefault(); // Previene el envío automático del formulario
+async function validar_alumno(event) {
+    event.preventDefault(); // Previene el envío automático del formulario
 
-            // Validar campos vacíos y nombres (debes implementar estas funciones)
-            if (!validar_campos_vacios() || !validar_nombre_apellido()) {
-                return; // Si alguna validación falla, no envíes el formulario
-            }
+    // Validar campos vacíos y nombres (debes implementar estas funciones)
+    if (!validar_campos_vacios() || !validar_nombre_apellido()) {
+        return; // Si alguna validación falla, no envíes el formulario
+    }
 
-            const ci = document.getElementById('ci').value.trim();
-            const email = document.getElementById('correo_encargado').value.trim();
-            const formMode = document.getElementById('form_mode').value; // Obtener el modo del formulario
+    const ci = document.getElementById('ci').value.trim();
+    const email = document.getElementById('correo_encargado').value.trim();
+    const formMode = document.getElementById('form_mode').value; // Obtener el modo del formulario
+    const espe = document.getElementById('espe').value; // Obtener la especialidad
 
-            // Validar longitud del CI
-            if (ci.length < 7 || ci.length > 8) {
+    // Validar longitud del CI
+    if (ci.length < 7 || ci.length > 8) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El CI debe tener entre 7 y 8 caracteres.',
+            timer: 3000,
+            showConfirmButton: false,
+            timerProgressBar: true
+        });
+        return; // Detiene el proceso si la longitud no es válida
+    }
+
+    // Validar que el CI sea numérico
+    if (!/^\d+$/.test(ci)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El CI debe ser numérico.',
+            timer: 3000,
+            showConfirmButton: false,
+            timerProgressBar: true
+        });
+        return; // Detiene el proceso si el CI no es numérico
+    }
+
+    // Validar correo electrónico (debes implementar esta función)
+    if (!validarEmail(email)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El correo electrónico ingresado no es válido.',
+            timer: 3500,
+            showConfirmButton: false,
+            timerProgressBar: true
+        });
+        return; // Detiene el proceso si el correo electrónico no es válido
+    }
+
+    try {
+        // Enviar solicitud para verificar el CI y la especialidad
+        const response = await fetch('/check_ci', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ci, espe }) // Incluye la especialidad en la solicitud
+        });
+        const data = await response.json();
+
+        if (data.existe) {
+            if (data.espe !== espe) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'El CI debe tener entre 7 y 8 caracteres.',
+                    text: `El CI introducido ya pertenece a la especialidad: ${data.espe}.`,
                     timer: 3000,
                     showConfirmButton: false,
                     timerProgressBar: true
                 });
-                return; // Detiene el proceso si la longitud no es válida
+                return; // Detiene el proceso si el CI ya existe en otra especialidad
             }
 
-            // Validar que el CI sea numérico
-            if (!/^\d+$/.test(ci)) {
+            if (formMode === 'add') {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'El CI debe ser numérico.',
+                    text: 'El CI ya existe en el sistema.',
                     timer: 3000,
                     showConfirmButton: false,
                     timerProgressBar: true
                 });
-                return; // Detiene el proceso si el CI no es numérico
-            }
-
-            // Validar correo electrónico (debes implementar esta función)
-            if (!validarEmail(email)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'El correo electrónico ingresado no es válido.',
-                    timer: 3500,
-                    showConfirmButton: false,
-                    timerProgressBar: true
-                });
-                return; // Detiene el proceso si el correo electrónico no es válido
-            }
-
-            try {
-                // Enviar solicitud para verificar el CI
-                const response = await fetch('/check_ci', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ ci })
-                });
-                const data = await response.json();
-
-                // Si estás en modo de edición y el CI no existe, mostrar error
-                if (formMode === 'edit' && !data.existe) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'El CI que intentas modificar no existe en el sistema.',
-                        timer: 3000,
-                        showConfirmButton: false,
-                        timerProgressBar: true
-                    });
-                    return; // Detiene el proceso si el CI no existe
-                }
-                // Si estás en modo de edición, permite el mismo CI
-                if (data.existe && formMode == 'add') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'El CI ya existe en el sistema.',
-                        timer: 3000,
-                        showConfirmButton: false,
-                        timerProgressBar: true
-                    });
-                    return; // Detiene el proceso si el CI ya existe
-                }
-                // Si todas las validaciones son correctas, enviar el formulario
-                Swal.fire({
-                    icon: 'success',
-                    title: formMode === 'add'
-                        ? 'Éxito'
-                        : formMode === 'edit'
-                            ? 'Actualización exitosa'
-                            : 'Operación realizada',
-                    text: formMode === 'add'
-                        ? 'Alumno añadido con éxito.'
-                        : 'Alumno modificado con éxito.',
-                    timer: 3000,
-                    showConfirmButton: false,
-                    timerProgressBar: true
-                }).then(() => {
-                    document.getElementById('studentForm').submit(); // Envía el formulario después de la alerta
-                });
-
-            } catch (error) {
-                console.error('Error al validar el CI:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error en la validación del CI.',
-                    timer: 3000,
-                    showConfirmButton: false,
-                    timerProgressBar: true
-                });
+                return; // Detiene el proceso si el CI ya existe
             }
         }
+
+        // Si estás en modo de edición y el CI no existe, mostrar error
+        if (formMode === 'edit' && !data.existe) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El CI que intentas modificar no existe en el sistema.',
+                timer: 3000,
+                showConfirmButton: false,
+                timerProgressBar: true
+            });
+            return; // Detiene el proceso si el CI no existe
+        }
+
+        // Si todas las validaciones son correctas, enviar el formulario
+        Swal.fire({
+            icon: 'success',
+            title: formMode === 'add'
+                ? 'Éxito'
+                : formMode === 'edit'
+                    ? 'Actualización exitosa'
+                    : 'Operación realizada',
+            text: formMode === 'add'
+                ? 'Alumno añadido con éxito.'
+                : 'Alumno modificado con éxito.',
+            timer: 3000,
+            showConfirmButton: false,
+            timerProgressBar: true
+        }).then(() => {
+            document.getElementById('studentForm').submit(); // Envía el formulario después de la alerta
+        });
+
+    } catch (error) {
+        console.error('Error al validar el CI:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error en la validación del CI.',
+            timer: 3000,
+            showConfirmButton: false,
+            timerProgressBar: true
+        });
+    }
+}
+
+
+
+
 
 
 
