@@ -390,16 +390,7 @@
 
             <form id="addForm" action="{{ url_for('add_dethora') }}" method="POST" class="contact-form">
                 <h1 class="formTitle">Agregar Relación</h1>
-                <select name="materiaa" id="materia_add" required>
-                    {% if materias %}
-                    <option value="" disabled selected>Seleccione una materia</option>
-                    {% for materia in materias %}
-                    <option value="{{ materia[0] }}">{{ materia[1] }}</option>
-                    {% endfor %}
-                    {% else %}
-                    <option value="">No hay materias disponibles</option>
-                    {% endif %}
-                </select>
+                
                 <select name="horarioo" id="horario_add" required>
                     {% if horarios %}
                     <option value="" disabled selected>Seleccione el id del curso</option>
@@ -408,6 +399,16 @@
                     {% endfor %}
                     {% else %}
                     <option value="">No hay cursos</option>
+                    {% endif %}
+                </select>
+                <select name="materiaa" id="materia_add" required>
+                    {% if materias %}
+                    <option value="" disabled selected>Seleccione una materia</option>
+                    {% for materia in materias %}
+                    <option value="{{ materia[0] }}">{{ materia[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay materias disponibles</option>
                     {% endif %}
                 </select>
                 <p class="formTitle">Día</p>
@@ -468,16 +469,7 @@
                 <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
                 oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
                 <input type="text" name="old_horario_id" id="edit_old_horario_id" placeholder="id del curso"oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
-                <select name="materiaa" id="materia_add" required>
-                    {% if materias %}
-                    <option value="" disabled selected>Seleccione una materia</option>
-                    {% for materia in materias %}
-                    <option value="{{ materia[0] }}" id="materiaId_edit">{{ materia[1] }}</option>
-                    {% endfor %}
-                    {% else %}
-                    <option value="">No hay materias disponibles</option>
-                    {% endif %}
-                </select>
+                
                 <select name="horarioo" id="horario_add" required>
                     {% if horarios %}
                     <option value="" disabled selected>Seleccione el id del curso</option>
@@ -486,6 +478,16 @@
                     {% endfor %}
                     {% else %}
                     <option value="">No hay cursos</option>
+                    {% endif %}
+                </select>
+                <select name="materiaa" id="materia_add" required>
+                    {% if materias %}
+                    <option value="" disabled selected>Seleccione una materia</option>
+                    {% for materia in materias %}
+                    <option value="{{ materia[0] }}" id="materiaId_edit">{{ materia[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay materias disponibles</option>
                     {% endif %}
                 </select>
                 <p class="formTitle">Día</p>
@@ -920,7 +922,26 @@ async function adelete(event) {
 
 
 
+        document.getElementById('materia_add').disabled = true; // Deshabilitar el select de materias al cargar la página
 
+document.getElementById('horario_add').addEventListener('change', function() {
+    const materiaSelect = document.getElementById('materia_add');
+    if (this.value) {
+        materiaSelect.disabled = false;  // Habilitar el select de materias cuando se selecciona un curso
+    } else {
+        materiaSelect.disabled = true;   // Mantenerlo deshabilitado si no hay curso seleccionado
+    }
+});
+
+function checkAndSubmitForm(event) {
+    const cursoSelect = document.getElementById('horario_add');
+    const materiaSelect = document.getElementById('materia_add');
+
+    if (!cursoSelect.value) {
+        event.preventDefault(); // Prevenir el envío del formulario si no hay curso seleccionado
+        alert('Por favor, selecciona un curso antes de elegir una materia.');
+    }
+}
     </script>
 
 
