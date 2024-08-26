@@ -837,20 +837,17 @@ def crear_app():
 
             # Obtener la relación materia-horario
             cur.execute("""
-                SELECT 
-                    d.materia_id_materia AS id_materia, 
-                    m2.nombre AS materia_nombre, 
-                    d.horario_id_horario AS id_horario, 
-                    CONCAT(h.especialidad, ' ', h.curso, ' ', h.seccion) AS horario_info,
-                    d.dia, 
-                    d.horario
-                FROM detalle_horario d
-                JOIN materia m2 ON m2.id_materia = d.materia_id_materia 
-                JOIN horario h ON h.id_horario = d.horario_id_horario
-                WHERE m2.especialidad = %s
+                SELECT d.materia_id_materia AS id_materia, m2.nombre AS materia_nombre, d.horario_id_horario AS id_horario, 
+CONCAT(h.especialidad, ' ', h.curso, ' ', h.seccion) AS horario_info, d.dia, d.horario 
+FROM detalle_horario d 
+JOIN materia m2 ON m2.id_materia = d.materia_id_materia 
+JOIN horario h ON h.id_horario = d.horario_id_horario 
+WHERE h.especialidad = %s;
+
             """, (espe, ))
 
             materia_hora = cur.fetchall()
+            
             cur.close()
 
             return render_template('detalle_horario.html', materia_hora=materia_hora, materias=materias, horarios=horarios, role=session['role'], espe=espe)
@@ -892,6 +889,7 @@ def crear_app():
                 horario_id = request.form['horarioo']
                 dia = request.form['tian']
                 horario = request.form['horario']
+                print(old_horario_id,old_materia_id,materia_id,horario_id,dia,horario)
                 try:
                     cur = mysql.connection.cursor()
                     cur.execute("""
@@ -1765,7 +1763,98 @@ def crear_app():
 
     # ///////////////////////////////////////////////////////
     
+    
+
+
+    @app.route('/check_materia_horario', methods=['POST'])
+    def check_materia_horario():
+        if 'role' in session and session['role'] == 'administrador':
+            materia_id = request.form.get('materia_id')
+            horario_id = request.form.get('horario_id')
+
+            cur = mysql.connection.cursor()
+            # 查询是否存在该关系
+            cur.execute("""
+                SELECT * FROM detalle_horario 
+                WHERE materia_id_materia = %s AND horario_id_horario = %s
+            """, (materia_id, horario_id))
+            result = cur.fetchone()
+            
+            cur.close()
+
+            if result:
+                return jsonify({'exists': True})  # 关系已存在
+            else:
+                return jsonify({'exists': False})  # 关系不存在
+
+        else:
+            return jsonify({'error': 'Acceso denegado.'})
+        
+    @app.route('/check_materia_horario_edit', methods=['POST'])
+    def check_materia_horario_edit():
+        if 'role' in session and session['role'] == 'administrador':
+            materia_id = request.form.get('materia_id')
+            horario_id = request.form.get('horario_id')
+
+            cur = mysql.connection.cursor()
+            # 查询是否存在该关系
+            cur.execute("""
+                SELECT * FROM detalle_horario 
+                WHERE materia_id_materia = %s AND horario_id_horario = %s
+            """, (materia_id, horario_id))
+            result = cur.fetchone()
+            cur.close()
+
+            if result:
+                return jsonify({'exists': True})  # 关系已存在
+            else:
+                return jsonify({'exists': False})  # 关系不存在
+    @app.route('/check_materia_horario_delete', methods=['POST'])
+    def check_materia_horario_delete():
+        if 'role' in session and session['role'] == 'administrador':
+            data = request.get_json()  # 获取 JSON 数据
+            materia_id = data.get('materiaId')  # 从 JSON 中提取 materiaId
+            horario_id = data.get('cursoId')  # 从 JSON 中提取 cursoId
+
+            cur = mysql.connection.cursor()
+            # 查询是否存在该关系
+            cur.execute("""
+                SELECT * FROM detalle_horario 
+                WHERE materia_id_materia = %s AND horario_id_horario = %s
+            """, (materia_id, horario_id))
+            result = cur.fetchone()
+            cur.close()
+
+            if not result:
+                return jsonify({'error': 'ID no existe'}), 404  # 关系不存在
+            return jsonify({'message': 'existe'})  # 关系存在
+
+        else:
+            return jsonify({'error': 'Acceso denegado.'}), 403  # 权限问题
+
+    @app.route('/check_materia_horario_repeat', methods=['POST'])
+    def check_materia_horario_repeat():
+        if 'role' in session and session['role'] == 'administrador':
+            horario_id = request.form.get('horario_id')
+            dia=request.form.get('dia')
+            horario = request.form.get('horario')
+
+            cur = mysql.connection.cursor()
+            # 查询是否存在该关系
+            cur.execute("""
+                SELECT * FROM detalle_horario 
+                WHERE  horario_id_horario = %s and horario=%s and dia=%s
+            """, ( horario_id,horario,dia ))
+            result = cur.fetchone()
+            print(result)
+            cur.close()
+
+            if result:
+                return jsonify({'exists': True})  # 关系已存在
+            else:
+                return jsonify({'exists': False})  # 关系不存在
     return app
+
 
 if __name__ == '__main__':
     app = crear_app()
