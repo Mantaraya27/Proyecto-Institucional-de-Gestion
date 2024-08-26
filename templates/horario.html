@@ -301,50 +301,11 @@
             color: #666666;
         }
 
-        #confirmDeleteModal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 50%;
-            height: 50%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
+       
 
 
-        .modal-content {
-            background-color: rgb(43, 36, 36);
-            /* 黑色背景 */
-            color: #ffffff;
-            /* 白色文字 */
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+        
 
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .modal-buttons button {
-            background-color: #850e2b;
-            /* 红色按钮 */
-            color: #ffffff;
-            /* 白色文字 */
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        .modal-buttons button:hover {
-            background-color: #7e083f;
-            /* 按钮悬停时的颜色稍微深一些 */
-        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -466,6 +427,7 @@
                 <h1 id="formTitle">Modificar Curso</h1>
                 <input type="hidden" name="form_mode" id="form_mode_edit_time" value="edit">
                 <input type="text" name="horario_id" id="id_modif_time" placeholder="ID" oninput="this.value = this.value.replace(/[^0-9]/g,'');"required>
+                <input type="hidden" name="espe" id="espe_edit" value="{{ espe }}">
                 <p>Curso</p>
                 <select name="curso" id="curso_edit_time" required>
                     <option value="1">1</option>
@@ -490,7 +452,7 @@
                 style="display:none;">
                 <h1 id="formTitleDelete">Eliminar Curso</h1>
                 <input type="hidden" name="form_mode" id="form_mode_delete_time" value="delete">
-
+                <input type="hidden" name="espe" id="espe_delete" value="{{ espe }}">
                 <input type="text" name="horario_id" id="id_delete_time" placeholder="ID" oninput="this.value = this.value.replace(/[^0-9]/g,'');"required>
 
                 <button type="submit" onclick="validarCurso_delete(event)">Eliminar</button>
@@ -642,71 +604,6 @@
 }
 
 
-async function validarCurso_edit(event) {
-    event.preventDefault();
-
-    const id = document.getElementById('id_modif_time').value.trim();
-    const curso = document.getElementById('curso_edit_time').value.trim();
-    const seccion = document.getElementById('seccion_edit_time').value.trim();
-
-    console.log(`Enviando datos: id_horario=${id}, curso=${curso}, seccion=${seccion}`);
-
-    try {
-        const response = await fetch('/check_curso_edit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id_horario: id, curso, seccion }), // Envía `id_horario` en lugar de `id`
-        });
-        
-        const data = await response.json();
-
-        if (!id || !curso || !seccion) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Campos vacíos',
-                text: 'Todos los campos son obligatorios.',
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false
-            });
-            return false;
-        }
-
-        if (data.existe && !data.mismo_id) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Este curso ya existe.',
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-            });
-        } else {
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: 'Curso actualizado con éxito.',
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-            }).then(() => {
-                document.getElementById('form_edit_time').submit();
-            });
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de servidor',
-            text: 'Hubo un problema al verificar el curso. Por favor, intente nuevamente.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-        });
-    }
-}
 
 async function validarCurso_edit(event) {
     event.preventDefault();
@@ -714,8 +611,9 @@ async function validarCurso_edit(event) {
     const id = document.getElementById('id_modif_time').value.trim();
     const curso = document.getElementById('curso_edit_time').value.trim();
     const seccion = document.getElementById('seccion_edit_time').value.trim();
+    const espe = document.getElementById('espe_edit').value.trim();
 
-    console.log(`Enviando datos: id_horario=${id}, curso=${curso}, seccion=${seccion}`);
+    console.log(`Enviando datos: id_horario=${id}, curso=${curso}, seccion=${seccion}, especialidad=${espe}`);
 
     try {
         const response = await fetch('/check_curso_edit', {
@@ -723,16 +621,16 @@ async function validarCurso_edit(event) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id_horario: id, curso, seccion }), // Envía `id_horario` en lugar de `id`
+            body: JSON.stringify({ id_horario: id, curso, seccion, espe }), // Envía `id_horario` y `especialidad`
         });
-        
+
         const data = await response.json();
 
-        if (response.status === 404 && data.error === 'ID no existe') {
+        if (response.status === 404 && data.error === 'El ID no pertenece a la especialidad') {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'El ID del curso no existe.',
+                text: 'El ID del curso no pertenece a la especialidad seleccionada.',
                 timer: 3000,
                 timerProgressBar: true,
                 showConfirmButton: false,
@@ -790,12 +688,13 @@ async function validarCurso_delete(event) {
     event.preventDefault();
 
     const id = document.getElementById('id_delete_time').value.trim();
+    const espe = document.getElementById('espe_delete').value.trim(); // Suponiendo que tienes un campo para la especialidad
 
-    if (!id) {
+    if (!id || !espe) {
         Swal.fire({
             icon: 'error', 
             title: 'Campos vacíos',
-            text: 'El ID es obligatorio.',
+            text: 'El ID y la especialidad son obligatorios.',
             timer: 3000,
             timerProgressBar: true,
             showConfirmButton: false,
@@ -809,7 +708,7 @@ async function validarCurso_delete(event) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id_horario: id }),
+            body: JSON.stringify({ id_horario: id, espe }), // Envía `id_horario` y `especialidad`
         });
 
         const data = await response.json();
@@ -856,7 +755,7 @@ async function validarCurso_delete(event) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo eliminar el curso. Verifique el ID e intente nuevamente.',
+                text: 'No se pudo eliminar el curso. Verifique el ID y la especialidad e intente nuevamente.',
                 timer: 3000,
                 timerProgressBar: true,
                 showConfirmButton: false,
@@ -874,6 +773,7 @@ async function validarCurso_delete(event) {
         });
     }
 }
+
 
 
 

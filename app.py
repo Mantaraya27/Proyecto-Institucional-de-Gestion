@@ -1514,34 +1514,35 @@ WHERE h.especialidad = %s;
         data = request.get_json()
         curso = data.get('curso')
         seccion = data.get('seccion')
+        espe = data.get('espe')
         id_horario = data.get('id_horario')  # ID del curso que se está editando
 
         # Imprimir valores recibidos
-        print(f'Recibido: curso={curso}, seccion={seccion}, id_horario={id_horario}')
+        print(f'Recibido: curso={curso}, seccion={seccion}, especialidad={espe}, id_horario={id_horario}')
 
         # Verificación de campos vacíos
-        if not curso or not seccion or not id_horario:
+        if not curso or not seccion or not id_horario or not espe:
             print('Error: Campos vacíos')
-            return jsonify({'error': 'Los campos "curso", "seccion" e "id_horario" son obligatorios'}), 400
+            return jsonify({'error': 'Los campos "curso", "seccion", "especialidad" e "id_horario" son obligatorios'}), 400
 
         try:
             # Conectar a la base de datos
             cur = mysql.connection.cursor()
             print('Conexión a la base de datos establecida.')
 
-            # Verificar si el ID existe
-            cur.execute("SELECT * FROM horario WHERE id_horario = %s", (id_horario,))
+            # Verificar si el ID existe en la especialidad correspondiente
+            cur.execute("SELECT * FROM horario WHERE id_horario = %s AND especialidad = %s", (id_horario, espe))
             id_existente = cur.fetchone()
 
             if not id_existente:
-                print('Error: ID no existe')
+                print(f'Error: El ID {id_horario} no pertenece a la especialidad {espe}')
                 cur.close()
-                return jsonify({'error': 'ID no existe'}), 404
+                return jsonify({'error': 'El ID no pertenece a la especialidad'}), 404
 
             # Verificar si el curso ya existe (excluyendo el ID actual)
             cur.execute(
-                "SELECT * FROM horario WHERE curso = %s AND seccion = %s AND id_horario != %s",
-                (curso, seccion, id_horario)
+                "SELECT * FROM horario WHERE curso = %s AND seccion = %s AND id_horario != %s AND especialidad = %s",
+                (curso, seccion, id_horario, espe)
             )
             curso_existente = cur.fetchone()
             cur.close()
@@ -1559,40 +1560,43 @@ WHERE h.especialidad = %s;
             print(f'Error en check_curso_edit: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
 
+
     @app.route('/check_curso_delete', methods=['POST'])
     def check_curso_delete():
         data = request.get_json()
-        id_horario = data.get('id_horario')  # ID del curso que se va a eliminar
+        id_horario = data.get('id_horario')
+        espe = data.get('espe')
 
         # Imprimir valores recibidos
-        print(f'Recibido: id_horario={id_horario}')
+        print(f'Recibido: id_horario={id_horario}, especialidad={espe}')
 
         # Verificación de campos vacíos
-        if not id_horario:
-            print('Error: Campo vacío')
-            return jsonify({'error': 'El campo "id_horario" es obligatorio'}), 400
+        if not id_horario or not espe:
+            print('Error: Campos vacíos')
+            return jsonify({'error': 'Los campos "id_horario" y "especialidad" son obligatorios'}), 400
 
         try:
             # Conectar a la base de datos
             cur = mysql.connection.cursor()
             print('Conexión a la base de datos establecida.')
 
-            # Verificar si el ID existe
-            cur.execute("SELECT * FROM horario WHERE id_horario = %s", (id_horario,))
-            id_existente = cur.fetchone()
+            # Verificar si el ID existe y pertenece a la especialidad
+            cur.execute("SELECT * FROM horario WHERE id_horario = %s AND especialidad = %s", (id_horario, espe))
+            curso_existente = cur.fetchone()
+            cur.close()
 
-            if not id_existente:
-                print('Error: ID no existe')
-                cur.close()
-                return jsonify({'error': 'ID no existe'}), 404
+            if not curso_existente:
+                print(f'Error: El ID {id_horario} no pertenece a la especialidad {espe}')
+                return jsonify({'error': 'ID no existe o no pertenece a la especialidad'}), 404
 
-            # Devolver respuesta JSON
+            # Si el curso existe y pertenece a la especialidad
             return jsonify({'existe': True})
 
         except Exception as e:
             # Registro del error para depuración
             print(f'Error en check_curso_delete: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
+
 
 
     @app.route('/check_profe', methods=['POST'])
@@ -1665,28 +1669,30 @@ WHERE h.especialidad = %s;
     def check_profe_delete():
         data = request.get_json()
         id_profesor = data.get('id_profesor')
-
-        if not id_profesor:
-            return jsonify({'error': 'El campo ID del Profesor es obligatorio'}), 400
+        espe = data.get('espe')  # Obtener la especialidad enviada desde el frontend
+        
+        if not id_profesor or not espe:
+            return jsonify({'error': 'Los campos ID del Profesor y Especialidad son obligatorios'}), 400
 
         try:
             cur = mysql.connection.cursor()
 
-            # Verificar si el ID del profesor existe
-            cur.execute("SELECT * FROM profesor WHERE id_profesor = %s", (id_profesor,))
+            # Verificar si el ID del profesor existe y pertenece a la especialidad
+            cur.execute("SELECT * FROM profesor WHERE id_profesor = %s AND especialidad = %s", (id_profesor, espe))
             profesor_existente = cur.fetchone()
             
             if not profesor_existente:
                 cur.close()
-                return jsonify({'error': 'El ID del profesor no existe'}), 404
+                return jsonify({'error': 'El ID del profesor no existe o no pertenece a la especialidad'}), 404
 
-            # Si el ID existe, devolver una respuesta positiva para permitir la eliminación
+            # Si el ID y la especialidad coinciden, permitir la eliminación
             cur.close()
             return jsonify({'existe': True})
 
         except Exception as e:
             print(f'Error en check_profe_delete: {e}')
             return jsonify({'error': 'Error interno del servidor'}), 500
+
 
     
     @app.route('/check_ci', methods=['POST'])
