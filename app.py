@@ -464,38 +464,68 @@ def crear_app():
                 if 'cur' in locals() and cur:
                     cur.close()
             return redirect(url_for("materia", espe=session['espe']))
-
     @app.route('/delete_materia', methods=['POST'])
     def delete_materia():
         if 'role' in session and session['role'] == 'administrador':
             if request.method == 'POST':
-                subject_id = request.form['subject_id']
+                subject_id = request.form.get('subject_id', '')
+                print(f"Recibida solicitud para eliminar materia con ID: {subject_id}")
+
+                if not subject_id:
+                    print("No se proporcionó el ID de la materia.")
+                    flash('ID de materia no proporcionado.')
+                    return redirect(url_for("materia", espe=session.get('espe', '')))
+
                 try:
                     cur = mysql.connection.cursor()
-                    cur.execute(
-                        "SELECT profesor_id_profesor FROM materia_por_profesor WHERE materia_id_materia = %s", [subject_id])
-                    mat = cur.fetchall()
 
-    # 删除 materia_por_profesor 表中的相关记录
-                    for profesor in mat:
-                        profesor_id = profesor[0]
+                    # 1. Elimina los detalles de reporte en detalle_reporte
+                    print("Obteniendo reportes relacionados con la materia ID:", subject_id)
+                    cur.execute(
+                        "SELECT id_reporte FROM reporte WHERE materia_id_materia = %s", 
+                        (subject_id,)
+                    )
+                    reportes = cur.fetchall()
+                    print(f"Reportes relacionados con la materia ID {subject_id}: {reportes}")
+
+                    for reporte in reportes:
+                        reporte_id = reporte[0]
+                        print(f"Eliminando detalle_reporte para reporte ID: {reporte_id}")
                         cur.execute(
-                            "DELETE FROM materia_por_profesor WHERE profesor_id_profesor = %s AND materia_id_materia = %s", (profesor_id, subject_id))
+                            "DELETE FROM detalle_reporte WHERE reporte_id_reporte = %s", 
+                            (reporte_id,)
+                        )
+                    cur.execute("Delete from reporte where materia_id_materia = %s", (subject_id, ))
+                    cur.execute("DELETE FROM detalle_horario WHERE materia_id_materia = %s", (subject_id,))
+                    cur.execute("delete from materia_por_profesor where materia_id_materia=%s", (subject_id,))
+                    cur.execute("delete from materia where id_materia=%s", (subject_id, ))
 
-                    cur.execute(
-                        "DELETE FROM materia WHERE id_materia = %s", [subject_id])
                     mysql.connection.commit()
+                    print("Materia eliminada exitosamente.")
+                    flash('Materia eliminada exitosamente')
 
-                    flash('Materia eliminado exitosamente')
                 except Exception as e:
+                    print(f'Error al eliminar materia: {str(e)}')
                     flash(f'Error al eliminar materia: {str(e)}')
                     mysql.connection.rollback()
+                
                 finally:
                     if 'cur' in locals() and cur:
                         cur.close()
-                return redirect(url_for("materia", espe=session['espe']))
+                
+                return redirect(url_for("materia", espe=session.get('espe', '')))
+            else:
+                return redirect(url_for('login'))
         else:
             return redirect(url_for('login'))
+
+
+
+
+
+
+
+
 
     @app.route('/add_conductuales', methods=['POST'])
     def add_conductuales():
@@ -1252,6 +1282,47 @@ WHERE h.especialidad = %s;
         cur.close()
 
         return jsonify({'existe': count > 0})
+    
+    @app.route('/check_materia_edit', methods=['POST'])
+    def check_materia_edit():
+        data = request.get_json()
+        id = data.get('id')
+        nombre = data.get('nombre')
+        espe = data.get('espe')
+
+        # Validar que los campos no estén vacíos
+        if not id or not nombre or not espe:
+            return jsonify({'error': 'Todos los campos son requeridos.'}), 400
+
+        try:
+            # Consulta para verificar si el ID de materia existe y obtener su especialidad
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT especialidad FROM materia WHERE id_materia = %s", (id,))
+            result = cur.fetchone()
+            
+            if result:
+                db_espe = result[0]
+                if db_espe != espe:
+                    # Si la especialidad en la base de datos es diferente a la proporcionada
+                    return jsonify({'existe': True, 'espe': db_espe}), 200
+                else:
+                    # Verifica si ya existe otra materia con el mismo nombre y especialidad
+                    cur.execute("SELECT COUNT(*) FROM materia WHERE nombre = %s AND especialidad = %s AND id_materia != %s", (nombre, espe, id))
+                    count = cur.fetchone()[0]
+                    cur.close()
+                    
+                    if count > 0:
+                        return jsonify({'existe': True}), 200
+                    else:
+                        return jsonify({'existe': False}), 200
+            else:
+                # ID no encontrado
+                cur.close()
+                return jsonify({'error': 'El ID de materia no existe.'}), 404
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({'error': 'Hubo un problema al verificar la asignatura. Por favor, intente nuevamente.'}), 500
 
 
 
@@ -1260,27 +1331,39 @@ WHERE h.especialidad = %s;
     def check_delete_materia():
         data = request.get_json()
         subject_id = data.get('subject_id')
+        espe = data.get('espe')
 
-        if not subject_id or not subject_id.isdigit():
-            return jsonify({'error': 'ID de asignatura inválido'}), 400
+        print(f"Received request with subject_id: {subject_id} and espe: {espe}")
 
-        try:
-            # Conectar a la base de datos
-            cur = mysql.connection.cursor()
-            cur.execute(
-                "SELECT * FROM materia WHERE id_materia = %s", (subject_id,))
-            materia_existente = cur.fetchone()
-            cur.close()
+        # Consulta la base de datos para obtener la especialidad de la materia
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT especialidad FROM materia WHERE id_materia = %s", (subject_id,))
+        result = cur.fetchone()
+        cur.close()
 
-            # Devolver respuesta JSON
-            if materia_existente:
-                return jsonify({'existe': True})
+        if result:
+            espe_materia = result[0]
+            print(f"Specialty of the subject with id {subject_id} is: {espe_materia}")
+
+            # Permitir eliminación si la materia es de 'Plan Común' o si la especialidad de la materia coincide con la especialidad proporcionada
+            if espe_materia == 'Plan Común' or espe_materia == espe:
+                return jsonify({'existe': True, 'espe': espe_materia})
             else:
-                return jsonify({'existe': False})
+                error_message = 'La materia pertenece a una especialidad diferente.'
+                print(error_message)
+                return jsonify({'existe': True, 'espe': espe_materia, 'error': error_message})
+        else:
+            print(f"No subject found with id {subject_id}")
+            return jsonify({'existe': False, 'espe': None})
 
-        except Exception as e:
-            print(f'Error en check_delete_materia: {e}')
-            return jsonify({'error': 'Error interno del servidor'}), 500
+
+
+
+
+
+
+
+
 
 
     @app.route('/check_matehora', methods=['POST'])
@@ -1608,24 +1691,31 @@ WHERE h.especialidad = %s;
     def check_ci():
         data = request.get_json()
         ci = data.get('ci')
+        espe = data.get('espe')
 
-        if not ci:
-            return jsonify({'error': 'Todos los campos son obligatorios'})
+        if not ci or not espe:
+            return jsonify({'error': 'Todos los campos son obligatorios'}), 400
 
         try:
             with mysql.connection.cursor() as cur:
-                # Verificar si ya existe el alumno
-                cur.execute("SELECT * FROM alumno WHERE ci = %s", (ci,))
-                alumno_existente = cur.fetchone()
+                # Verificar si el alumno con el CI existe en cualquier especialidad
+                cur.execute("SELECT especialidad FROM alumno WHERE ci = %s", (ci,))
+                resultado = cur.fetchone()
 
-            # Devolver respuesta JSON
-            if alumno_existente:
-                return jsonify({'existe': True})
-            else:
-                return jsonify({'existe': False})
+                # Devolver respuesta JSON
+                if resultado:
+                    espe_actual = resultado[0]
+                    if espe_actual == espe:
+                        return jsonify({'existe': True, 'espe': espe_actual})
+                    else:
+                        return jsonify({'existe': True, 'espe': espe_actual})
+                else:
+                    return jsonify({'existe': False})
 
         except Exception as e:
-            return jsonify({'error': 'Ocurrió un error al verificar el CI: ' + str(e)})
+            return jsonify({'error': 'Ocurrió un error al verificar el CI: ' + str(e)}), 500
+
+
 
     # ////////////////////////////////////////////////////////
     @app.route('/check_conductuales', methods=['POST'])
@@ -1760,7 +1850,24 @@ WHERE h.especialidad = %s;
 
         except Exception as e:
             return jsonify({'error': str(e)})
-
+    @app.route('/<ci_alumno>/get_reporte', methods=['GET', 'POST'])
+    def get_reporte(ci_alumno):
+        try:
+            # Conectar a la base de datos
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT id_alumno from alumno where ci = %s", (ci_alumno, ))
+            resultado = cur.fetchone()
+            if(resultado):
+                id_alumno = resultado
+                cur.execute("SELECT * FROM reporte WHERE Alumno_id_alumno = %s", (id_alumno,))
+                reporte = cur.fetchall()
+                print(reporte)
+                cur.close()
+                return jsonify(reporte)
+            else:
+                return jsonify({'error': 'Alumno no encontrado'}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
     # ///////////////////////////////////////////////////////
     
     
