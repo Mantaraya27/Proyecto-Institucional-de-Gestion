@@ -1852,7 +1852,7 @@ def crear_app():
 
         except Exception as e:
             return jsonify({'error': str(e)})
-    @app.route('/<ci_alumno>/get_reporte', methods=['GET'])
+    @app.route('/<ci_alumno>/get_reporte', methods=['GET', 'POST'])
     def get_reporte(ci_alumno):
         try:
             # Conectar a la base de datos
