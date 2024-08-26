@@ -408,6 +408,7 @@ def crear_app():
     def add_materia():
         nombre = request.form['nombre']
         especialidad = request.form['especialidad']
+        cursos = request.form['anios']
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s",
                     (nombre, especialidad))
@@ -419,7 +420,7 @@ def crear_app():
 
         try:
             cur.execute(
-                "INSERT INTO materia (nombre, especialidad) VALUES (%s, %s)", (nombre, especialidad))
+                "INSERT INTO materia (nombre, especialidad,cursos) VALUES (%s, %s,%s)", (nombre, especialidad,cursos))
             mysql.connection.commit()
             flash('Materia agregada exitosamente')
         except Exception as e:
@@ -437,6 +438,7 @@ def crear_app():
             nombre = request.form['nombre']
             especialidad = request.form['especialidad']
             subject_id = request.form['subject_id']
+            cursos=request.form['anios']
             try:
 
                 cur = mysql.connection.cursor()
@@ -451,8 +453,8 @@ def crear_app():
                     return redirect(url_for("materia", espe=session['espe']))
 
                 # Actualizar la materia
-                cur.execute("UPDATE materia SET nombre = %s, especialidad = %s WHERE id_materia = %s",
-                            (nombre, especialidad, subject_id))
+                cur.execute("UPDATE materia SET nombre = %s, especialidad = %s,cursos=%S WHERE id_materia = %s",
+                            (nombre, especialidad, cursos,subject_id))
                 mysql.connection.commit()
                 flash('Materia modificada exitosamente')
             except KeyError as e:

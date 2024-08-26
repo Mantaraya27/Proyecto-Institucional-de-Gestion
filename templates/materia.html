@@ -398,10 +398,21 @@
 
                 <p class="formTitle">Asignatura:</p>
                 <input type="text" name="nombre" id="nombre_add" placeholder="Nombre de la Asignatura" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g,'');"required>
-                <p class="formTitle">La asignatura pertenece a:</p>
+                <p class="formTitle">Seleccione:</p>
                 <select name="especialidad" id="especialidad_add" required>
                     <option value="Plan Común">Plan Común</option>
                     <option value="{{ espe }}">{{ espe }}</option>
+                </select>
+                <p class="formTitle">Seleccione:</p>
+                <select name="anios" id="anios_add" required>
+                    <option value="los tres años">Los tres años</option>
+                    <option value="solo 1ro">Solo 1ro</option>
+                    <option value="solo 2do">Solo 2do</option>
+                    <option value="solo 3ro">Solo 3ro</option>
+                    <option value="solo 1ro y 2do">Solo 1ro y 2do</option>
+                    <option value="solo 1ro y 3ro">Solo 1ro y 3ro</option>
+                    <option value="solo 2do y 3ro">Solo 2do y 3ro</option>
+                    
                 </select>
                 <button type="submit" onclick="validar_materia_add(event)">Enviar</button>
             </form>
@@ -415,6 +426,16 @@
                 <select name="especialidad" id="especialidad" required>
                     <option value="Plan Común">Plan Común</option>
                     <option value="{{ espe }}">{{ espe }}</option>
+                </select>
+                <select name="anios" id="anios_edit" required>
+                    <option value="los tres años">Los tres años</option>
+                    <option value="solo 1ro">Solo 1ro</option>
+                    <option value="solo 2do">Solo 2do</option>
+                    <option value="solo 3ro">Solo 3ro</option>
+                    <option value="solo 1ro y 2do">Solo 1ro y 2do</option>
+                    <option value="solo 1ro y 3ro">Solo 1ro y 3ro</option>
+                    <option value="solo 2do y 3ro">Solo 2do y 3ro</option>
+                    
                 </select>
                 <button type="submit" onclick="validar_materia_edit(event)">Modificar</button>
             </form>
@@ -443,6 +464,7 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Especialidad</th>
+                        <th>Año</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -451,6 +473,7 @@
                         <td>{{ materia[0]}}</td>
                         <td>{{ materia[1] }}</td>
                         <td>{{ materia[2] }}</td>
+                        <td>{{ materia[3] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
