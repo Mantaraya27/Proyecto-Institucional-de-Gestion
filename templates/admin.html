@@ -159,7 +159,7 @@
             <h1>CTN<br>{{ 'C.Civiles' if espe == 'Construccion civil' else 'M.Industrial' if espe == 'Mecánica Industrial' else 'Emca' if espe == 'Electromecanica' else espe }}</h1>
         </div>
         <ul class="sidebar-menu">
-            <li onclick="navigateTo('{{ url_for('reporte') }}')">
+            <li onclick="navigateTo('{{ url_for('elegir_curso', espe=espe) }}')">
                 <i class="fas fa-book-open"></i> Crear Reporte
             </li>
             <li onclick="navigateTo('{{ url_for('alumnos', espe=espe) }}')">
