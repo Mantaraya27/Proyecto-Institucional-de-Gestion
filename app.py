@@ -447,25 +447,31 @@ def crear_app():
             nombre = request.form['nombre']
             especialidad = request.form['especialidad']
             subject_id = request.form['subject_id']
-            cursos=request.form['anios']
+            cursos = request.form['anios']  # Asegúrate de que 'anios' es el nombre correcto del campo
+            
             try:
-
                 cur = mysql.connection.cursor()
 
-                # Verificar si ya existe una materia con el mismo nombre y especialidad
-                cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s AND id_materia != %s",
-                            (nombre, especialidad, subject_id))
+                # Verificar si ya existe una materia con el mismo nombre y especialidad, excluyendo la actual
+                cur.execute("""
+                    SELECT * FROM materia
+                    WHERE nombre = %s AND especialidad = %s AND id_materia != %s
+                """, (nombre, especialidad, subject_id))
                 existing_subject = cur.fetchall()
 
                 if existing_subject:
                     flash('Ya existe una materia con este nombre y especialidad')
-                    return redirect(url_for("materia", espe=session['espe']))
+                    return redirect(url_for("materia", espe=session.get('espe', 'default_value')))
 
                 # Actualizar la materia
-                cur.execute("UPDATE materia SET nombre = %s, especialidad = %s,cursos=%S WHERE id_materia = %s",
-                            (nombre, especialidad, cursos,subject_id))
+                cur.execute("""
+                    UPDATE materia
+                    SET nombre = %s, especialidad = %s, cursos = %s
+                    WHERE id_materia = %s
+                """, (nombre, especialidad, cursos, subject_id))
                 mysql.connection.commit()
                 flash('Materia modificada exitosamente')
+
             except KeyError as e:
                 flash(f'Error: {e} no encontrado en el formulario')
             except Exception as e:
@@ -474,7 +480,10 @@ def crear_app():
             finally:
                 if 'cur' in locals() and cur:
                     cur.close()
-            return redirect(url_for("materia", espe=session['espe']))
+
+            return redirect(url_for("materia", espe=session.get('espe', 'default_value')))
+
+        
     @app.route('/delete_materia', methods=['POST'])
     def delete_materia():
         if 'role' in session and session['role'] == 'administrador':
