@@ -390,7 +390,7 @@
 
             <form id="addForm" action="{{ url_for('add_dethora') }}" method="POST" class="contact-form">
                 <h1 class="formTitle">Agregar Relación</h1>
-                
+                <input type="hidden" id="espe" name="espe" value="{{espe}}">
                 <select name="horarioo" id="horario_add" required>
                     {% if horarios %}
                     <option value="" disabled selected>Seleccione el id del curso</option>
@@ -480,7 +480,7 @@
                     <option value="">No hay cursos</option>
                     {% endif %}
                 </select>
-                <select name="materiaa" id="materia_add" required>
+                <select name="materiaa" id="materia_edit" required>
                     {% if materias %}
                     <option value="" disabled selected>Seleccione una materia</option>
                     {% for materia in materias %}
@@ -594,6 +594,92 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         
+
+        document.getElementById('horario_add').addEventListener('change', function() {
+    const cursoId = this.value;  // 获取选中的课程ID
+    const materiaSelect = document.getElementById('materia_add');
+    const espe = document.getElementById('espe').value;
+    console.log("es-e",espe);
+    if (cursoId) {
+        // 发起 AJAX 请求到后端，获取相应的科目
+        fetch('/get_materias', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ curso_id: cursoId, espe:espe })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 清空之前的选项
+            materiaSelect.innerHTML = '';
+            
+            // 添加新的选项
+            if (data.length > 0) {
+                data.forEach(materia => {
+                    const option = document.createElement('option');
+                    option.value = materia.id;
+                    option.textContent = materia.name;
+                    materiaSelect.appendChild(option);
+                });
+                materiaSelect.disabled = false;  // 启用下拉框
+            } else {
+                const option = document.createElement('option');
+                option.textContent = 'No hay materias disponibles';
+                materiaSelect.appendChild(option);
+                materiaSelect.disabled = true;  // 禁用下拉框
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+        // 如果没有选择课程，禁用并清空科目选择框
+        materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
+        materiaSelect.disabled = true;
+    }
+});
+
+document.getElementById('cursoId_edit').addEventListener('change', function() {
+    const cursoId = this.value;  // 获取选中的课程ID
+    const materiaSelect = document.getElementById('materia_edit');
+    const espe = document.getElementById('espe').value;
+    if (cursoId) {
+        // 发起 AJAX 请求到后端，获取相应的科目
+        fetch('/get_materias', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ curso_id: cursoId, espe:espe })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 清空之前的选项
+            materiaSelect.innerHTML = '';
+            
+            // 添加新的选项
+            if (data.length > 0) {
+                data.forEach(materia => {
+                    const option = document.createElement('option');
+                    option.value = materia.id;
+                    option.textContent = materia.name;
+                    materiaSelect.appendChild(option);
+                });
+                materiaSelect.disabled = false;  // 启用下拉框
+            } else {
+                const option = document.createElement('option');
+                option.textContent = 'No hay materias disponibles';
+                materiaSelect.appendChild(option);
+                materiaSelect.disabled = true;  // 禁用下拉框
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+        // 如果没有选择课程，禁用并清空科目选择框
+        materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
+        materiaSelect.disabled = true;
+    }
+});
+
         function checkAndSubmitForm() {
             event.preventDefault();
     const materiaId = document.getElementById('materia_add').value;

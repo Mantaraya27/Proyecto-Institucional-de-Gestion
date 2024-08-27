@@ -2,17 +2,26 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import re
 from flask_mysqldb import MySQL
 from flask import jsonify
-
+from flask_mail import Mail, Message
+import pdfkit
 
 def crear_app():
     app = Flask(__name__)
     EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+
+    app.config['MAIL_SERVER'] = 'smtp.outlook.com'  # El servidor SMTP
+    app.config['MAIL_PORT'] = 587  # El puerto
+    app.config['MAIL_USERNAME'] = 'reportesctn@outlook.com'  # Tu correo
+    app.config['MAIL_PASSWORD'] = 'ucspfhcmjyrebeze'  # Tu contraseña
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
     app.config['MYSQL_HOST'] = 'localhost'
     app.config['MYSQL_USER'] = 'root'
     app.config['MYSQL_PASSWORD'] = ''
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mysql = MySQL(app)
+    mail = Mail(app)
 
     @app.route('/')
     def index():
@@ -523,6 +532,58 @@ def crear_app():
 
 
 
+
+
+    @app.route('/get_materias', methods=['POST'])
+    def get_materias():
+        curso_id = request.json.get('curso_id')
+        espe = request.json.get('espe')
+        cur = mysql.connection.cursor()
+        print("espe",espe)
+        cur.execute("Select curso from horario where id_horario=%s", (curso_id,))
+        a = cur.fetchone()
+        curso = a[0] if a else None
+        s = {}
+        k = {}
+        i = 0
+        if curso == 1:
+            s[i] = '1ro 2do y 3ro'
+            i += 1
+            s[i] = 'solo 1ro'
+            i += 1
+            s[i] = 'solo 1ro y 2do'
+            i += 1
+            s[i] = 'solo 1ro y 3ro'
+        elif curso == 2:
+            s[i] = '1ro 2do y 3ro'
+            i += 1
+            s[i] = 'solo 2do'
+            i += 1
+            s[i] = 'solo 2do y 3ro'
+            i += 1
+            s[i] = 'solo 1ro y 2do'
+        else:
+            s[i] = '1ro 2do y 3ro'
+            i += 1
+            s[i] = 'solo 3ro'
+            i += 1
+            s[i] = 'solo 1ro y 3ro'
+            i += 1
+            s[i] = 'solo 2do y 3ro'
+        
+        materias = []
+        for i in range(0, 4, 1):
+            cur.execute("Select id_materia, nombre from materia where cursos=%s and (especialidad=%s or especialidad='Plan comun')", (s[i], espe))
+            k[i] = cur.fetchall()
+            for materia in k[i]:
+                materias.append(materia)
+        
+        print(materias)
+        materia_list = [{'id': index, 'name': materia} for index, materia in materias]
+        
+        cur.close()
+
+        return jsonify(materia_list)
 
 
 
@@ -1287,44 +1348,67 @@ WHERE h.especialidad = %s;
     
     @app.route('/check_materia_edit', methods=['POST'])
     def check_materia_edit():
-        data = request.get_json()
-        id = data.get('id')
+        data = request.json
+        id_materia = data.get('id')
         nombre = data.get('nombre')
         espe = data.get('espe')
+        curso = data.get('anios') 
+        print(id_materia)
+        print(nombre)
+        print(espe)
+        print(curso)
+         # No se utiliza en esta función, puedes eliminarlo si no es necesario
 
-        # Validar que los campos no estén vacíos
-        if not id or not nombre or not espe:
-            return jsonify({'error': 'Todos los campos son requeridos.'}), 400
+        print("Datos recibidos en el servidor:", data)
+
+        # Conexión a la base de datos
+        cur = mysql.connection.cursor()
 
         try:
-            # Consulta para verificar si el ID de materia existe y obtener su especialidad
-            cur = mysql.connection.cursor()
-            cur.execute("SELECT especialidad FROM materia WHERE id_materia = %s", (id,))
+            # Verificar si la materia con el ID dado existe y pertenece a la especialidad o es 'Plan Común'
+            query = """
+                SELECT especialidad 
+                FROM materia 
+                WHERE id_materia = %s
+            """
+            cur.execute(query, (id_materia,))
             result = cur.fetchone()
-            
-            if result:
-                db_espe = result[0]
-                if db_espe != espe:
-                    # Si la especialidad en la base de datos es diferente a la proporcionada
-                    return jsonify({'existe': True, 'espe': db_espe}), 200
-                else:
-                    # Verifica si ya existe otra materia con el mismo nombre y especialidad
-                    cur.execute("SELECT COUNT(*) FROM materia WHERE nombre = %s AND especialidad = %s AND id_materia != %s", (nombre, espe, id))
-                    count = cur.fetchone()[0]
-                    cur.close()
-                    
-                    if count > 0:
-                        return jsonify({'existe': True}), 200
-                    else:
-                        return jsonify({'existe': False}), 200
-            else:
-                # ID no encontrado
-                cur.close()
-                return jsonify({'error': 'El ID de materia no existe.'}), 404
+            print("Resultado de la consulta de especialidad:", result)
 
+            if espe:
+                existing_espe = result[0]
+                print("Especialidad existente:", existing_espe)
+
+                # Verificar que la especialidad sea la correcta
+                if existing_espe != espe and existing_espe != 'Plan Común':
+                    return jsonify({'error': f'El ID introducido pertenece a la especialidad: {existing_espe}, no a {espe} ni a Plan Común.'})
+
+                # Verificar si ya existe una materia con el mismo nombre pero diferente ID
+                query = """
+                    SELECT id_materia 
+                    FROM materia 
+                    WHERE nombre = %s AND id_materia != %s
+                """
+                cur.execute(query, (nombre, id_materia))
+                existing_materia = cur.fetchone()
+                print("Resultado de la consulta de nombre existente:", existing_materia)
+                
+                if existing_materia:
+                    return jsonify({'existe': True, 'espe': existing_espe})
+                else:
+                    return jsonify({'existe': False, 'espe': existing_espe})
+            else:
+                print("No se encontró la materia o no pertenece a la especialidad indicada.")
+                return jsonify({'error': 'No se encontró la materia o no pertenece a la especialidad indicada.'})
         except Exception as e:
-            print(f"Error: {e}")
-            return jsonify({'error': 'Hubo un problema al verificar la asignatura. Por favor, intente nuevamente.'}), 500
+            print("Error al consultar la base de datos:", e)
+            return jsonify({'error': 'Hubo un problema al verificar la materia. Por favor, intente nuevamente.'})
+        finally:
+            cur.close()
+
+
+
+
 
 
 
@@ -1357,14 +1441,6 @@ WHERE h.especialidad = %s;
         else:
             print(f"No subject found with id {subject_id}")
             return jsonify({'existe': False, 'espe': None})
-
-
-
-
-
-
-
-
 
 
 
@@ -1968,6 +2044,49 @@ WHERE h.especialidad = %s;
                 return jsonify({'exists': True})  # 关系已存在
             else:
                 return jsonify({'exists': False})  # 关系不存在
+    @app.route("/<ci_alumno>/send-pdf-email")
+    def send_pdf_email(ci_alumno):
+        # Renderizar la página que se convertirá en PDF
+        print(f"Current role: {session.get('role')}")
+        
+        if session.get('role') == 'administrador' or session.get('role') == 'enc':
+            cur = mysql.connection.cursor()
+            try:
+                cur.execute("Select * from alumno where ci = %s", (ci_alumno,))
+                alumno = cur.fetchone()
+                if alumno:
+                    cur.execute("Select id_reporte from reporte where Alumno_id_alumno = %s", (alumno[0], ))
+                    id_reportes = cur.fetchall()
+                    if id_reportes:
+                        reportes = {}
+                        rasgos = {}
+                        cur.execute("Select Correo_encargado from alumno where id_alumno = %s", (alumno[0], ))
+                        email = cur.fetchone()
+                        cur.execute("Select * from reporte where Alumno_id_alumno = %s", (alumno[0], ))
+                        reportes = cur.fetchall()
+                        for idr in id_reportes:
+                            cur.execute("""SELECT rc.descripcion 
+                                            FROM detalle_reporte dr
+                                            JOIN Rasgos_Conductuales rc ON dr.Rasgos_Conductuales_id_rasgo = rc.id_rasgo
+                                            WHERE dr.Reporte_id_reporte = %s""", (idr[0],))
+                            rasgos[idr[0]] = [re.sub(r'\s+', ' ', r[0]).strip() for r in cur.fetchall()]
+                        print(rasgos)
+                        rendered = render_template('enviar.html', reportes=reportes, rasgos=rasgos, alumno=alumno, id_reportes=id_reportes)
+                        pdf = pdfkit.from_string(rendered, False)
+                        print(email[0])
+                        msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=['estrehsuyang1123@gmail.com', 'luanycastillo66@gmail.com', email[0]])
+                        msg.body = "Reporte Conductual del mes tantan del alumno " + alumno[1] + " " + alumno[2]
+                        msg.attach((alumno[1] + " " + alumno[2] +".pdf"), "application/pdf", pdf)
+                        mail.send(msg)
+                        return(render_template('enviar.html', reportes=reportes, rasgos=rasgos, alumno=alumno, id_reportes=id_reportes), print('PDF ENVIADO!'))
+            except Exception as e:
+                print(f"Error: {e}")
+                print("holi")
+            finally:
+                cur.close()
+        else:
+            return "Unauthorized", 403
+        return(render_template('enviar.html'))
     return app
 
 
@@ -1975,9 +2094,3 @@ if __name__ == '__main__':
     app = crear_app()
     app.run(debug=True, host='0.0.0.0')
 
-# ajksjkfajksdjfkjggg
-# aaaaaaaaaaaa
-
-# Sosa gei
-
-# luanygei

@@ -405,7 +405,7 @@
                 </select>
                 <p class="formTitle">Seleccione:</p>
                 <select name="anios" id="anios_add" required>
-                    <option value="los tres años">Los tres años</option>
+                    <option value="1ro 2do y 3ro">1ro 2do y 3ro</option>
                     <option value="solo 1ro">Solo 1ro</option>
                     <option value="solo 2do">Solo 2do</option>
                     <option value="solo 3ro">Solo 3ro</option>
@@ -421,6 +421,7 @@
                 style="display:none;">
                 <h1>Modificar Asignatura</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="edit">
+                <input type="hidden" name="espe_edit" id="espe_edit" value="{{espe}}">
                 <input type="text" name="subject_id" id="edit_subject_id" placeholder="ID de la Asignatura" oninput="this.value = this.value.replace(/[^0-9]/g,'');"required>
                 <input type="text" name="nombre" id="edit_nombre" placeholder="Nombre de la Asignatura" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g,'');"required>
                 <select name="especialidad" id="especialidad" required>
@@ -428,7 +429,7 @@
                     <option value="{{ espe }}">{{ espe }}</option>
                 </select>
                 <select name="anios" id="anios_edit" required>
-                    <option value="los tres años">Los tres años</option>
+                    <option value="1ro 2do y 3ro">1ro 2do y 3ro</option>
                     <option value="solo 1ro">Solo 1ro</option>
                     <option value="solo 2do">Solo 2do</option>
                     <option value="solo 3ro">Solo 3ro</option>
@@ -483,80 +484,19 @@
 
     <script>
 
-async function validar_materia_add(event) {
-    event.preventDefault();
-
-    // Validar que los campos no estén vacíos
-    const nombre = document.getElementById('nombre_add').value.trim();
-    const especialidad = document.getElementById('especialidad_add').value;
-
-    if (!nombre || !especialidad) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Campos Vacíos',
-            text: 'Por favor, complete todos los campos antes de enviar.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-        });
-        return;
-    }
-
-    try {
-        const response = await fetch('/check_materia', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ nombre, especialidad }),
-        });
-
-        const data = await response.json();
-
-        if (data.existe) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'La asignatura ya existe.',
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-            });
-        } else {
-            // Muestra mensaje de éxito antes de enviar el formulario
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: 'Asignatura añadida con éxito.',
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-            }).then(() => {
-                document.getElementById('subjectForm').submit();
-            });
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de servidor',
-            text: 'Hubo un problema al verificar la asignatura. Por favor, intente nuevamente.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-        });
-    }
-}
- 
 async function validar_materia_edit(event) {
     event.preventDefault();
 
-    // Validar que los campos no estén vacíos
     const id = document.getElementById('edit_subject_id').value.trim();
     const nombre = document.getElementById('edit_nombre').value.trim();
-    const espe = document.getElementById('especialidad').value; // Usar 'especialidad'
+    const espe = document.getElementById('espe_edit').value;
+    const anios = document.getElementById('anios_edit').value;
 
-    if (!id || !nombre || !espe) {
+    // Consola para verificar los datos ingresados
+    console.log("Datos ingresados:", { id, nombre, espe, anios });
+
+    // Validación de campos vacíos
+    if (!id || !nombre || !espe || !anios) {
         Swal.fire({
             icon: 'warning',
             title: 'Campos Vacíos',
@@ -569,16 +509,20 @@ async function validar_materia_edit(event) {
     }
 
     try {
+        // Solicitud al servidor para verificar la asignatura
         const response = await fetch('/check_materia_edit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id, nombre, espe }), // Enviar 'id', 'nombre' y 'espe' en la solicitud
+            body: JSON.stringify({ id, nombre, espe, anios }),
         });
 
         const data = await response.json();
 
+        console.log("Respuesta del servidor:", data);
+
+        // Manejo de errores del servidor
         if (data.error) {
             Swal.fire({
                 icon: 'error',
@@ -589,12 +533,12 @@ async function validar_materia_edit(event) {
                 showConfirmButton: false,
             });
         } else if (data.existe) {
-            // Verifica si el ID pertenece a una especialidad diferente
+            // Si la asignatura existe, verifica la especialidad
             if (data.espe && data.espe !== espe) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: `El ID introducido pertenece a la especialidad: ${data.espe}. `,
+                    text: `El ID introducido pertenece a la especialidad: ${data.espe}.`,
                     timer: 3000,
                     timerProgressBar: true,
                     showConfirmButton: false,
@@ -611,7 +555,7 @@ async function validar_materia_edit(event) {
                 showConfirmButton: false,
             });
         } else {
-            // Muestra mensaje de éxito antes de enviar el formulario
+            // Si todo es válido, muestra un mensaje de éxito y envía el formulario
             Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
@@ -635,6 +579,11 @@ async function validar_materia_edit(event) {
         });
     }
 }
+
+
+
+
+
 
 
 
