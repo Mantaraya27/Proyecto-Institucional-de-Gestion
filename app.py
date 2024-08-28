@@ -20,8 +20,9 @@ def crear_app():
     app.config['MYSQL_PASSWORD'] = ''
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
-    mysql = MySQL(app)
     mysql= Mail(app)
+    mysql = MySQL(app)
+
     @app.route('/')
     def index():
         if 'role' in session:
