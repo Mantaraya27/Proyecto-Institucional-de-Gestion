@@ -1343,17 +1343,28 @@ WHERE h.especialidad = %s;
 
     @app.route('/check_materia', methods=['POST'])
     def check_materia():
-        data = request.get_json()
-        nombre = data.get('nombre')
-        especialidad = data.get('especialidad')
-
+        print("hola")
+        data = request.json
+        print("holas")
+        nombre = data.get('materia_id')
+        print(nombre)
+        curso=data.get('horario_id')
+        print(curso)
+        print("hola")
         # Aquí deberías consultar la base de datos
         cur = mysql.connection.cursor()
-        cur.execute("SELECT COUNT(*) FROM materia WHERE nombre = %s AND especialidad = %s", (nombre, especialidad))
-        count = cur.fetchone()[0]
+        cur.execute("SELECT * FROM detalle_horario WHERE horario_id_horario = %s AND materia_id_materia = %s", (curso,nombre))
+        count = cur.fetchone()
+        print(count)
+        print("holaaaa")
         cur.close()
 
-        return jsonify({'existe': count > 0})
+        if count is None:
+            exists = False
+        else:
+            exists = True
+
+        return jsonify({'existe': exists})
     
     @app.route('/check_materia_edit', methods=['POST'])
     def check_materia_edit():
@@ -2032,8 +2043,8 @@ WHERE h.especialidad = %s;
         else:
             return jsonify({'error': 'Acceso denegado.'}), 403  # 权限问题
 
-    @app.route('/check_materia_horario_repeat', methods=['POST'])
-    def check_materia_horario_repeat():
+    @app.route('/check_materia_repeat', methods=['POST'])
+    def check_materia_repeat():
         if 'role' in session and session['role'] == 'administrador':
             horario_id = request.form.get('horario_id')
             dia=request.form.get('dia')

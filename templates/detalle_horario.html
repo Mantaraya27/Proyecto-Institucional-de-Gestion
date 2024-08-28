@@ -462,7 +462,7 @@
                     <option value="16:50-18:00">16:50-18:00</option>
                     <option value="17:25-18:00">17:25-18:00</option>
                 </select>
-                <button type="submit"  onclick="checkAndSubmitForm(event) ">Enviar</button>
+                <button type="submit"  onclick="validar_funcion(event)">Enviar</button>
             </form>
             <form id="editForm" action="{{ url_for('edit_dethora') }}" method="POST" class="contact-form">
                 <h1 id="formTitle">Editar Relación</h1>
@@ -470,7 +470,7 @@
                 oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
                 <input type="text" name="old_horario_id" id="edit_old_horario_id" placeholder="id del curso"oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
                 
-                <select name="horarioo" id="horario_add" required>
+                <select name="horarioo" id="cursoId_edit" required>
                     {% if horarios %}
                     <option value="" disabled selected>Seleccione el id del curso</option>
                     {% for curs in horarios %}
@@ -599,7 +599,6 @@
     const cursoId = this.value;  // 获取选中的课程ID
     const materiaSelect = document.getElementById('materia_add');
     const espe = document.getElementById('espe').value;
-    console.log("es-e",espe);
     if (cursoId) {
         // 发起 AJAX 请求到后端，获取相应的科目
         fetch('/get_materias', {
@@ -611,8 +610,16 @@
         })
         .then(response => response.json())
         .then(data => {
-            // 清空之前的选项
             materiaSelect.innerHTML = '';
+            // 清空之前的选项
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccione una materia';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            materiaSelect.appendChild(defaultOption);
+            
+            
             
             // 添加新的选项
             if (data.length > 0) {
@@ -639,7 +646,10 @@
 });
 
 document.getElementById('cursoId_edit').addEventListener('change', function() {
-    const cursoId = this.value;  // 获取选中的课程ID
+    const cursoId = this.value; 
+    console.log("holaa"); // 获取选中的课程ID
+    console.log(cursoId);
+    console.log("holaa");
     const materiaSelect = document.getElementById('materia_edit');
     const espe = document.getElementById('espe').value;
     if (cursoId) {
@@ -655,6 +665,13 @@ document.getElementById('cursoId_edit').addEventListener('change', function() {
         .then(data => {
             // 清空之前的选项
             materiaSelect.innerHTML = '';
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccione una materia';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            materiaSelect.appendChild(defaultOption);
             
             // 添加新的选项
             if (data.length > 0) {
@@ -680,51 +697,46 @@ document.getElementById('cursoId_edit').addEventListener('change', function() {
     }
 });
 
-        function checkAndSubmitForm() {
-            event.preventDefault();
+function validar_funcion() {
+    console.log("holaaaa");
+    event.preventDefault();
+    
     const materiaId = document.getElementById('materia_add').value;
     const cursoId = document.getElementById('horario_add').value;
     const dia = document.getElementById('tian').value;
-    const horario=document.getElementById('horario').value;
+    const horario = document.getElementById('horario').value;
 
-    console.log("Materia ID:", materiaId);
-    console.log("Horario ID:", cursoId);
-    
-    // 确保 ID 被正确获取后才发起请求
-    if (materiaId && cursoId) {
-        event.preventDefault();
-        $.ajax({
-            url: '/check_materia_horario',
-            type: 'POST',
-            data: {
-                materia_id: materiaId,
-                horario_id: cursoId
-            },
-            success: function(response) {
-                if (response.exists) {
+    if (!materiaId || !cursoId) {
+        console.log("Missing Materia ID or Horario ID");
+        return;
+    }
+
+    // 第一个 AJAX 请求：检查科目和课程是否重复
+    $.ajax({
+        url: '/check_materia',
+    type: 'POST',
+    contentType: 'application/json',  // 指定请求的内容类型为 JSON
+    data: JSON.stringify({
+            materia_id: materiaId,
+            horario_id: cursoId
+        }),
+        success: function(response) {
+            if (response.exists) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Ya existe.',
+                    text: 'Ya existe la relacion.',
                     timer: 3000,
                     timerProgressBar: true,
                     showConfirmButton: false,
                 });
             } else {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: 'Guardado con éxito.',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                }).then(() => {
-                    document.getElementById('addForm').submit();
-                });
+                // 如果第一个检查通过，继续进行第二个 AJAX 请求
+                checkHorario(materiaId, cursoId, dia, horario);
             }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Hubo un problema al verificar los datos.',
@@ -732,24 +744,22 @@ document.getElementById('cursoId_edit').addEventListener('change', function() {
                 timerProgressBar: true,
                 showConfirmButton: false,
             });
-            }
-        });
-    } else {
-        console.log("Missing Materia ID or Horario ID");
-    }
+        }
+    });
+}
 
-    if (materiaId && cursoId) {
-        event.preventDefault();
-        $.ajax({
-            url: '/check_materia_horario_repeat',
-            type: 'POST',
-            data: {
-                horario_id: cursoId,
-                dia: dia,
-                horario: horario
-            },
-            success: function(response) {
-                if (response.exists) {
+// 第二个 AJAX 请求：检查时间是否重复
+function checkHorario(materiaId, cursoId, dia, horario) {
+    $.ajax({
+        url: '/check_materia_repeat',
+        type: 'POST',
+        data: {
+            horario_id: cursoId,
+            dia: dia,
+            horario: horario
+        },
+        success: function(response) {
+            if (response.exists) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -770,9 +780,9 @@ document.getElementById('cursoId_edit').addEventListener('change', function() {
                     document.getElementById('addForm').submit();
                 });
             }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Hubo un problema al verificar los datos.',
@@ -780,12 +790,10 @@ document.getElementById('cursoId_edit').addEventListener('change', function() {
                 timerProgressBar: true,
                 showConfirmButton: false,
             });
-            }
-        });
-    } else {
-        console.log("Missing Materia ID or Horario ID");
-    }
+        }
+    });
 }
+
 
 function checkAndSubmitForm_edit() {
             event.preventDefault();
@@ -961,6 +969,9 @@ async function adelete(event) {
                 formTitle.textContent = 'Modificar Relacion';
                 document.getElementById('edit_old_materia_id').value = materia_id;
                 document.getElementById('edit_old_horario_id').value = horario_id;
+                const materiaSelect = document.getElementById('materia_edit');
+                materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
+                materiaSelect.disabled = true;
                 editTeacherForm.style.display = 'block';
                 teacherForm.style.display = 'none';
                 deleteTeacherForm.style.display = 'none';
