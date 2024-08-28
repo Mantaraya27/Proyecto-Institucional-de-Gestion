@@ -580,6 +580,99 @@ async function validar_materia_edit(event) {
     }
 }
 
+async function validar_materia_add(event) {
+    event.preventDefault();
+    const nombre = document.getElementById('nombre_add').value.trim();
+    const espe = document.getElementById('espe_add').value;
+    const anios = document.getElementById('anios_add').value;
+
+    // Consola para verificar los datos ingresados
+    console.log("Datos ingresados:", {  nombre, espe, anios });
+
+    // Validación de campos vacíos
+    if ( !nombre || !espe || !anios) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos Vacíos',
+            text: 'Por favor, complete todos los campos antes de enviar.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    try {
+        // Solicitud al servidor para verificar la asignatura
+        const response = await fetch('/check_materia_edit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id, nombre, espe, anios }),
+        });
+
+        const data = await response.json();
+
+        console.log("Respuesta del servidor:", data);
+
+        // Manejo de errores del servidor
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else if (data.existe) {
+            // Si la asignatura existe, verifica la especialidad
+            if (data.espe && data.espe !== espe) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: `El ID introducido pertenece a la especialidad: ${data.espe}.`,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+                return;
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La asignatura ya existe con estos datos.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        } else {
+            // Si todo es válido, muestra un mensaje de éxito y envía el formulario
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Asignatura modificada con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                document.getElementById('editSubjectForm').submit();
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar la asignatura. Por favor, intente nuevamente.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+    }
+}
 
 
 

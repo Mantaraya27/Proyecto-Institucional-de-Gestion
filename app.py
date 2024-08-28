@@ -1365,6 +1365,46 @@ WHERE h.especialidad = %s;
             exists = True
 
         return jsonify({'existe': exists})
+
+    @app.route('/check_materia_add', methods=['POST'])
+    def check_materia_edit():
+        data = request.json
+        nombre = data.get('nombre')
+        espe = data.get('espe')
+        curso = data.get('anios') 
+        print(nombre)
+        print(espe)
+        print(curso)
+         # No se utiliza en esta función, puedes eliminarlo si no es necesario
+
+        print("Datos recibidos en el servidor:", data)
+
+        # Conexión a la base de datos
+        cur = mysql.connection.cursor()
+
+        try:
+            if espe:
+                query = """
+                    SELECT id_materia 
+                    FROM materia 
+                    WHERE nombre = %s
+                """
+                cur.execute(query, (nombre))
+                existing_materia = cur.fetchone()
+                print("Resultado de la consulta de nombre existente:", existing_materia)
+                
+                if existing_materia:
+                    return jsonify({'existe': True, 'espe': existing_materia})
+                else:
+                    return jsonify({'existe': False, 'espe': existing_materia})
+            else:
+                print("No se encontró la materia o no pertenece a la especialidad indicada.")
+                return jsonify({'error': 'No se encontró la materia o no pertenece a la especialidad indicada.'})
+        except Exception as e:
+            print("Error al consultar la base de datos:", e)
+            return jsonify({'error': 'Hubo un problema al verificar la materia. Por favor, intente nuevamente.'})
+        finally:
+            cur.close()
     
     @app.route('/check_materia_edit', methods=['POST'])
     def check_materia_edit():
