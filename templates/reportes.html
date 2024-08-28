@@ -211,8 +211,9 @@
         /* Estilos de la barra de búsqueda */
         .search-container {
             position: relative;
-            width: 80%;
+            width: 75%;
             margin-left: 50px;
+            margin-top: 10%;
         }
 
         .search-container input[type="text"] {
@@ -226,21 +227,34 @@
         }
 
         .search-and-save-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; /* Mantiene el layout en fila */
+            align-items: flex-start; /* Alinea los elementos al inicio (arriba) */
+            justify-content: space-between; /* Mantiene el espacio entre los elementos */
             width: 80%;
             margin-left: 60px;
             margin-bottom: 20px;
+            gap: 100px; /* Espacio entre el contenedor de búsqueda y los botones */
         }
+
+
 
         .search-container .fas.fa-search {
             position: absolute;
-            top: 52%;
-            left: 10px;
+            top: 50%; /* Centra verticalmente el ícono de búsqueda */
+            left: 10px; /* Ajusta la posición horizontal del ícono */
             transform: translateY(-50%);
             color: #666666;
         }
+
+        .button-container {
+            display: flex;
+            flex-direction: column; /* Coloca los botones uno encima del otro */
+            gap: 10px; /* Espacio entre los botones */
+            margin-top: 50px;
+        }
+
+        /* Mantén los estilos de los botones originales */
+
 
         /* Estilos de la barra de búsqueda */
         .barra {
@@ -322,10 +336,12 @@
             margin: 15px 0;
             margin-left: -10px;
             align-self: center;
+            
         }
 
         /* Estilos de los botones */
         .form-container button {
+            
             padding: 10px;
             font-size: 16px;
             color: white;
@@ -356,24 +372,20 @@
             color: white;
         }
         .custom-button {
-            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-            /* Color de fondo */
-            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-            /* Color del texto */
-            border: none;
-            margin-left: 7%;
-            /* Sin borde */
-            border-radius: 5px;
-            /* Bordes redondeados */
-            padding: 10px 20px;
-            /* Espaciado interno */
-            font-size: 16px;
-            /* Tamaño de la fuente */
-            cursor: pointer;
-            /* Cursor de mano al pasar sobre el botón */
-            transition: background-color 0.3s, transform 0.2s;
-            /* Transiciones suaves para color y transformación */
-        }
+        background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+        color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none; /* Elimina el subrayado */
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        display: inline-flex; /* Usa flexbox para centrar el contenido */
+        align-items: center; /* Alinea el contenido verticalmente */
+        justify-content: center; /* Alinea el contenido horizontalmente */
+        text-align: center; /* Asegura que el texto esté centrado en el elemento */
+}
 
         .custom-button:hover {
             background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
@@ -411,7 +423,6 @@
     <div class="content">
         <div class="barra">
             <h2 align="center">Lista de Alumnos - {{ espe }} {{ curso }}{{ 'er' if curso % 2 == 1 else 'do' }} Año, {{ seccion }}{{ 'era' if seccion % 2 == 1 else 'da' }} Sección</h2>
-            <div><a href="{{ url_for('imprimir',espe=espe, curso=curso, seccion=seccion)}}">Imprimir</a></div>
         </div>
 
         <div class="form-container">
@@ -434,8 +445,12 @@
                 <input type="text" id="busqueda" placeholder="Buscar...">
                 <i class="fas fa-search"></i>
             </div>
-            <button class="custom-button" id="submit-btn" type="button">Guardar Registro</button>
+            <div class="button-container">
+                <button class="custom-button" id="submit-btn" type="button">Guardar Registro</button>
+                <a href="{{ url_for('imprimir',espe=espe, curso=curso, seccion=seccion)}}" class="custom-button">Imprimir Registro</a></button>
+            </div>
         </div>
+        
 
         <table id="tablaAlumnos">
             <thead>
@@ -480,6 +495,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+            const printUrl = "{{ url_for('imprimir', espe=espe, curso=curso, seccion=seccion) }}";
+
+    //
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializa Select2 en todos los select con clase .rasgoConductualSelect
             $('.rasgoConductualSelect').select2({
