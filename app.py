@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import re
 from flask_mysqldb import MySQL
 from flask import jsonify
+from flask_mail import Mail, Message
+import pdfkit
 
 def crear_app():
     app = Flask(__name__)
@@ -19,7 +21,7 @@ def crear_app():
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mysql = MySQL(app)
-
+    mysql= Mail(app)
     @app.route('/')
     def index():
         if 'role' in session:
