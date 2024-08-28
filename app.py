@@ -2,8 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import re
 from flask_mysqldb import MySQL
 from flask import jsonify
-from flask_mail import Mail, Message
-import pdfkit
 
 def crear_app():
     app = Flask(__name__)
@@ -21,7 +19,6 @@ def crear_app():
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mysql = MySQL(app)
-    mail = Mail(app)
 
     @app.route('/')
     def index():
@@ -419,13 +416,6 @@ def crear_app():
         especialidad = request.form['especialidad']
         cursos = request.form['anios']
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s",
-                    (nombre, especialidad))
-        materia_existente = cur.fetchone()
-
-        if materia_existente:
-            flash('Ya existe una materia con los mismos datos')
-            return redirect(url_for('materia', espe=session['espe']))
 
         try:
             cur.execute(
@@ -1343,68 +1333,43 @@ WHERE h.especialidad = %s;
 
     @app.route('/check_materia', methods=['POST'])
     def check_materia():
-        print("hola")
+        # Recibiendo los datos enviados por la solicitud POST
         data = request.json
-        print("holas")
-        nombre = data.get('materia_id')
-        print(nombre)
-        curso=data.get('horario_id')
-        print(curso)
-        print("hola")
-        # Aquí deberías consultar la base de datos
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM detalle_horario WHERE horario_id_horario = %s AND materia_id_materia = %s", (curso,nombre))
-        count = cur.fetchone()
-        print(count)
-        print("holaaaa")
-        cur.close()
+        nombre = data.get('nombre')  # Recibe el nombre de la materia
+        especialidad = data.get('espe')  # Recibe la especialidad
+        curso = data.get('anios')  # Recibe el ID del curso/horario
 
-        if count is None:
-            exists = False
-        else:
-            exists = True
-
-        return jsonify({'existe': exists})
-
-    @app.route('/check_materia_add', methods=['POST'])
-    def check_materia_edit():
-        data = request.json
-        nombre = data.get('nombre')
-        espe = data.get('espe')
-        curso = data.get('anios') 
-        print(nombre)
-        print(espe)
-        print(curso)
-         # No se utiliza en esta función, puedes eliminarlo si no es necesario
-
-        print("Datos recibidos en el servidor:", data)
-
-        # Conexión a la base de datos
-        cur = mysql.connection.cursor()
+        # Imprime los datos recibidos para verificación
+        print(f"Materia nombre recibido: {nombre}")
+        print(f"Especialidad recibida: {especialidad}")
+        print(f"Curso nombre recibido: {curso}")
 
         try:
-            if espe:
-                query = """
-                    SELECT id_materia 
-                    FROM materia 
-                    WHERE nombre = %s
-                """
-                cur.execute(query, (nombre))
-                existing_materia = cur.fetchone()
-                print("Resultado de la consulta de nombre existente:", existing_materia)
-                
-                if existing_materia:
-                    return jsonify({'existe': True, 'espe': existing_materia})
-                else:
-                    return jsonify({'existe': False, 'espe': existing_materia})
-            else:
-                print("No se encontró la materia o no pertenece a la especialidad indicada.")
-                return jsonify({'error': 'No se encontró la materia o no pertenece a la especialidad indicada.'})
+            # Consulta a la base de datos
+            cur = mysql.connection.cursor()
+            # Asegúrate de pasar los parámetros correctamente dentro de una tupla
+            cur.execute("SELECT * FROM materia WHERE nombre = %s AND especialidad = %s AND cursos = %s", (nombre, especialidad, curso))
+            count = cur.fetchone()
+
+            # Imprime el resultado de la consulta
+            print(f"Resultado de la consulta: {count}")
+
+            # Determina si la asignatura ya existe en el curso
+            existe = count is not None
+
         except Exception as e:
-            print("Error al consultar la base de datos:", e)
-            return jsonify({'error': 'Hubo un problema al verificar la materia. Por favor, intente nuevamente.'})
+            # Imprimir el error si ocurre
+            print(f"Error en la consulta: {e}")
+            existe = False
+
         finally:
             cur.close()
+
+        return jsonify({'existe': existe})
+
+
+
+    
     
     @app.route('/check_materia_edit', methods=['POST'])
     def check_materia_edit():
@@ -1441,7 +1406,7 @@ WHERE h.especialidad = %s;
 
                 # Verificar que la especialidad sea la correcta
                 if existing_espe != espe and existing_espe != 'Plan Común':
-                    return jsonify({'error': f'El ID introducido pertenece a la especialidad: {existing_espe}, no a {espe} ni a Plan Común.'})
+                    return jsonify({'error': f'El ID introducido no existe.'})
 
                 # Verificar si ya existe una materia con el mismo nombre pero diferente ID
                 query = """
