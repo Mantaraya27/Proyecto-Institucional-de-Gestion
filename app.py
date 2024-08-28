@@ -20,7 +20,7 @@ def crear_app():
     app.config['MYSQL_PASSWORD'] = ''
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
-    mysql= Mail(app)
+    mail = Mail(app)
     mysql = MySQL(app)
 
     @app.route('/')
@@ -38,8 +38,6 @@ def crear_app():
         if request.method == 'POST':
             role = request.form['role']
             ci = request.form['ci']
-
-            # Mapeo de CI para admins y encargados
             role_especialidades = {
                 'info': 'Informatica',
                 'cc': 'Construccion civil',
@@ -56,12 +54,7 @@ def crear_app():
                     session['role'] = 'administrador' if role == 'admin' else 'encargado'
                     session['espe'] = role_especialidades[ci]
                     flash('Login successful')
-
-                    # Redirige según el rol
-                    if role == 'admin':
-                        return redirect(url_for('admin', espe=session['espe']))
-                    elif role == 'enc':
-                        return redirect(url_for('elegir_curso', espe=session['espe']))
+                    return redirect(url_for('admin', espe=session['espe']))
                 else:
                     flash('Invalid CI for admin/encargado')
 
@@ -85,38 +78,12 @@ def crear_app():
 
     @app.route('/<espe>/admin')
     def admin(espe):
-        if 'role' in session and session['role'] == 'administrador':
-            return render_template('admin.html', espe=espe)
+        if 'role' in session and session['role'] == 'administrador' or session['role'] == 'encargado':
+            return render_template('admin.html', espe=espe, role=session['role'])
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
     # ///////////////////////////////////////////////////////////
-
-    @app.route('/dashboard')
-    def dashboard():
-        try:
-            # Conectar a la base de datos
-            cur = mysql.connection.cursor()
-
-            # Consulta para obtener la cantidad de alumnos
-            cur.execute("SELECT MAX(id_alumno) FROM alumno")
-            alumnos_result = cur.fetchone()
-            alumnos_count = alumnos_result[0] if alumnos_result[0] is not None else 0
-
-            # Consulta para obtener la cantidad de profesores
-            cur.execute("SELECT MAX(id_profesor) FROM profesor")
-            profesores_result = cur.fetchone()
-            profesores_count = profesores_result[0] if profesores_result[0] is not None else 0
-
-            # Cerrar el cursor
-            cur.close()
-
-            # Renderizar la plantilla con los datos de alumnos y profesores
-            return render_template('admin.html', alumnoS=alumnos_count, profesoreS=profesores_count)
-
-        except Exception as e:
-            flash(f'Ocurrió un error al obtener los datos: {e}', 'error')
-            return redirect(url_for('login'))
 
     @app.route('/logout')
     def logout():
@@ -1252,8 +1219,9 @@ WHERE h.especialidad = %s;
             cur.close()
             return render_template('mt.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
 
-    @app.route('/<espe>/<curso>/<seccion>/imprimir')
-    def imprimir(espe, curso, seccion):
+    @app.route('/<espe>/<curso>/<seccion>/<year>/<mes>/imprimir')
+    def imprimir(espe, curso, seccion, year, mes):
+
         print(f"Current role: {session.get('role')}")
         
         if session.get('role') == 'administrador' or session.get('role') == 'enc':
