@@ -502,6 +502,36 @@
 
 
     <script>
+        document.getElementById('busqueda').addEventListener('input', function () {
+    var filter = this.value.toUpperCase(); // Captura el valor del input y lo convierte a mayúsculas
+    var rows = document.querySelectorAll('#tablaAlumnos tbody tr'); // Selecciona todas las filas en el tbody de la tabla
+
+    rows.forEach(function (row) {
+        // Captura el contenido de cada celda específica en la fila
+        var nombre = row.querySelector('td:nth-child(1)').textContent.toUpperCase();
+        var apellido = row.querySelector('td:nth-child(2)').textContent.toUpperCase();
+        var curso = row.querySelector('td:nth-child(3)').textContent.toUpperCase();
+        var seccion = row.querySelector('td:nth-child(4)').textContent.toUpperCase();
+        var especialidad = row.querySelector('td:nth-child(5)').textContent.toUpperCase();
+        var ci = row.querySelector('td:nth-child(6)').textContent.toUpperCase();
+        var email = row.querySelector('td:nth-child(7)').textContent.toUpperCase();
+
+        // Compara el valor de búsqueda con el contenido de las celdas
+        if (
+            nombre.includes(filter) ||
+            apellido.includes(filter) ||
+            curso.includes(filter) ||
+            seccion.includes(filter) ||
+            especialidad.includes(filter) ||
+            ci.includes(filter) ||
+            email.includes(filter)
+        ) {
+            row.style.display = ''; // Muestra la fila si coincide con el filtro
+        } else {
+            row.style.display = 'none'; // Oculta la fila si no coincide con el filtro
+        }
+    });
+});
         // Función para mostrar/ocultar la barra lateral
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
@@ -897,32 +927,6 @@ async function validar_alumno(event) {
 
 
 
-
-        // Evento para buscar alumnos según criterios
-        const tablaAlumnos = document.getElementById('tablaAlumnos');
-        const busquedaInput = document.getElementById('busqueda');
-
-        busquedaInput.addEventListener('input', function () {
-            const busqueda = busquedaInput.value.toLowerCase();
-            const filas = tablaAlumnos.getElementsByTagName('tr');
-
-            Array.from(filas).forEach(function (fila) {
-                const datosFila = fila.getElementsByTagName('td');
-                let mostrarFila = false;
-
-                Array.from(datosFila).forEach(function (dato) {
-                    if (dato.textContent.toLowerCase().includes(busqueda)) {
-                        mostrarFila = true;
-                    }
-                });
-
-                if (mostrarFila) {
-                    fila.style.display = '';
-                } else {
-                    fila.style.display = 'none';
-                }
-            });
-        });
     </script>
 </body>
 

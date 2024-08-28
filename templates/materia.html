@@ -483,6 +483,32 @@
     </div>
 
     <script>
+        
+
+        document.getElementById('searchInput').addEventListener('input', function () {
+    var filter = this.value.toUpperCase(); // Captura el valor del input y lo convierte a mayúsculas
+    var rows = document.querySelectorAll('#teacherTable tbody tr'); // Selecciona todas las filas en el tbody de la tabla
+
+    rows.forEach(function (row) {
+        // Captura el contenido de cada celda específica en la fila
+        var id = row.querySelector('td:nth-child(1)').textContent.toUpperCase();
+        var nombre = row.querySelector('td:nth-child(2)').textContent.toUpperCase();
+        var especialidad = row.querySelector('td:nth-child(3)').textContent.toUpperCase();
+        var ano = row.querySelector('td:nth-child(4)').textContent.toUpperCase();
+
+        // Compara el valor de búsqueda con el contenido de las celdas
+        if (
+            id.includes(filter) ||
+            nombre.includes(filter) ||
+            especialidad.includes(filter) ||
+            ano.includes(filter)
+        ) {
+            row.style.display = ''; // Muestra la fila si coincide con el filtro
+        } else {
+            row.style.display = 'none'; // Oculta la fila si no coincide con el filtro
+        }
+    });
+});
 
 async function validar_materia_add(event) {
     event.preventDefault();
@@ -807,21 +833,7 @@ async function validar_materia_delete(event) {
         }
 
 
-        document.getElementById('searchInput').addEventListener('input', function () {
-            var filter = this.value.toUpperCase();
-            var rows = document.querySelectorAll('#subjectTable tbody tr');
-
-            rows.forEach(function (row) {
-                var name = row.querySelector('td:nth-child(2)').textContent.toUpperCase();
-                var id = row.querySelector('td:nth-child(1)').textContent.toUpperCase();
-
-                if (name.includes(filter) || id.includes(filter)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
+        
     </script>
 </body>
 
