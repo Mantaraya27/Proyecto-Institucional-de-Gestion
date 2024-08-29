@@ -332,33 +332,24 @@
     const visibleAlumnoContainers = document.querySelectorAll('.alumno-container:not([style*="display: none"])');
 
     let startY = 10;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 10;
 
     visibleAlumnoContainers.forEach(container => {
         const studentName = container.querySelector('h2').innerText;
         const table = container.querySelector('table');
 
-        // Estimación de altura del nombre y espacio necesario
-        const nameHeight = 10; 
-        const tableHeight = 40; // Ajusta según la altura promedio de las tablas
-        const pageHeight = doc.internal.pageSize.height;
-        const neededSpace = nameHeight + tableHeight + 10;
-
-        // Añade una nueva página si no hay suficiente espacio para ambos
-        if (startY + neededSpace > pageHeight) {
-            doc.addPage();
-            startY = 10;
-        }
-
-        // Añadir el nombre del alumno
+        // Añadir el nombre del alumno de manera temporal para medir el espacio
         doc.setFontSize(18);
         doc.setFont("helvetica", "bold");
         doc.text(studentName, 15, startY);
-
-        // Ajuste de autoTable para que las cabeceras se mantengan unidas con su tabla
+        
+        // Calcular altura que ocupará la tabla
+        const initialY = startY + 10; // Posición inicial para la tabla
         doc.autoTable({
             html: table,
-            startY: startY + 10,
-            pageBreak: 'auto', // Mantiene las cabeceras unidas al cuerpo
+            startY: initialY,
+            margin: { top: initialY },
             headStyles: {
                 fillColor: [51, 51, 51],
                 textColor: [255, 255, 255],
@@ -375,28 +366,59 @@
                 fillColor: [240, 240, 240],
                 textColor: [0, 0, 0],
             },
-            willDrawCell: (data) => {
-                if (data.section === 'body' && data.column.dataKey === 3) {
-                    // Asegurarse de que los rasgos se alineen verticalmente
-                    data.cell.styles.cellPadding = 4;
-                    data.cell.styles.minCellHeight = 10;
-                }
-            },
             didDrawPage: (data) => {
-                // Ajuste de la posición al final del contenido
-                if (data.cursor.y + 10 > pageHeight) {
-                    doc.addPage();
-                    startY = 10;
-                }
+                // Guardar la posición final para la próxima tabla
+                startY = data.cursor.y + 10;
             }
         });
 
-        // Actualiza la posición después de la tabla
-        startY = doc.lastAutoTable.finalY + 20;
+        // Verificar si el contenido completo cabe en la página actual
+        if (startY > pageHeight) {
+            // Si no cabe, crear una nueva página y renderizar de nuevo
+            doc.deletePage(doc.internal.getNumberOfPages()); // Eliminar la página actual
+            doc.addPage(); // Añadir una nueva página
+            startY = 10; // Reiniciar la posición Y
+
+            // Renderizar de nuevo el nombre y la tabla en la nueva página
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.text(studentName, 15, startY);
+
+            doc.autoTable({
+                html: table,
+                startY: startY + 10,
+                pageBreak: 'auto',
+                headStyles: {
+                    fillColor: [51, 51, 51],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                },
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 4,
+                    valign: 'middle',
+                    halign: 'center',
+                    overflow: 'linebreak',
+                    lineWidth: 0.5,
+                    lineColor: [0, 0, 0],
+                    fillColor: [240, 240, 240],
+                    textColor: [0, 0, 0],
+                },
+            });
+
+            startY = doc.lastAutoTable.finalY + 20; // Actualizar la posición para el siguiente elemento
+        } else {
+            // Si cabe, continuar normalmente
+            startY = doc.lastAutoTable.finalY + 20;
+        }
     });
 
     doc.save('reporte.pdf');
 }
+
+
+
+
 
 
       document.addEventListener("DOMContentLoaded", function () {

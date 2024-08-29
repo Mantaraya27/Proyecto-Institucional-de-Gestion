@@ -1221,7 +1221,7 @@ WHERE h.especialidad = %s;
 
         print(f"Current role: {session.get('role')}")
         
-        if session.get('role') == 'administrador' or session.get('role') == 'enc':
+        if session.get('role') == 'administrador' or session.get('role') == 'encargado':
             cur = mysql.connection.cursor()
             
             # 初始化变量
