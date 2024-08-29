@@ -995,14 +995,14 @@ WHERE h.especialidad = %s;
     def elegir_curso(espe):
         if 'role' in session and (session['role'] == 'administrador' or session['role'] == 'encargado'):
             if espe == 'Construccion civil' or espe == 'Quimica' or espe == 'Electronica':
-                return render_template('tres.html', espe=espe)
+                return render_template('tres.html', espe=espe, role=session['role'])
             else:
-                return render_template('dos.html', espe=espe)
+                return render_template('dos.html', espe=espe, role=session['role'])
         else:
             flash('Access Denied. Please login as administrator.')
             return redirect(url_for('login'))
 
-    @app.route('/<espe>/<curso>/<seccion>')
+    @app.route('/<espe>/<curso>/<seccion>/crear')
     def reportes(espe, curso, seccion):
         if 'role' in session:   
             if session['role'] == 'administrador' or session['role'] == 'encargado':
@@ -2073,9 +2073,9 @@ WHERE h.especialidad = %s;
         else:
             return "Unauthorized", 403
         return("Emails enviados!")
-    @app.route("/<espe>/<curso>/<seccion>/report")
+    @app.route("/<espe>/<curso>/<seccion>")
     def seleccion_add_imp(espe, curso, seccion):
-        return render_template('seleccion.html', espe=espe, curso=curso, seccion=seccion)
+        return render_template('seleccion.html', espe=espe, curso=curso, seccion=seccion, role=session['role'])
     return app
 def email_valido(email):
     try:
@@ -2088,5 +2088,3 @@ def email_valido(email):
 if __name__ == '__main__':
     app = crear_app()
     app.run(debug=True, host='0.0.0.0')
-
-#s

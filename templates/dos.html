@@ -180,64 +180,65 @@
     <div class="main-content">
       <div class="topbar">
         <div class="user-info">
-          <span>Administrator </span> <i class="fas fa-chalkboard-teacher"></i>
+          <span>{{ role[0].upper() + role[1:].lower() }} </span>
+          <i class="fas fa-chalkboard-teacher"></i>
         </div>
       </div>
       <div class="formTitle">
         <h1>Selecciona</h1>
       </div>
       <div class="button-grid">
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=1, seccion=1) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=1, seccion=1) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-mug-hot"></i>
           </div>
           <h4>1ero 1era</h4>
         </div>
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=1, seccion=2) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=1, seccion=2) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-mug-hot"></i>
           </div>
           <h4>1ero 2da</h4>
         </div>
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=2, seccion=1) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=2, seccion=1) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-mug-hot"></i>
           </div>
           <h4>2do 1era</h4>
         </div>
         <br />
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=2, seccion=2) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=2, seccion=2) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-mug-hot"></i>
           </div>
           <h4>2do 2da</h4>
         </div>
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=3, seccion=1) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=3, seccion=1) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-mug-hot"></i>
           </div>
           <h4>3ero 1era</h4>
         </div>
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=3, seccion=2) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=3, seccion=2) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-mug-hot"></i>
           </div>
           <h4>3ero 2da</h4>

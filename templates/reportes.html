@@ -413,6 +413,11 @@
             <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
                 <i class="fas fa-home"></i> Menú
             </li>
+            <li
+                onclick="navigateTo('{{ url_for('imprimir', espe=espe, curso=curso, seccion=seccion) }}')"
+            >
+                <i class="fas fa-print"></i> Imprimir Reportes
+            </li>
             <li onclick="navigateTo('{{ url_for('login') }}')">
                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
             </li>

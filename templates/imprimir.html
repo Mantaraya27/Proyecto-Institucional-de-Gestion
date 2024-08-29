@@ -211,7 +211,11 @@
           background-color: {{ '#300111' if espe == 'Informatica' else '#362c21' if espe == 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad' }};
       }
       .large {
-          width: 120px;
+          width: 140px;
+      }
+      li {
+        list-style: none;
+        text-align: left;
       }
     </style>
   </head>
@@ -244,12 +248,6 @@
     </div>
 
     <div class="main-content">
-      <div class="topbar">
-        <div class="user-info">
-          <span>Usuario</span>
-          <img src="https://via.placeholder.com/40" alt="Usuario" />
-        </div>
-      </div>
       <div class="barra">
         <label for="monthSelect">Mes y Año:</label>
         <div class="select-container">
@@ -308,8 +306,6 @@
         </table>
       </div>
       {% endif %} {% endfor %}
-
-      <!-- Botones para generar PDF y enviar por Email -->
       <div class="button-container">
         <button id="generate-pdf-btn" onclick="generatePDF()">
           Generar PDF y Descargar

@@ -177,28 +177,29 @@
     <div class="main-content">
       <div class="topbar">
         <div class="user-info">
-          <span>Administrator</span> <i class="fas fa-chalkboard-teacher"></i>
+          <span>{{ role[0].upper() + role[1:].lower() }}</span>
+          <i class="fas fa-chalkboard-teacher"></i>
         </div>
       </div>
       <div class="formTitle">
         <h1>Selecciona</h1>
       </div>
       <div class="button-grid">
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=curso, seccion=seccion) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=curso, seccion=seccion) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-paperclip icon-large"></i>
           </div>
           <h4>Crear Reportes</h4>
         </div>
         <br />
-        <div class="button-card">
-          <div
-            class="button-item"
-            onclick="navigateTo('{{ url_for('imprimir', espe=espe, curso=curso, seccion=seccion) }}')"
-          >
+        <div
+          class="button-card"
+          onclick="navigateTo('{{ url_for('imprimir', espe=espe, curso=curso, seccion=seccion) }}')"
+        >
+          <div class="button-item">
             <i class="fas fa-print icon-large"></i>
           </div>
           <h4>Imprimir Reportes</h4>
