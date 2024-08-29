@@ -2072,7 +2072,7 @@ WHERE h.especialidad = %s;
                 cur.close()
         else:
             return "Unauthorized", 403
-        return(render_template('enviar.html'))
+        return("Emails enviados!")
     @app.route("/<espe>/<curso>/<seccion>/report")
     def seleccion_add_imp(espe, curso, seccion):
         return render_template('seleccion.html', espe=espe, curso=curso, seccion=seccion)
