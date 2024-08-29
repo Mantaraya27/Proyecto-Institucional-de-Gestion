@@ -1,203 +1,214 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
     <script defer src="scripts.js"></script>
     <style>
-        body {
-            display: flex;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: rgb(43, 36, 36);
-        }
-        .sidebar {
-            width: 250px;
-            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-            color: #ece6e6;
-            height: 100vh;
-            position: fixed;
-        }
-        .formTitle {
-            color: rgb(241, 223, 223);
-        }
-        .sidebar-header {
-            padding: 2px;
-            text-align: center;
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-            font-size: 18px;
-            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-            border-radius: 1em;
-            border-style: solid;
-            border-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-            margin-right: 6px;
-        }
-        .sidebar-menu {
-            list-style-type: none;
-            padding: 0;
-        }
+      body {
+          display: flex;
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background-color: rgb(43, 36, 36);
+      }
+      .sidebar {
+          width: 250px;
+          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+          color: #ece6e6;
+          height: 100vh;
+          position: fixed;
+      }
+      .formTitle {
+          color: rgb(241, 223, 223);
+      }
+      .sidebar-header {
+          padding: 2px;
+          text-align: center;
+          font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+          font-size: 18px;
+          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+          border-radius: 1em;
+          border-style: solid;
+          border-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+          margin-right: 6px;
+      }
+      .sidebar-menu {
+          list-style-type: none;
+          padding: 0;
+      }
 
-        .sidebar-menu li {
-            padding: 15px 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      .sidebar-menu li {
+          padding: 15px 20px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
 
-        .sidebar-menu li i {
-            font-size: 20px;
-        }
+      .sidebar-menu li i {
+          font-size: 20px;
+      }
 
-        .sidebar-menu li:hover {
-            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
-        }
+      .sidebar-menu li:hover {
+          background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+      }
 
-        .main-content {
-            margin-left: 250px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+      .main-content {
+          margin-left: 250px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 20px;
+      }
 
-        .topbar {
-            display: flex;
-            justify-content: flex-end;
-            color: #ecf0f1;
-            padding: 10px 20px;
-            background-color: rgb(43, 36, 36);
-            width: 100%;
-            text-decoration: underline;
-        }
+      .topbar {
+          display: flex;
+          justify-content: flex-end;
+          color: #ecf0f1;
+          padding: 10px 20px;
+          background-color: rgb(43, 36, 36);
+          width: 100%;
+          text-decoration: underline;
+      }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
+      .user-info {
+          display: flex;
+          align-items: center;
+      }
 
-        .user-info span {
-            margin-right: 10px;
-        }
+      .user-info span {
+          margin-right: 10px;
+      }
 
-        .user-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        .button-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            padding: 20px;
-            width: 70%;
-            max-width: 600px;
-            box-sizing: border-box;
-            margin-right: 10%;
-        }
+      .user-info img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+      }
+      .button-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          padding: 20px;
+          width: 70%;
+          max-width: 600px;
+          box-sizing: border-box;
+          margin-right: 10%;
+      }
 
-        .button-card {
-            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-            padding: 20px;
-            border-radius: 10%;
-            text-align: center;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            width: 180%;
-            height: 400px;
-        }
+      .button-card {
+          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+          padding: 20px;
+          border-radius: 10%;
+          text-align: center;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
+          width: 180%;
+          height: 400px;
+      }
 
-        .button-item {
-            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-            color: #ecf0f1;
-            width: 200px; /* Tamaño del botón circular */
-            height: 200px; /* Tamaño del botón circular */
-            border-radius: 50%; /* Asegura que el botón sea circular */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2em;
-            margin-bottom: 10px;
-            transition: background-color 0.3s;
-        }
+      .button-item {
+          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+          color: #ecf0f1;
+          width: 200px; /* Tamaño del botón circular */
+          height: 200px; /* Tamaño del botón circular */
+          border-radius: 50%; /* Asegura que el botón sea circular */
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 2em;
+          margin-bottom: 10px;
+          transition: background-color 0.3s;
+      }
 
-        .button-card h4,
-        .button-card h3 {
-            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-            color: #ffffff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 1.4em;
-            white-space: nowrap;
-            text-align: center;
-            cursor: default;
+      .button-card h4,
+      .button-card h3 {
+          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+          color: #ffffff;
+          padding: 10px 20px;
+          border-radius: 5px;
+          font-size: 1.4em;
+          white-space: nowrap;
+          text-align: center;
+          cursor: default;
+      }
+      .icon-large {
+          font-size: 2.5em; /* O ajusta el tamaño como desees */
         }
-        .icon-large {
-            font-size: 2.5em; /* O ajusta el tamaño como desees */
-          }
-        .button-card:hover .button-item{
-            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
-        }
-        .button-card:hover h4{
-            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
-        }
+      .button-card:hover .button-item{
+          background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+      }
+      .button-card:hover h4{
+          background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="sidebar">
-        <div class="sidebar-header">
-            <h1>CTN<br>{{ 'C.Civiles' if espe == 'Construccion civil' else 'M.Industrial' if espe == 'Mecánica Industrial' else 'Emca' if espe == 'Electromecanica' else espe }}</h1>
-        </div>
-        <ul class="sidebar-menu">
-            <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
-                <i class="fas fa-home"></i> Menú
-            </li>
-            <li onclick="navigateTo('{{ url_for('login') }}')">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </li>
-            <li onclick="navigateTo('#')">
-                <i class="fas fa-life-ring"></i> Ayuda
-            </li>
-        </ul>
+      <div class="sidebar-header">
+        <h1>
+          CTN<br />{{ 'C.Civiles' if espe == 'Construccion civil' else
+          'M.Industrial' if espe == 'Mecánica Industrial' else 'Emca' if espe ==
+          'Electromecanica' else espe }}
+        </h1>
+      </div>
+      <ul class="sidebar-menu">
+        <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
+          <i class="fas fa-home"></i> Menú
+        </li>
+        <li onclick="navigateTo('{{ url_for('login') }}')">
+          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </li>
+        <li onclick="navigateTo('#')">
+          <i class="fas fa-life-ring"></i> Ayuda
+        </li>
+      </ul>
     </div>
     <div class="main-content">
-        <div class="topbar">
-            <div class="user-info">
-                <span>Administrator</span> <i class="fas fa-chalkboard-teacher"></i>
-            </div>
+      <div class="topbar">
+        <div class="user-info">
+          <span>Administrator</span> <i class="fas fa-chalkboard-teacher"></i>
         </div>
-        <div class="formTitle">
-            <h1>Selecciona</h1>
+      </div>
+      <div class="formTitle">
+        <h1>Selecciona</h1>
+      </div>
+      <div class="button-grid">
+        <div class="button-card">
+          <div
+            class="button-item"
+            onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=curso, seccion=seccion) }}')"
+          >
+            <i class="fas fa-paperclip icon-large"></i>
+          </div>
+          <h4>Crear Reportes</h4>
         </div>
-        <div class="button-grid">
-            <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=curso, seccion=seccion) }}')">
-                    <i class="fas fa-paperclip icon-large"></i>
-                </div>
-                <h4>Crear Reportes</h4>
-            </div>
-            <br>
-            <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('imprimir', espe=espe, curso=curso, seccion=seccion) }}')">
-                    <i class="fas fa-print icon-large "></i>
-                </div>
-                <h4>Imprimir Reportes</h4>
-            </div>
+        <br />
+        <div class="button-card">
+          <div
+            class="button-item"
+            onclick="navigateTo('{{ url_for('imprimir', espe=espe, curso=curso, seccion=seccion) }}')"
+          >
+            <i class="fas fa-print icon-large"></i>
+          </div>
+          <h4>Imprimir Reportes</h4>
         </div>
+      </div>
     </div>
     <script>
-        function navigateTo(url) {
-            window.location.href = url;
-        }
+      function navigateTo(url) {
+        window.location.href = url;
+      }
     </script>
-</body>
-
+  </body>
 </html>
