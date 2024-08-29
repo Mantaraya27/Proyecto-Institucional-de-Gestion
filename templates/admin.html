@@ -172,30 +172,30 @@
           <i class="fas fa-user-graduate"></i> Alumnos
         </li>
         <li onclick="navigateTo('{{ url_for('materia', espe=espe) }}')">
-          <i class="fas fa-chalkboard-teacher"></i> Materias
+          <i class="fas fa-book"></i> Materias
         </li>
         <li onclick="navigateTo('{{ url_for('profesor', espe=espe) }}')">
           <i class="fas fa-chalkboard-teacher"></i> Profesores
         </li>
         <li onclick="navigateTo('{{ url_for('horario', espe=espe) }}')">
-          <i class="fas fa-calendar-check"></i> Cursos
+          <i class="fas fa-graduation-cap"></i> Cursos
         </li>
         <li onclick="navigateTo('{{ url_for('conductuales', espe=espe) }}')">
-          <i class="fas fa-user"></i> Rasgos Conductuales
+          <i class="fas fa-user-check"></i> Rasgos Conductuales
         </li>
         <li onclick="navigateTo('{{ url_for('materia_profe', espe=espe) }}')">
           <i class="fas fa-link"></i> Relaciones<br />
           Materia - Profesor
         </li>
         <li onclick="navigateTo('{{ url_for('materia_hora', espe=espe) }}')">
-          <i class="fas fa-link"></i> Relaciones<br />
+          <i class="fas fa-calendar-alt"></i> Relaciones<br />
           Horario - Materia
         </li>
         <li onclick="navigateTo('{{ url_for('login') }}')">
           <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
         </li>
         <li onclick="navigateTo('#')">
-          <i class="fas fa-life-ring"></i> Ayuda
+          <i class="fas fa-question-circle"></i> Ayuda
         </li>
       </ul>
     </div>
@@ -230,7 +230,7 @@
           onclick="navigateTo('{{ url_for('materia', espe=espe) }}')"
         >
           <div class="button-item">
-            <i class="fas fa-chalkboard-teacher"></i>
+            <i class="fas fa-book"></i>
           </div>
           <h4>Materias</h4>
         </div>
@@ -248,7 +248,7 @@
           onclick="navigateTo('{{ url_for('horario', espe=espe) }}')"
         >
           <div class="button-item">
-            <i class="fas fa-calendar-check"></i>
+            <i class="fas fa-graduation-cap"></i>
           </div>
           <h4>Cursos</h4>
         </div>
@@ -257,7 +257,7 @@
           onclick="navigateTo('{{ url_for('conductuales', espe=espe) }}')"
         >
           <div class="button-item">
-            <i class="fas fa-user"></i>
+            <i class="fas fa-user-check"></i>
           </div>
           <h4>Rasgos Conductuales</h4>
         </div>
@@ -278,7 +278,7 @@
           onclick="navigateTo('{{ url_for('materia_hora', espe=espe) }}')"
         >
           <div class="button-item">
-            <i class="fas fa-link"></i>
+            <i class="fas fa-calendar-alt"></i>
           </div>
           <h4>
             Relaciones<br />
