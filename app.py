@@ -16,9 +16,9 @@ def crear_app():
     app.config['MAIL_PASSWORD'] = 'ucspfhcmjyrebeze'  # Tu contraseña
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
-    app.config['MYSQL_HOST'] = 'localhost'
+    app.config['MYSQL_HOST'] = 'localhost'#'186.17.87.89'
     app.config['MYSQL_USER'] = 'root'
-    app.config['MYSQL_PASSWORD'] = ''
+    app.config['MYSQL_PASSWORD'] = ''#'Infoctn024'
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mail = Mail(app)

@@ -242,7 +242,7 @@
           <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
         </li>
         <li onclick="navigateTo('#')">
-          <i class="fas fa-life-ring"></i> Ayuda
+          <i class="fas fa-question-circle"></i> Ayuda
         </li>
       </ul>
     </div>
@@ -327,9 +327,11 @@
 
     <script>
       function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const visibleAlumnoContainers = document.querySelectorAll('.alumno-container:not([style*="display: none"])');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const visibleAlumnoContainers = document.querySelectorAll(
+          '.alumno-container:not([style*="display: none"])'
+        );
 
     let startY = 10;
     const pageHeight = doc.internal.pageSize.height;
