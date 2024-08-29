@@ -2047,9 +2047,11 @@ WHERE h.especialidad = %s;
                         if not email_valido(email[0]):
                             print("El email asociado a " + alumno[1] + " " + alumno[2] + " es invalido.")
                             continue
-                        cur.execute("Select * from reporte where Alumno_id_alumno = %s", (alumno[0], ))
+                        cur.execute("Select * from reporte where Alumno_id_alumno = %s and YEAR(fecha) = %s and MONTH(fecha) = %s", (alumno[0], year, month))
                         reportes = cur.fetchall()
+                        print(reportes)
                         for idr in id_reportes:
+                            print(idr)
                             cur.execute("""SELECT rc.descripcion 
                                             FROM detalle_reporte dr
                                             JOIN Rasgos_Conductuales rc ON dr.Rasgos_Conductuales_id_rasgo = rc.id_rasgo
@@ -2058,7 +2060,7 @@ WHERE h.especialidad = %s;
                         print(rasgos)
                         rendered = render_template('enviar.html', reportes=reportes, rasgos=rasgos, alumno=alumno, id_reportes=id_reportes)
                         pdf = pdfkit.from_string(rendered, False)
-                        msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=['estrehsuyang1123@gmail.com', 'luanycastillo66@gmail.com', email[0]])
+                        msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=['luanycastillo66@gmail.com'])
                         msg.body = "Reporte Conductual del mes " + month + " del alumno " + alumno[1] + " " + alumno[2]
                         msg.attach((alumno[1] + " " + alumno[2] +".pdf"), "application/pdf", pdf)
                         mail.send(msg)
