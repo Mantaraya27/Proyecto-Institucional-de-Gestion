@@ -356,11 +356,16 @@
           doc.setFont("helvetica", "bold");
           doc.text(studentName, 15, startY);
 
-          // Ajuste de autoTable para evitar líneas vacías
+          // Ajuste de autoTable para que las cabeceras se mantengan unidas con su tabla
           doc.autoTable({
             html: table,
             startY: startY + 10,
-            pageBreak: "avoid",
+            pageBreak: "auto", // Mantiene las cabeceras unidas al cuerpo
+            headStyles: {
+              fillColor: [51, 51, 51],
+              textColor: [255, 255, 255],
+              fontStyle: "bold",
+            },
             styles: {
               fontSize: 10,
               cellPadding: 4,
@@ -371,10 +376,6 @@
               lineColor: [0, 0, 0],
               fillColor: [240, 240, 240],
               textColor: [0, 0, 0],
-            },
-            headStyles: {
-              fillColor: [51, 51, 51],
-              textColor: [255, 255, 255],
             },
             willDrawCell: (data) => {
               if (data.section === "body" && data.column.dataKey === 3) {
@@ -396,13 +397,7 @@
           startY = doc.lastAutoTable.finalY + 20;
         });
 
-        doc.save(
-          "Reporte " +
-            document.getElementById("monthSelect").options[
-              document.getElementById("monthSelect").selectedIndex
-            ].text +
-            ".pdf"
-        );
+        doc.save("reporte.pdf");
       }
 
       document.addEventListener("DOMContentLoaded", function () {
