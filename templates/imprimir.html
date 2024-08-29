@@ -327,77 +327,77 @@
 
     <script>
       function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const visibleAlumnoContainers = document.querySelectorAll(
-          '.alumno-container:not([style*="display: none"])'
-        );
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const visibleAlumnoContainers = document.querySelectorAll('.alumno-container:not([style*="display: none"])');
 
-        let startY = 10;
+    let startY = 10;
 
-        visibleAlumnoContainers.forEach((container) => {
-          const studentName = container.querySelector("h2").innerText;
-          const table = container.querySelector("table");
+    visibleAlumnoContainers.forEach(container => {
+        const studentName = container.querySelector('h2').innerText;
+        const table = container.querySelector('table');
 
-          // Estimación de altura del nombre y espacio necesario
-          const nameHeight = 10;
-          const tableHeight = 40; // Ajusta según la altura promedio de las tablas
-          const pageHeight = doc.internal.pageSize.height;
-          const neededSpace = nameHeight + tableHeight + 10;
+        // Estimación de altura del nombre y espacio necesario
+        const nameHeight = 10; 
+        const tableHeight = 40; // Ajusta según la altura promedio de las tablas
+        const pageHeight = doc.internal.pageSize.height;
+        const neededSpace = nameHeight + tableHeight + 10;
 
-          // Añade una nueva página si no hay suficiente espacio para ambos
-          if (startY + neededSpace > pageHeight) {
+        // Añade una nueva página si no hay suficiente espacio para ambos
+        if (startY + neededSpace > pageHeight) {
             doc.addPage();
             startY = 10;
-          }
+        }
 
-          // Añadir el nombre del alumno
-          doc.setFontSize(18);
-          doc.setFont("helvetica", "bold");
-          doc.text(studentName, 15, startY);
+        // Añadir el nombre del alumno
+        doc.setFontSize(18);
+        doc.setFont("helvetica", "bold");
+        doc.text(studentName, 15, startY);
 
-          // Ajuste de autoTable para evitar líneas vacías
-          doc.autoTable({
+        // Ajuste de autoTable para que las cabeceras se mantengan unidas con su tabla
+        doc.autoTable({
             html: table,
             startY: startY + 10,
-            pageBreak: "avoid",
-            styles: {
-              fontSize: 10,
-              cellPadding: 4,
-              valign: "middle",
-              halign: "center",
-              overflow: "linebreak",
-              lineWidth: 0.5,
-              lineColor: [0, 0, 0],
-              fillColor: [240, 240, 240],
-              textColor: [0, 0, 0],
-            },
+            pageBreak: 'auto', // Mantiene las cabeceras unidas al cuerpo
             headStyles: {
-              fillColor: [51, 51, 51],
-              textColor: [255, 255, 255],
+                fillColor: [51, 51, 51],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 4,
+                valign: 'middle',
+                halign: 'center',
+                overflow: 'linebreak',
+                lineWidth: 0.5,
+                lineColor: [0, 0, 0],
+                fillColor: [240, 240, 240],
+                textColor: [0, 0, 0],
             },
             willDrawCell: (data) => {
-              if (data.section === "body" && data.column.dataKey === 3) {
-                // Asegurarse de que los rasgos se alineen verticalmente
-                data.cell.styles.cellPadding = 4;
-                data.cell.styles.minCellHeight = 10;
-              }
+                if (data.section === 'body' && data.column.dataKey === 3) {
+                    // Asegurarse de que los rasgos se alineen verticalmente
+                    data.cell.styles.cellPadding = 4;
+                    data.cell.styles.minCellHeight = 10;
+                }
             },
             didDrawPage: (data) => {
-              // Ajuste de la posición al final del contenido
-              if (data.cursor.y + 10 > pageHeight) {
-                doc.addPage();
-                startY = 10;
-              }
-            },
-          });
-
-          // Actualiza la posición después de la tabla
-          startY = doc.lastAutoTable.finalY + 20;
+                // Ajuste de la posición al final del contenido
+                if (data.cursor.y + 10 > pageHeight) {
+                    doc.addPage();
+                    startY = 10;
+                }
+            }
         });
 
-        doc.save("reporte.pdf");
-      }
+        // Actualiza la posición después de la tabla
+        startY = doc.lastAutoTable.finalY + 20;
+    });
+
+    doc.save('reporte.pdf');
+}
+
 
       document.addEventListener("DOMContentLoaded", function () {
         const monthSelect = document.getElementById("monthSelect");
