@@ -410,9 +410,11 @@
             <h1>CTN<br>{{ 'C.Civiles' if espe == 'Construccion civil' else 'M.Industrial' if espe == 'Mecánica Industrial' else 'Emca' if espe == 'Electromecanica' else espe }}</h1>
         </div>
         <ul class="sidebar-menu">
+            {% if role == 'administrador' %}
             <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
                 <i class="fas fa-home"></i> Menú
             </li>
+            {% endif %}
             <li
                 onclick="navigateTo('{{ url_for('imprimir', espe=espe, curso=curso, seccion=seccion) }}')"
             >

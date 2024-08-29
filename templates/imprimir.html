@@ -230,9 +230,11 @@
         </h1>
       </div>
       <ul class="sidebar-menu">
+        {% if role == 'administrador' %}
         <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
           <i class="fas fa-home"></i> Menú
         </li>
+        {% endif %}
         <li
           onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=curso, seccion=seccion) }}')"
         >
@@ -333,95 +335,77 @@
           '.alumno-container:not([style*="display: none"])'
         );
 
-    let startY = 10;
-    const pageHeight = doc.internal.pageSize.height;
-    const margin = 10;
+        let startY = 10;
+        const pageHeight = doc.internal.pageSize.height;
+        const margin = 10; // Margen adicional para evitar cortes
 
-    visibleAlumnoContainers.forEach(container => {
-        const studentName = container.querySelector('h2').innerText;
-        const table = container.querySelector('table');
+        visibleAlumnoContainers.forEach((container) => {
+          const studentName = container.querySelector("h2").innerText;
+          const table = container.querySelector("table");
 
-        // Añadir el nombre del alumno de manera temporal para medir el espacio
-        doc.setFontSize(18);
-        doc.setFont("helvetica", "bold");
-        doc.text(studentName, 15, startY);
-        
-        // Calcular altura que ocupará la tabla
-        const initialY = startY + 10; // Posición inicial para la tabla
-        doc.autoTable({
+          // Crear un documento temporal para medir el espacio necesario
+          const tempDoc = new jsPDF();
+          let tempStartY = margin;
+          tempDoc.setFontSize(18);
+          tempDoc.setFont("helvetica", "bold");
+          tempDoc.text(studentName, 15, tempStartY);
+          tempStartY += 10; // Espacio adicional después del nombre
+
+          // Medir la altura de la tabla
+          tempDoc.autoTable({
             html: table,
-            startY: initialY,
-            margin: { top: initialY },
+            startY: tempStartY,
+            didDrawPage: (data) => {
+              tempStartY = data.cursor.y;
+            },
+          });
+
+          const blockHeight = tempStartY - margin + margin; // Altura total del bloque
+
+          // Verificar si el bloque cabe en la página actual
+          if (startY + blockHeight > pageHeight) {
+            doc.addPage();
+            startY = margin; // Reiniciar la posición para la nueva página
+          }
+
+          // Dibujar el contenido en el documento real
+          doc.setFontSize(18);
+          doc.setFont("helvetica", "bold");
+          doc.text(studentName, 15, startY);
+
+          doc.autoTable({
+            html: table,
+            startY: startY + 10,
+            pageBreak: "auto", // Permitir que la tabla se divida en páginas
             headStyles: {
-                fillColor: [51, 51, 51],
-                textColor: [255, 255, 255],
-                fontStyle: 'bold',
+              fillColor: [51, 51, 51],
+              textColor: [255, 255, 255],
+              fontStyle: "bold",
             },
             styles: {
-                fontSize: 10,
-                cellPadding: 4,
-                valign: 'middle',
-                halign: 'center',
-                overflow: 'linebreak',
-                lineWidth: 0.5,
-                lineColor: [0, 0, 0],
-                fillColor: [240, 240, 240],
-                textColor: [0, 0, 0],
+              fontSize: 10,
+              cellPadding: 4,
+              valign: "middle",
+              halign: "center",
+              overflow: "linebreak",
+              lineWidth: 0.5,
+              lineColor: [0, 0, 0],
+              fillColor: [240, 240, 240],
+              textColor: [0, 0, 0],
             },
+            margin: { top: 10 }, // Ajustar margen superior para evitar corte
             didDrawPage: (data) => {
-                // Guardar la posición final para la próxima tabla
-                startY = data.cursor.y + 10;
-            }
+              // Ajustar la posición de la tabla
+              startY = data.cursor.y;
+            },
+          });
+
+          // Actualizar la posición después de la tabla
+          startY = doc.lastAutoTable.finalY + margin;
         });
 
-        // Verificar si el contenido completo cabe en la página actual
-        if (startY > pageHeight) {
-            // Si no cabe, crear una nueva página y renderizar de nuevo
-            doc.deletePage(doc.internal.getNumberOfPages()); // Eliminar la página actual
-            doc.addPage(); // Añadir una nueva página
-            startY = 10; // Reiniciar la posición Y
-
-            // Renderizar de nuevo el nombre y la tabla en la nueva página
-            doc.setFontSize(18);
-            doc.setFont("helvetica", "bold");
-            doc.text(studentName, 15, startY);
-
-            doc.autoTable({
-                html: table,
-                startY: startY + 10,
-                pageBreak: 'auto',
-                headStyles: {
-                    fillColor: [51, 51, 51],
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold',
-                },
-                styles: {
-                    fontSize: 10,
-                    cellPadding: 4,
-                    valign: 'middle',
-                    halign: 'center',
-                    overflow: 'linebreak',
-                    lineWidth: 0.5,
-                    lineColor: [0, 0, 0],
-                    fillColor: [240, 240, 240],
-                    textColor: [0, 0, 0],
-                },
-            });
-
-            startY = doc.lastAutoTable.finalY + 20; // Actualizar la posición para el siguiente elemento
-        } else {
-            // Si cabe, continuar normalmente
-            startY = doc.lastAutoTable.finalY + 20;
-        }
-    });
-
-    doc.save('reporte.pdf');
-}
-
-
-
-
-
+        doc.save("reporte.pdf");
+      }
 
       document.addEventListener("DOMContentLoaded", function () {
         const monthSelect = document.getElementById("monthSelect");

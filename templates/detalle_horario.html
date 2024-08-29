@@ -785,16 +785,18 @@
           console.log("Missing Materia ID or Horario ID");
           return;
         }
-
+        console.log(materiaId);
+        console.log(cursoId);
         // 第一个 AJAX 请求：检查科目和课程是否重复
         $.ajax({
-          url: "/check_materia",
+          url: "/check_materia_horario",
           type: "POST",
           contentType: "application/json", // 指定请求的内容类型为 JSON
           data: JSON.stringify({
             materia_id: materiaId,
             horario_id: cursoId,
           }),
+
           success: function (response) {
             if (response.exists) {
               Swal.fire({

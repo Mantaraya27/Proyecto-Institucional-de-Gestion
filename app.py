@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 from flask import jsonify
 from flask_mail import Mail, Message
 from email_validator import validate_email, EmailNotValidError
+from datetime import datetime
 import pdfkit
 
 def crear_app():
@@ -16,13 +17,16 @@ def crear_app():
     app.config['MAIL_PASSWORD'] = 'ucspfhcmjyrebeze'  # Tu contraseña
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
-    app.config['MYSQL_HOST'] = 'localhost'#'186.17.87.89'
-    app.config['MYSQL_USER'] = 'root'
-    app.config['MYSQL_PASSWORD'] = ''#'Infoctn024'
+    app.config['MYSQL_HOST'] = '186.17.87.89'
+    app.config['MYSQL_USER'] = 'info'
+    app.config['MYSQL_PASSWORD'] = 'Infoctn024'
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mail = Mail(app)
     mysql = MySQL(app)
+
+    def capitalizar_palabras(texto):
+        return texto.title()
 
     @app.route('/')
     def index():
@@ -107,6 +111,8 @@ def crear_app():
                 especialidad = session['espe']
                 ci = request.form['ci']
                 correo_encargado = request.form['correo_encargado']
+                nombre=capitalizar_palabras(nombre)
+                apellido=capitalizar_palabras(apellido)
 
                 # Validar longitud del CI
                 if len(ci) < 7 or len(ci) > 8:
@@ -161,6 +167,8 @@ def crear_app():
                 seccion = request.form['seccion']
                 especialidad = session['espe']
                 correo_encargado = request.form['correo_encargado']
+                nombre=capitalizar_palabras(nombre)
+                apellido=capitalizar_palabras(apellido)
 
                 cur = mysql.connection.cursor()
 
@@ -296,6 +304,8 @@ def crear_app():
             if request.method == 'POST':
                 nombre = request.form['nombre']
                 apellido = request.form['apellido']
+                nombre=capitalizar_palabras(nombre)
+                apellido=capitalizar_palabras(apellido)
                 try:
                     cur = mysql.connection.cursor()
                     cur.execute(
@@ -325,6 +335,8 @@ def crear_app():
                     teacher_id = request.form['teacher_id']
                     nombre = request.form.get('nombre')
                     apellido = request.form.get('apellido')
+                    nombre=capitalizar_palabras(nombre)
+                    apellido=capitalizar_palabras(apellido)
                     cur = mysql.connection.cursor()
                     cur.execute(
                         "Select * from profesor where nombre = %s and apellido = %s", (nombre, apellido))
@@ -388,6 +400,7 @@ def crear_app():
     def add_materia():
         nombre = request.form['nombre']
         especialidad = request.form['especialidad']
+        nombre=capitalizar_palabras(nombre)
         cursos = request.form['anios']
         cur = mysql.connection.cursor()
 
@@ -409,6 +422,7 @@ def crear_app():
     def edit_materia():
         if request.method == 'POST':
             nombre = request.form['nombre']
+            nombre=capitalizar_palabras(nombre)
             especialidad = request.form['especialidad']
             subject_id = request.form['subject_id']
             cursos = request.form['anios']  # Asegúrate de que 'anios' es el nombre correcto del campo
@@ -1212,9 +1226,12 @@ WHERE h.especialidad = %s;
                     desc = cur.fetchone()
                     if desc:
                         rasgos_desc_dict[idrep].append(desc[0])
+            cur.execute("Select especialidad from alumno where ci=%s",(session['ci'],))
+            espe=cur.fetchone()
+            print(espe)
 
             cur.close()
-            return render_template('mt.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
+            return render_template('mt.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict,espe=espe[0])
 
     @app.route('/<espe>/<curso>/<seccion>/imprimir')
     def imprimir(espe, curso, seccion):
@@ -1292,7 +1309,7 @@ WHERE h.especialidad = %s;
             finally:
                 cur.close()
 
-            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict, espe=session['espe'], curso=curso, seccion=seccion)
+            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict, espe=session['espe'], curso=curso, seccion=seccion, role=session['role'])
         else:
             return "Unauthorized", 403
 
@@ -1941,24 +1958,20 @@ WHERE h.especialidad = %s;
     @app.route('/check_materia_horario', methods=['POST'])
     def check_materia_horario():
         if 'role' in session and session['role'] == 'administrador':
-            materia_id = request.form.get('materia_id')
-            horario_id = request.form.get('horario_id')
-
+            data = request.get_json()
             cur = mysql.connection.cursor()
-            # 查询是否存在该关系
-            cur.execute("""
-                SELECT * FROM detalle_horario 
-                WHERE materia_id_materia = %s AND horario_id_horario = %s
-            """, (materia_id, horario_id))
-            result = cur.fetchone()
+            materia_id = data.get('materia_id')
+            horario_id = data.get('horario_id')
+            cur.execute("select horario from detalle_horario where Horario_id_horario = %s and Materia_id_materia = %s", (horario_id, materia_id))
+            horarios = cur.fetchall()
+            print(horarios)
             
             cur.close()
-
+            result = True
             if result:
                 return jsonify({'exists': True})  # 关系已存在
             else:
                 return jsonify({'exists': False})  # 关系不存在
-
         else:
             return jsonify({'error': 'Acceso denegado.'})
         
@@ -2083,7 +2096,20 @@ def email_valido(email):
         return True
     except EmailNotValidError:
         return False
-
+def convertir_horario_a_datetime(horario):
+    inicio_str, fin_str = horario.split('-')
+    inicio = datetime.strptime(inicio_str, '%H:%M')
+    fin = datetime.strptime(fin_str, '%H:%M')
+    return inicio, fin
+def verificar_superposicion(horario_nuevo, horarios_guardados):
+    nuevo_inicio, nuevo_fin = convertir_horario_a_datetime(horario_nuevo)
+    
+    for horario in horarios_guardados:
+        guardado_inicio, guardado_fin = convertir_horario_a_datetime(horario)
+        if max(nuevo_inicio, guardado_inicio) < min(nuevo_fin, guardado_fin):
+            return True
+    
+    return False
 
 if __name__ == '__main__':
     app = crear_app()

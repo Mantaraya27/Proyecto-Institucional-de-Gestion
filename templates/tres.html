@@ -196,9 +196,11 @@
         </h1>
       </div>
       <ul class="sidebar-menu">
+        {% if role == 'administrador' %}
         <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
           <i class="fas fa-home"></i> Menú
         </li>
+        {% endif %}
         <li onclick="navigateTo('{{ url_for('login') }}')">
           <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
         </li>
