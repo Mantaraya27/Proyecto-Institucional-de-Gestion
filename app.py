@@ -3,6 +3,7 @@ import re
 from flask_mysqldb import MySQL
 from flask import jsonify
 from flask_mail import Mail, Message
+from email_validator import validate_email, EmailNotValidError
 import pdfkit
 
 def crear_app():
@@ -54,7 +55,10 @@ def crear_app():
                     session['role'] = 'administrador' if role == 'admin' else 'encargado'
                     session['espe'] = role_especialidades[ci]
                     flash('Login successful')
-                    return redirect(url_for('admin', espe=session['espe']))
+                    if session['role'] == 'administrador':
+                        return redirect(url_for('admin', espe=session['espe']))
+                    elif session['role'] == 'encargado':
+                        return redirect(url_for('elegir_curso', espe = session['espe']))
                 else:
                     flash('Invalid CI for admin/encargado')
 
@@ -508,7 +512,6 @@ def crear_app():
         curso_id = request.json.get('curso_id')
         espe = request.json.get('espe')
         cur = mysql.connection.cursor()
-        print("espe",espe)
         cur.execute("Select curso from horario where id_horario=%s", (curso_id,))
         a = cur.fetchone()
         curso = a[0] if a else None
@@ -547,7 +550,6 @@ def crear_app():
             for materia in k[i]:
                 materias.append(materia)
         
-        print(materias)
         materia_list = [{'id': index, 'name': materia} for index, materia in materias]
         
         cur.close()
@@ -921,7 +923,6 @@ WHERE h.especialidad = %s;
     def add_dethora():
         if 'role' in session and session['role'] == 'administrador':
             if request.method == 'POST':
-                print(request.form)
                 materia_id = request.form['materiaa']
                 horario_id = request.form['horarioo']
                 dia = request.form['tian']
@@ -951,7 +952,6 @@ WHERE h.especialidad = %s;
                 horario_id = request.form['horarioo']
                 dia = request.form['tian']
                 horario = request.form['horario']
-                print(old_horario_id,old_materia_id,materia_id,horario_id,dia,horario)
                 try:
                     cur = mysql.connection.cursor()
                     cur.execute("""
@@ -1004,8 +1004,7 @@ WHERE h.especialidad = %s;
 
     @app.route('/<espe>/<curso>/<seccion>')
     def reportes(espe, curso, seccion):
-        if 'role' in session:
-            print(espe)
+        if 'role' in session:   
             if session['role'] == 'administrador' or session['role'] == 'encargado':
                 cur = mysql.connection.cursor()
                 cur.execute(
@@ -1105,7 +1104,6 @@ WHERE h.especialidad = %s;
         if m:
             m = m[0]
         items = data.get('items', [])
-        print(items)
         for item in items:
             ci = item['id']
             values = item['values']
@@ -1116,7 +1114,6 @@ WHERE h.especialidad = %s;
             cur.execute(
                 "SELECT id_reporte FROM reporte WHERE horario=%s AND fecha=%s AND Alumno_id_alumno=%s", (m, fecha, ids))
             existing_reporte = cur.fetchone()
-            print(existing_reporte)
             if values:
                 if existing_reporte:
                     cur.execute(
@@ -1219,8 +1216,8 @@ WHERE h.especialidad = %s;
             cur.close()
             return render_template('mt.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict)
 
-    @app.route('/<espe>/<curso>/<seccion>/<year>/<mes>/imprimir')
-    def imprimir(espe, curso, seccion, year, mes):
+    @app.route('/<espe>/<curso>/<seccion>/imprimir')
+    def imprimir(espe, curso, seccion):
 
         print(f"Current role: {session.get('role')}")
         
@@ -1295,7 +1292,7 @@ WHERE h.especialidad = %s;
             finally:
                 cur.close()
 
-            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict, espe=session.get('espe'))
+            return render_template('imprimir.html', rep=rep, alum=alum, mat_dict=mat_dict, rasgos_desc_dict=rasgos_desc_dict, espe=session['espe'], curso=curso, seccion=seccion)
         else:
             return "Unauthorized", 403
 
@@ -1349,12 +1346,6 @@ WHERE h.especialidad = %s;
         nombre = data.get('nombre')
         espe = data.get('espe')
         curso = data.get('anios') 
-        print(id_materia)
-        print(nombre)
-        print(espe)
-        print(curso)
-         # No se utiliza en esta función, puedes eliminarlo si no es necesario
-
         print("Datos recibidos en el servidor:", data)
 
         # Conexión a la base de datos
@@ -1642,17 +1633,12 @@ WHERE h.especialidad = %s;
         # Imprimir valores recibidos
         print(f'Recibido: id_horario={id_horario}, especialidad={espe}')
 
-        # Verificación de campos vacíos
         if not id_horario or not espe:
             print('Error: Campos vacíos')
             return jsonify({'error': 'Los campos "id_horario" y "especialidad" son obligatorios'}), 400
 
         try:
-            # Conectar a la base de datos
             cur = mysql.connection.cursor()
-            print('Conexión a la base de datos establecida.')
-
-            # Verificar si el ID existe y pertenece a la especialidad
             cur.execute("SELECT * FROM horario WHERE id_horario = %s AND especialidad = %s", (id_horario, espe))
             curso_existente = cur.fetchone()
             cur.close()
@@ -1941,7 +1927,6 @@ WHERE h.especialidad = %s;
                 id_alumno = resultado
                 cur.execute("SELECT * FROM reporte WHERE Alumno_id_alumno = %s", (id_alumno,))
                 reporte = cur.fetchall()
-                print(reporte)
                 cur.close()
                 return jsonify(reporte)
             else:
@@ -2033,31 +2018,35 @@ WHERE h.especialidad = %s;
                 WHERE  horario_id_horario = %s and horario=%s and dia=%s
             """, ( horario_id,horario,dia ))
             result = cur.fetchone()
-            print(result)
             cur.close()
 
             if result:
                 return jsonify({'exists': True})  # 关系已存在
             else:
                 return jsonify({'exists': False})  # 关系不存在
-    @app.route("/<ci_alumno>/send-pdf-email")
-    def send_pdf_email(ci_alumno):
-        # Renderizar la página que se convertirá en PDF
-        print(f"Current role: {session.get('role')}")
-        
-        if session.get('role') == 'administrador' or session.get('role') == 'enc':
+    @app.route("/<espe>/<curso>/<seccion>/send-email", methods=["POST"])
+    def send_email(espe, curso, seccion):
+        if session['role'] == 'administrador' or session['role'] == 'encargado':
             cur = mysql.connection.cursor()
             try:
-                cur.execute("Select * from alumno where ci = %s", (ci_alumno,))
-                alumno = cur.fetchone()
-                if alumno:
-                    cur.execute("Select id_reporte from reporte where Alumno_id_alumno = %s", (alumno[0], ))
+                year = request.form.get('year')
+                month = request.form.get('month')
+                print(year, month)
+                cur.execute("Select * from alumno where especialidad = %s and curso = %s and seccion = %s", (espe, curso, seccion))
+                alumnos = cur.fetchall()
+                for alumno in alumnos:
+                    print(alumno)
+                    cur.execute("Select id_reporte from reporte where Alumno_id_alumno = %s and YEAR(fecha) = %s and MONTH(fecha) = %s", (alumno[0], year, month))
                     id_reportes = cur.fetchall()
+                    print(id_reportes)
                     if id_reportes:
                         reportes = {}
                         rasgos = {}
                         cur.execute("Select Correo_encargado from alumno where id_alumno = %s", (alumno[0], ))
                         email = cur.fetchone()
+                        if not email_valido(email[0]):
+                            print("El email asociado a " + alumno[1] + " " + alumno[2] + " es invalido.")
+                            continue
                         cur.execute("Select * from reporte where Alumno_id_alumno = %s", (alumno[0], ))
                         reportes = cur.fetchall()
                         for idr in id_reportes:
@@ -2069,12 +2058,11 @@ WHERE h.especialidad = %s;
                         print(rasgos)
                         rendered = render_template('enviar.html', reportes=reportes, rasgos=rasgos, alumno=alumno, id_reportes=id_reportes)
                         pdf = pdfkit.from_string(rendered, False)
-                        print(email[0])
                         msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=['estrehsuyang1123@gmail.com', 'luanycastillo66@gmail.com', email[0]])
-                        msg.body = "Reporte Conductual del mes tantan del alumno " + alumno[1] + " " + alumno[2]
+                        msg.body = "Reporte Conductual del mes " + month + " del alumno " + alumno[1] + " " + alumno[2]
                         msg.attach((alumno[1] + " " + alumno[2] +".pdf"), "application/pdf", pdf)
                         mail.send(msg)
-                        return(render_template('enviar.html', reportes=reportes, rasgos=rasgos, alumno=alumno, id_reportes=id_reportes), print('PDF ENVIADO!'))
+                        print('Email de ' + alumno[1] + ' ' + alumno[2] + ' enviado!')
             except Exception as e:
                 print(f"Error: {e}")
                 print("holi")
@@ -2083,7 +2071,16 @@ WHERE h.especialidad = %s;
         else:
             return "Unauthorized", 403
         return(render_template('enviar.html'))
+    @app.route("/<espe>/<curso>/<seccion>/report")
+    def seleccion_add_imp(espe, curso, seccion):
+        return render_template('seleccion.html', espe=espe, curso=curso, seccion=seccion)
     return app
+def email_valido(email):
+    try:
+        v = validate_email(email)
+        return True
+    except EmailNotValidError:
+        return False
 
 
 if __name__ == '__main__':

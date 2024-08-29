@@ -13,6 +13,7 @@
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: rgb(43, 36, 36);
+            overflow-x: hidden;
         }
 
         .sidebar {
@@ -22,11 +23,14 @@
             height: 100vh;
             position: fixed;
         }
+        
         .formTitle {
+            margin-left: 20%;
             color: rgb(241, 223, 223);
         }
+        
         .sidebar-header {
-            padding: 20px;
+            padding: 2px;
             text-align: center;
             font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
             font-size: 18px;
@@ -59,7 +63,6 @@
         }
 
         .main-content {
-            margin-left: 250px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -92,11 +95,11 @@
             border-radius: 50%;
         }
         .button-grid {
-            margin-left: 286px;
+            margin-left: 40%;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 30px; /* Ajusta la separación entre las tarjetas de los botones */
-            padding: 20px;
+            padding: 10px;
             width: 100%;
             max-width: 1200px;
             box-sizing: border-box;
@@ -154,11 +157,11 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>CTN</h1>
+            <h1>CTN<br>{{ 'C.Civiles' if espe == 'Construccion civil' else 'M.Industrial' if espe == 'Mecánica Industrial' else 'Emca' if espe == 'Electromecanica' else espe }}</h1>
         </div>
         <ul class="sidebar-menu">
             <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
-                <i class="fas fa-home"></i> Inicio
+                <i class="fas fa-home"></i> Menú
             </li>
             <li onclick="navigateTo('{{ url_for('login') }}')">
                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
@@ -179,38 +182,38 @@
         </div>
         <div class="button-grid">
             <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=1, seccion=1) }}')">
+                <div class="button-item" onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=1, seccion=1) }}')">
                     <i class="fas fa-mug-hot"></i>
                 </div>
                 <h4>1ero 1era</h4>
             </div>
             <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=1, seccion=2) }}')">
+                <div class="button-item" onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=1, seccion=2) }}')">
                     <i class="fas fa-mug-hot"></i>
                 </div>
                 <h4>1ero 2da</h4>
             </div>
             <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=2, seccion=1) }}')">
+                <div class="button-item" onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=2, seccion=1) }}')">
                     <i class="fas fa-mug-hot"></i>
                 </div>
                 <h4>2do 1era</h4>
             </div>
             <br>
             <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=2, seccion=2) }}')">
+                <div class="button-item" onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=2, seccion=2) }}')">
                     <i class="fas fa-mug-hot"></i>
                 </div>
                 <h4>2do 2da</h4>
             </div>
             <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=3, seccion=1) }}')">
+                <div class="button-item" onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=3, seccion=1) }}')">
                     <i class="fas fa-mug-hot"></i>
                 </div>
                 <h4>3ero 1era</h4>
             </div>
             <div class="button-card">
-                <div class="button-item" onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=3, seccion=2) }}')">
+                <div class="button-item" onclick="navigateTo('{{ url_for('seleccion_add_imp', espe=espe, curso=3, seccion=2) }}')">
                     <i class="fas fa-mug-hot"></i>
                 </div>
                 <h4>3ero 2da</h4>

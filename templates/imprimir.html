@@ -6,119 +6,357 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: rgb(43, 36, 36);
+        }
+    
+        .sidebar {
+            width: 250px;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            color: #ece6e6;
+            height: 100vh;
+            position: fixed;
+        }
+
+        .sidebar-header {
+            padding: 2px;
+            padding-bottom: 0px;
+            text-align: center;
+            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+            font-size: 18px;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            border-style: solid;
+            border-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            margin-right: 6px;
+            color: {{ '#ffffff' if espe == 'Química' else '#ffffff' }};
+        }
+
+        .sidebar-menu {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: {{ '#ffffff' if espe == 'Química' else '#ffffff' }};
+        }
+
+        .sidebar-menu li i {
+            font-size: 20px;
+            color: {{ '#ffffff' if espe == 'Química' else '#ffffff' }};
+        }
+
+        .sidebar-menu li:hover {
+            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+        }
+
+        .main-content {
+            margin-top: 4.5%;
+            margin-left: 250px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .barra {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .select-container {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #333;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus {
+            box-shadow: 0 0 5px #198094;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            color: #ecf0f1;
+            padding: 10px 20px;
+            background-color: rgb(43, 36, 36);
+            width: 100%;
+            text-decoration: underline;
+        }
+    
+        .alumno-container {
+            margin: 20px 0;
+            width: 100%;
+        }
+    
+        .alumno-container h2 {
+            color: #ffffff; /* Títulos de los alumnos en blanco */
+        }
+    
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
 
-        th,
-        td {
+        th, td {
+            font-size: 1.1em;
             border: 1px solid #000;
-            padding: 8px;
-            text-align: left;
+            padding: 12px; /* Aumenta el padding para mayor espacio */
+            text-align: center;
+            color: #ffffff;
+            background-color: #212121;
+            vertical-align: middle; /* Asegura que el texto esté centrado verticalmente */
+            line-height: 1.5; /* Ajusta la altura de línea para mayor separación entre líneas */
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #333;
         }
 
-        .barra {
-            margin-bottom: 20px;
+    
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
         }
+    
+        .button-card {
+            background-color: {{ '#92024a' if espe == 'Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            padding: 20px;
+            border-radius: 10%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 210px;
+        }
+    
+        .button-card h3,
+        .button-card h4 {
+            color: #ffffff; /* Títulos en blanco */
+            margin: 0;
+        }
+    
+        .button-card:hover {
+            background-color: {{ '#300111' if espe == 'Informatica' else '#362c21' if espe == 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+        }
+        .button-container {
+            display: flex;
+            gap: 20px; /* Espacio entre los botones */
+            margin-top: 20px; /* Espacio superior para separar del contenido */
+        }
+
+        /* Estilo para el botón de enviar por email */
+        #email-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #fff;
+            background-color: {{ '#92024a' if espe == 'Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad' }};
+            transition: background-color 0.3s;
+        }
+
+        #email-btn:hover {
+            background-color: {{ '#300111' if espe == 'Informatica' else '#362c21' if espe == 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad' }};
+        }
+        /* Estilos del botón para generar PDF */
+        #generate-pdf-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #fff;
+            background-color: {{ '#92024a' if espe == 'Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad' }};
+            transition: background-color 0.3s;
+        }
+    
+        #generate-pdf-btn:hover {
+            background-color: {{ '#300111' if espe == 'Informatica' else '#362c21' if espe == 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad' }};
+        }
+        .large {
+            width: 120px;
+        }
+
     </style>
+    
+    
 </head>
 
 <body>
-    <div class="barra">
-        <label for="monthSelect">Seleccione el Mes:</label>
-        <select id="monthSelect">
-            <option value="" selected disabled>Seleccione un mes</option>
-            <option value="01">Enero</option>
-            <option value="02">Febrero</option>
-            <option value="03">Marzo</option>
-            <option value="04">Abril</option>
-            <option value="05">Mayo</option>
-            <option value="06">Junio</option>
-            <option value="07">Julio</option>
-            <option value="08">Agosto</option>
-            <option value="09">Septiembre</option>
-            <option value="10">Octubre</option>
-            <option value="11">Noviembre</option>
-            <option value="12">Diciembre</option>
-        </select>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>CTN<br>{{ 'C.Civiles' if espe == 'Construccion civil' else 'M.Industrial' if espe == 'Mecánica Industrial' else 'Emca' if espe == 'Electromecanica' else espe }}</h1>
+        </div>
+        <ul class="sidebar-menu">
+            <li onclick="navigateTo('{{ url_for('admin', espe=espe) }}')">
+                <i class="fas fa-home"></i> Menú
+            </li>
+            <li onclick="navigateTo('{{ url_for('reportes', espe=espe, curso=curso, seccion=seccion) }}')">
+                <i class="fas fa-book-open"></i> Crear Reportes
+            </li>
+            <li onclick="navigateTo('{{ url_for('login') }}')">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </li>
+            <li onclick="navigateTo('#')">
+                <i class="fas fa-life-ring"></i> Ayuda
+            </li>
+        </ul>
     </div>
 
-    {% for alumno in alum %}
-    {% set alumno_reports = rep | selectattr('3', 'equalto', alumno[0]) | list %}
+    <div class="main-content">
+        <div class="topbar">
+            <div class="user-info">
+                <span>Usuario</span>
+                <img src="https://via.placeholder.com/40" alt="Usuario">
+            </div>
+        </div>  
+        <div class="barra">
+            <label for="monthSelect">Mes y Año:</label>
+            <div class="select-container">
+                <select id="monthSelect">
+                    <option value="" selected disabled>Seleccione un mes</option>
+                    <option value="01">Enero</option>
+                    <option value="02">Febrero</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Mayo</option>
+                    <option value="06">Junio</option>
+                    <option value="07">Julio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+                <select id="yearSelect">
+                    <!-- Opciones de año se llenarán automáticamente -->
+                </select>
+            </div>
+        </div>
+        
 
-    {% if alumno_reports %}
-    <div class="alumno-container">
-        <h2>{{ alumno[1] }} {{ alumno[2] }} - {{ alumno[5] }}</h2>
+        {% for alumno in alum %}
+        {% set alumno_reports = rep | selectattr('3', 'equalto', alumno[0]) | list %}
 
-        <table border="1" class="tablaAlumnos">
-            <thead>
-                <tr>
-                    <th>Materia</th>
-                    <th>Horario</th>
-                    <th>Fecha</th>
-                    <th>Rasgos Conductuales</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in alumno_reports %}
-                <tr data-fecha="{{ report[2] }}">
-                    <td>{{ mat_dict[report[0]] }}</td>
-                    <td>{{ report[1] }}</td>
-                    <td>{{ report[2] }}</td>
-                    <td>
-                        {% if rasgos_desc_dict[report[0]] %}
-                        <ul>
-                            {% for rasgo in rasgos_desc_dict[report[0]] %}
-                            <li>{{ rasgo }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        Ninguno
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% if alumno_reports %}
+        <div class="alumno-container">
+            <h2>{{ alumno[1] }} {{ alumno[2] }} - {{ alumno[5] }}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Materia</th>
+                        <th>Horario</th>
+                        <th>Fecha</th>
+                        <th>Rasgos Conductuales</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in alumno_reports %}
+                    <tr data-fecha="{{ report[2] }}">
+                        <td class="large">{{ mat_dict[report[0]] }}</td>
+                        <td class="large">{{ report[1] }}</td>
+                        <td class="large">{{ report[2] }}</td>
+                        <td>
+                            {% if rasgos_desc_dict[report[0]] %}
+                            <ul>
+                                {% for rasgo in rasgos_desc_dict[report[0]] %}
+                                <li>{{ rasgo }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            Ninguno
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+    <!-- Botones para generar PDF y enviar por Email -->
+    <div class="button-container">
+        <button id="generate-pdf-btn" onclick="generatePDF()">Generar PDF y Descargar</button>
+        <button id="email-btn" onclick="submitEmailForm()">Enviar por Email</button>
+        <form id="emailForm" action="{{ url_for('send_email', espe=espe, curso=curso, seccion=seccion) }}" method="POST" style="display: none;">
+            <input type="hidden" name="month" id="formMonth">
+            <input type="hidden" name="year" id="formYear">
+        </form>
     </div>
-    {% endif %}
-    {% endfor %}
 
-    <button onclick="generatePDF()">生成PDF并下载</button>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
+    </div>
 
     <script>
-
-function generatePDF() {
+        function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const visibleAlumnoContainers = document.querySelectorAll('.alumno-container:not([style*="display: none"])');
 
-    let startY = 10; // PDF 页面中的起始位置
+    let startY = 10;
 
     visibleAlumnoContainers.forEach(container => {
-        // 获取学生姓名和报告表格
         const studentName = container.querySelector('h2').innerText;
         const table = container.querySelector('table');
 
-        // 将学生姓名添加到 PDF
-        doc.setFontSize(18); // 设置学生姓名的字体大小
-        doc.setFont("helvetica", "bold"); // 设置字体为粗体
-        doc.text(studentName, 15, startY); // 在当前 Y 位置插入学生姓名
+        // Estimación de altura del nombre y espacio necesario
+        const nameHeight = 10; 
+        const tableHeight = 40; // Ajusta según la altura promedio de las tablas
+        const pageHeight = doc.internal.pageSize.height;
+        const neededSpace = nameHeight + tableHeight + 10;
 
-        // 将表格转换为 PDF
+        // Añade una nueva página si no hay suficiente espacio para ambos
+        if (startY + neededSpace > pageHeight) {
+            doc.addPage();
+            startY = 10;
+        }
+
+        // Añadir el nombre del alumno
+        doc.setFontSize(18);
+        doc.setFont("helvetica", "bold");
+        doc.text(studentName, 15, startY);
+
+        // Ajuste de autoTable para evitar líneas vacías
         doc.autoTable({
             html: table,
             startY: startY + 10,
+            pageBreak: 'avoid',
             styles: {
                 fontSize: 10,
                 cellPadding: 4,
@@ -128,70 +366,120 @@ function generatePDF() {
                 lineWidth: 0.5,
                 lineColor: [0, 0, 0],
                 fillColor: [240, 240, 240],
-                textColor: [0, 0, 0]
+                textColor: [0, 0, 0],
             },
             headStyles: {
-                fillColor: [255, 255, 255],
-                textColor: [0, 0, 0]
+                fillColor: [51, 51, 51],
+                textColor: [255, 255, 255],
             },
-            didDrawCell: (data) => {
-                if (data.column.index === 3) {
-                    const text = data.cell.raw.innerText || data.cell.text || '';
-                    const lines = doc.splitTextToSize(text, data.cell.width - data.cell.padding('horizontal'));
-
-                    if (data.cell.textPos) {
-                        doc.text(lines, data.cell.textPos.x, data.cell.textPos.y + 2);
-                    }
-
-                    data.cell.text = '';
+            willDrawCell: (data) => {
+                if (data.section === 'body' && data.column.dataKey === 3) {
+                    // Asegurarse de que los rasgos se alineen verticalmente
+                    data.cell.styles.cellPadding = 4;
+                    data.cell.styles.minCellHeight = 10;
+                }
+            },
+            didDrawPage: (data) => {
+                // Ajuste de la posición al final del contenido
+                if (data.cursor.y + 10 > pageHeight) {
+                    doc.addPage();
+                    startY = 10;
                 }
             }
         });
 
-        // 更新 startY 为下一个表格的起始位置
-        startY = doc.lastAutoTable.finalY + 30;
+        // Actualiza la posición después de la tabla
+        startY = doc.lastAutoTable.finalY + 20;
     });
 
-    // 保存 PDF
     doc.save('reporte.pdf');
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
+    const alumnoContainers = document.querySelectorAll('.alumno-container');
 
+    function filterReports() {
+        const selectedMonth = monthSelect.value;
+        const selectedYear = yearSelect.value;
 
+        alumnoContainers.forEach(container => {
+            const rows = container.querySelectorAll('tbody tr');
+            let hasVisibleRow = false;
 
+            rows.forEach(row => {
+                const rowDate = row.getAttribute('data-fecha');
+                const rowYear = rowDate.slice(0, 4);
+                const rowMonth = rowDate.slice(5, 7);
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const monthSelect = document.getElementById('monthSelect');
+                if ((selectedYear === '' || rowYear === selectedYear) && 
+                    (selectedMonth === '' || rowMonth === selectedMonth)) {
+                    row.style.display = '';
+                    hasVisibleRow = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
 
-            monthSelect.addEventListener('change', function () {
-                const selectedMonth = this.value;
+            container.style.display = hasVisibleRow ? '' : 'none';
+        });
+    }
 
-                // 遍历所有的 .alumno-container
-                document.querySelectorAll('.alumno-container').forEach(container => {
-                    const rows = container.querySelectorAll('tbody tr');
-                    let hasVisibleRows = false;
+    monthSelect.addEventListener('change', filterReports);
+    yearSelect.addEventListener('change', filterReports);
 
-                    rows.forEach(row => {
-                        const reportDate = row.getAttribute('data-fecha');
-                        const reportMonth = reportDate.split('-')[1];
+    // Inicializa los selectores cuando la página se carga
+    function initializeSelectors() {
+        // Establece el mes actual
+        const currentMonth = new Date().getMonth() + 1; // getMonth() es 0-indexado
+        monthSelect.value = currentMonth < 10 ? `0${currentMonth}` : currentMonth;
 
-                        if (reportMonth === selectedMonth) {
-                            row.style.display = '';
-                            hasVisibleRows = true; // 如果有可见的行，标记为 true
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
+        // Establece el año actual
+        const currentYear = new Date().getFullYear();
+        yearSelect.value = currentYear;
 
-                    // 如果没有可见的行，隐藏整个容器
-                    if (!hasVisibleRows) {
-                        container.style.display = 'none';
-                    } else {
-                        container.style.display = '';
-                    }
-                });
+        // Llena el selector de años con un rango de 10 años
+        const yearsWithReports = new Set(); // Para almacenar los años con reportes
+
+        alumnoContainers.forEach(container => {
+            const rows = container.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const reportYear = row.getAttribute('data-fecha').slice(0, 4);
+                yearsWithReports.add(reportYear);
             });
         });
+
+        // Llena el selector de años solo con los años que tienen reportes
+        for (let i = currentYear; i >= currentYear - 10; i--) {
+            if (yearsWithReports.has(i.toString())) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        filterReports(); // Aplica el filtro inicial
+    }
+
+    initializeSelectors();
+});
+function submitEmailForm() {
+    const month = document.getElementById('monthSelect').value;
+    const year = document.getElementById('yearSelect').value;
+
+    // Establece los valores en los campos ocultos
+    document.getElementById('formMonth').value = month;
+    document.getElementById('formYear').value = year;
+
+    // Envía el formulario
+    document.getElementById('emailForm').submit();
+}
+
+    function navigateTo(url) {
+            window.location.href = url;
+        }
     </script>
 </body>
 
