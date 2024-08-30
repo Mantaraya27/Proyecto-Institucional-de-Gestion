@@ -741,9 +741,9 @@
       function validar_campos_vacios() {
         const nombre = document.getElementById("nombre").value.trim();
         const apellido = document.getElementById("apellido").value.trim();
-        const currentCi = document.getElementById("current_ci")
-          ? document.getElementById("current_ci").value.trim()
-          : null; // CI actual del alumno (si existe)
+        const currentCi = document.getElementById("correo_encargado_2")
+          ? document.getElementById("correo_encargado_2").value.trim()
+          : null; 
         const ci = document.getElementById("ci").value.trim();
         var formMode = document.getElementById("form_mode").value;
 
@@ -912,7 +912,12 @@
         const ci = document.getElementById("ci").value.trim();
         const email = document.getElementById("correo_encargado").value.trim();
         const formMode = document.getElementById("form_mode").value; // Obtener el modo del formulario
-        const espe = document.getElementById("espe").value; // Obtener la especialidad
+        const espe = document.getElementById("espe").value;
+        const currentCi = document.getElementById("correo_encargado_2")
+          ? document.getElementById("correo_encargado_2").value.trim()
+          : null;
+        console.log(currentCi)
+        
 
         // Validar longitud del CI
         if (ci.length < 7 || ci.length > 8) {
@@ -941,7 +946,7 @@
         }
 
         // Validar correo electrónico (debes implementar esta función)
-        if (!validarEmail(email)) {
+        if (!validarEmail(email)||!validarEmail(currentCi)) {
           Swal.fire({
             icon: "error",
             title: "Error",
