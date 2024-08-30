@@ -747,7 +747,7 @@
         const ci = document.getElementById("ci").value.trim();
         var formMode = document.getElementById("form_mode").value;
 
-        if (!nombre || !apellido || !ci) {
+        if (!nombre || !apellido || !ci ||!currentCi) {
           Swal.fire({
             icon: "error",
             title: "Campos vacíos",
