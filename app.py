@@ -7,7 +7,7 @@ from email_validator import validate_email, EmailNotValidError
 from datetime import datetime
 import pdfkit
 
-def crear_app():
+def crear_app(): 
     app = Flask(__name__)
     EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
@@ -17,9 +17,9 @@ def crear_app():
     app.config['MAIL_PASSWORD'] = 'ucspfhcmjyrebeze'  # Tu contraseña
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
-    app.config['MYSQL_HOST'] = '186.17.87.89'
-    app.config['MYSQL_USER'] = 'info'
-    app.config['MYSQL_PASSWORD'] = 'Infoctn024'
+    app.config['MYSQL_HOST'] = 'localhost'
+    app.config['MYSQL_USER'] = 'root'
+    app.config['MYSQL_PASSWORD'] = ''
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mail = Mail(app)
@@ -111,6 +111,8 @@ def crear_app():
                 especialidad = session['espe']
                 ci = request.form['ci']
                 correo_encargado = request.form['correo_encargado']
+                correo_encargado2 = request.form.get('correo_encargado_2')
+                print(correo_encargado2)
                 nombre=capitalizar_palabras(nombre)
                 apellido=capitalizar_palabras(apellido)
 
@@ -141,10 +143,16 @@ def crear_app():
                     return redirect(url_for('alumnos', espe=session['espe']))
 
                 try:
-                    cur.execute("""
-                        INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado))
+                    if correo_encargado2:
+                        cur.execute("""
+                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado,Correo_encargado2)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s,%s)
+                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado,correo_encargado2))
+                    else:
+                        cur.execute("""
+                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado))
                     mysql.connection.commit()
                     flash('Contacto agregado exitosamente', 'success')
                 except Exception as e:
@@ -167,6 +175,7 @@ def crear_app():
                 seccion = request.form['seccion']
                 especialidad = session['espe']
                 correo_encargado = request.form['correo_encargado']
+                correo_encargado2 = request.form.get('correo_encargado_2')
                 nombre=capitalizar_palabras(nombre)
                 apellido=capitalizar_palabras(apellido)
 
@@ -183,10 +192,18 @@ def crear_app():
 
                 # 更新记录
                 try:
-                    cur.execute("""
-                        UPDATE alumno SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s
-                        WHERE ci = %s
-                    """, (nombre, apellido, curso, seccion, especialidad, correo_encargado, ci))
+                    if not correo_encargado2:
+                        cur.execute("DELETE FROM `alumno` WHERE ci=%s",(ci,))
+                        cur.execute("""
+                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado))
+                    else:
+                        print(correo_encargado2)
+                        cur.execute("""
+                            UPDATE alumno SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s,Correo_encargado2 =%s
+                            WHERE ci = %s
+                        """, (nombre, apellido, curso, seccion, especialidad, correo_encargado,correo_encargado2, ci))
                     mysql.connection.commit()
                     flash('Contacto actualizado exitosamente')
                 except Exception as e:
