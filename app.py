@@ -111,10 +111,10 @@ def crear_app():
                 especialidad = session['espe']
                 ci = request.form['ci']
                 correo_encargado = request.form['correo_encargado']
-                correo_encargado2 = request.form.get('correo_encargado_2')
-                print(correo_encargado2)
-                nombre=capitalizar_palabras(nombre)
-                apellido=capitalizar_palabras(apellido)
+                correo_encargado2 = request.form.get('correo_encargado_2', '')  # Asignar cadena vacía si no se proporciona
+
+                nombre = capitalizar_palabras(nombre)
+                apellido = capitalizar_palabras(apellido)
 
                 # Validar longitud del CI
                 if len(ci) < 7 or len(ci) > 8:
@@ -145,14 +145,14 @@ def crear_app():
                 try:
                     if correo_encargado2:
                         cur.execute("""
-                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado,Correo_encargado2)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s,%s)
-                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado,correo_encargado2))
+                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado, Correo_encargado2)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado, correo_encargado2))
                     else:
                         cur.execute("""
-                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)
-                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado))
+                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado, Correo_encargado2)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado, ''))  # Asignar cadena vacía si no hay segundo correo
                     mysql.connection.commit()
                     flash('Contacto agregado exitosamente', 'success')
                 except Exception as e:
@@ -163,6 +163,7 @@ def crear_app():
                 return redirect(url_for('alumnos', espe=session['espe']))
         else:
             return redirect(url_for('login'))
+
 
     @app.route('/edit_contact', methods=['POST'])
     def edit_contact():
@@ -175,45 +176,44 @@ def crear_app():
                 seccion = request.form['seccion']
                 especialidad = session['espe']
                 correo_encargado = request.form['correo_encargado']
-                correo_encargado2 = request.form.get('correo_encargado_2')
-                nombre=capitalizar_palabras(nombre)
-                apellido=capitalizar_palabras(apellido)
+                correo_encargado2 = request.form.get('correo_encargado_2', '')  # Default to empty string if not provided
+                nombre = capitalizar_palabras(nombre)
+                apellido = capitalizar_palabras(apellido)
 
                 cur = mysql.connection.cursor()
 
-                # 检查是否有相同的记录（除了ci）
-                cur.execute("SELECT * FROM alumno WHERE nombre = %s AND apellido = %s AND curso = %s AND seccion = %s AND especialidad = %s AND correo_encargado = %s AND ci != %s",
-                            (nombre, apellido, curso, seccion, especialidad, correo_encargado, ci))
+                # Verificar si ya existe un alumno con los mismos datos (excepto CI)
+                cur.execute("""
+                    SELECT * FROM alumno
+                    WHERE nombre = %s AND apellido = %s AND curso = %s AND seccion = %s AND especialidad = %s AND correo_encargado = %s AND ci != %s
+                """, (nombre, apellido, curso, seccion, especialidad, correo_encargado, ci))
                 alumno_existente = cur.fetchone()
 
                 if alumno_existente:
-                    flash('Ya existe un alumno con estos datos')
+                    flash('Ya existe un alumno con estos datos', 'error')
                     return redirect(url_for('alumnos', espe=session['espe']))
 
-                # 更新记录
+                # Actualizar registro
                 try:
-                    if not correo_encargado2:
-                        cur.execute("DELETE FROM `alumno` WHERE ci=%s",(ci,))
-                        cur.execute("""
-                            INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)
-                        """, (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado))
-                    else:
-                        print(correo_encargado2)
-                        cur.execute("""
-                            UPDATE alumno SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s,Correo_encargado2 =%s
-                            WHERE ci = %s
-                        """, (nombre, apellido, curso, seccion, especialidad, correo_encargado,correo_encargado2, ci))
+                    cur.execute("""
+                        UPDATE alumno SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s, Correo_encargado2 = %s
+                        WHERE ci = %s
+                    """, (nombre, apellido, curso, seccion, especialidad, correo_encargado, correo_encargado2, ci))
+
                     mysql.connection.commit()
-                    flash('Contacto actualizado exitosamente')
+                    flash('Contacto actualizado exitosamente', 'success')
                 except Exception as e:
                     mysql.connection.rollback()
-                    flash(f'Error: {e}')
+                    flash(f'Error: {e}', 'error')
                 finally:
                     cur.close()
                 return redirect(url_for('alumnos', espe=session['espe']))
         else:
             return redirect(url_for('login'))
+
+
+
+
 
     @app.route('/delete_contact', methods=['POST'])
     def delete_contact():

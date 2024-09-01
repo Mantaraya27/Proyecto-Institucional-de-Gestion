@@ -747,13 +747,13 @@
       function validar_campos_vacios() {
         const nombre = document.getElementById("nombre").value.trim();
         const apellido = document.getElementById("apellido").value.trim();
-        const currentCi = document.getElementById("current_ci")
-          ? document.getElementById("current_ci").value.trim()
-          : null; // CI actual del alumno (si existe)
         const ci = document.getElementById("ci").value.trim();
-        var formMode = document.getElementById("form_mode").value;
 
-        if (!nombre || !apellido || !ci) {
+        // Solo valida `correo_encargado_2` si está presente en el DOM
+        const correoEncargado2 = document.getElementById("correo_encargado_2");
+        const currentCi = correoEncargado2 && correoEncargado2.value.trim();
+
+        if (!nombre || !apellido || !ci || (correoEncargado2 && !currentCi)) {
           Swal.fire({
             icon: "error",
             title: "Campos vacíos",
@@ -910,15 +910,20 @@
       async function validar_alumno(event) {
         event.preventDefault(); // Previene el envío automático del formulario
 
-        // Validar campos vacíos y nombres (debes implementar estas funciones)
+        // Validar campos vacíos y nombres
         if (!validar_campos_vacios() || !validar_nombre_apellido()) {
           return; // Si alguna validación falla, no envíes el formulario
         }
 
         const ci = document.getElementById("ci").value.trim();
         const email = document.getElementById("correo_encargado").value.trim();
+        const correoEncargado2Element =
+          document.getElementById("correo_encargado_2");
+        const email2 = correoEncargado2Element
+          ? correoEncargado2Element.value.trim()
+          : null;
         const formMode = document.getElementById("form_mode").value; // Obtener el modo del formulario
-        const espe = document.getElementById("espe").value; // Obtener la especialidad
+        const espe = document.getElementById("espe").value;
 
         // Validar longitud del CI
         if (ci.length < 7 || ci.length > 8) {
@@ -946,7 +951,7 @@
           return; // Detiene el proceso si el CI no es numérico
         }
 
-        // Validar correo electrónico (debes implementar esta función)
+        // Validar correo electrónico principal
         if (!validarEmail(email)) {
           Swal.fire({
             icon: "error",
@@ -957,6 +962,19 @@
             timerProgressBar: true,
           });
           return; // Detiene el proceso si el correo electrónico no es válido
+        }
+
+        // Validar correo electrónico adicional solo si está presente y no está vacío
+        if (correoEncargado2Element && email2 && !validarEmail(email2)) {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "El correo electrónico adicional ingresado no es válido.",
+            timer: 3500,
+            showConfirmButton: false,
+            timerProgressBar: true,
+          });
+          return; // Detiene el proceso si el correo electrónico adicional no es válido
         }
 
         try {
