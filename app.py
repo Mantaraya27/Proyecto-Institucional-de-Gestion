@@ -1979,9 +1979,14 @@ WHERE h.especialidad = %s;
             cur = mysql.connection.cursor()
             materia_id = data.get('materia_id')
             horario_id = data.get('horario_id')
+            dia = data.get('dia')
+            print(materia_id)
+            print(dia)
             cur.execute("select horario from detalle_horario where Horario_id_horario = %s and Materia_id_materia = %s", (horario_id, materia_id))
             horarios = cur.fetchall()
-            print(horarios)
+            if horarios:
+                for horario in horarios:
+                    print(horario)
             
             cur.close()
             result = True

@@ -477,17 +477,21 @@
             required
             oninput="this.value = this.value.replace(/[^0-9]/g, '');"
           />
-          <p class="formTitle">Cantidad correo</p>
-    <select id="cantidadCorreo">
-        <option value="1">1</option>
-        <option value="2">2</option>
-    </select>
+          <p class="formTitle">Cantidad de correos</p>
+          <select id="cantidadCorreo">
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
 
-    <p class="formTitle">Correo Electronico encargado</p>
-    <input type="email" name="correo_encargado" id="correo_encargado" required />
-    
+          <p class="formTitle">Correo Electronico encargado</p>
+          <input
+            type="email"
+            name="correo_encargado"
+            id="correo_encargado"
+            required
+          />
 
-    <div id="extraCorreo"></div>
+          <div id="extraCorreo"></div>
           <!-- Este campo oculto debe estar presente solo en modo de edición -->
           <input
             type="hidden"
@@ -565,7 +569,7 @@
               <td>{{ alumno[5] }}</td>
               <td>{{ alumno[6] }}</td>
               <td>{{ alumno[7] }}</td>
-              <td>{{ alumno[8] }}</td>
+              <td>{{ alumno[8] if alumno[8] else 'Vacio'}}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -625,28 +629,30 @@
         const sidebar = document.querySelector(".sidebar");
         sidebar.classList.toggle("closed");
       }
-      document.getElementById('cantidadCorreo').addEventListener('change', function() {
-            var extraCorreoDiv = document.getElementById('extraCorreo');
-            extraCorreoDiv.innerHTML = ''; // 清空之前的内容
+      document
+        .getElementById("cantidadCorreo")
+        .addEventListener("change", function () {
+          var extraCorreoDiv = document.getElementById("extraCorreo");
+          extraCorreoDiv.innerHTML = ""; // 清空之前的内容
 
-            console.log("Cambio detectado. Valor seleccionado:", this.value); // 调试信息
+          console.log("Cambio detectado. Valor seleccionado:", this.value); // 调试信息
 
-            if (this.value == '2') {
-                console.log("添加第二个 Correo Electronico encargado"); // 调试信息
+          if (this.value == "2") {
+            console.log("添加第二个 Correo Electronico encargado"); // 调试信息
 
-                var newTitle = document.createElement('p');
-                newTitle.className = 'formTitle';
-                newTitle.textContent = 'Correo Electronico encargado';
+            var newTitle = document.createElement("p");
+            newTitle.className = "formTitle";
+            newTitle.textContent = "Correo Electronico encargado";
 
-                var newInput = document.createElement('input');
-                newInput.type = 'email';
-                newInput.name = 'correo_encargado_2';
-                newInput.id = 'correo_encargado_2';
-                newInput.required = true;
+            var newInput = document.createElement("input");
+            newInput.type = "email";
+            newInput.name = "correo_encargado_2";
+            newInput.id = "correo_encargado_2";
+            newInput.required = true;
 
-                extraCorreoDiv.appendChild(newTitle);
-                extraCorreoDiv.appendChild(newInput);
-            }
+            extraCorreoDiv.appendChild(newTitle);
+            extraCorreoDiv.appendChild(newInput);
+          }
         });
 
       // Validaciones específicas para especialidad y sección
@@ -1034,7 +1040,6 @@
           });
         }
       }
-      
     </script>
   </body>
 </html>
