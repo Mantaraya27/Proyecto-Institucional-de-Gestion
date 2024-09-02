@@ -372,7 +372,9 @@
           >
         </li>
         <li>
-          <a href="#"><i class="fa fa-question-circle"></i> Soporte</a>
+          <a href="{{ url_for('Manual_de_usuario') }}"
+            ><i class="fa fa-question-circle"></i> Soporte</a
+          >
         </li>
         <li>
           <a href="{{url_for('materia', espe=espe)}}"
@@ -795,6 +797,7 @@
           data: JSON.stringify({
             materia_id: materiaId,
             horario_id: cursoId,
+            dia: dia,
           }),
 
           success: function (response) {
