@@ -212,7 +212,39 @@ def crear_app():
             return redirect(url_for('login'))
 
 
+    @app.route('/get_student_data', methods=['GET'])
+    def get_student_data():
+        ci = request.args.get('ci')
+        
+        if not ci:
+            return jsonify({"error": "No CI provided"}), 400
+        
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT nombre, apellido, curso, seccion, correo_encargado, correo_encargado2
+            FROM alumno
+            WHERE ci = %s
+        """, (ci,))
+        
+        student = cur.fetchone()
+        print(student)
+        cur.close()
 
+        if student:
+            student_data = {
+                'nombre': student[0],
+                'apellido': student[1],
+                'curso': student[2],
+                'seccion': student[3],
+                'correo_encargado': student[4],
+                'correo_encargado2': student[5]
+            }
+            return jsonify(student_data)
+        else:
+            return jsonify({"error": "Student not found"}), 404
+
+
+       
 
 
     @app.route('/delete_contact', methods=['POST'])

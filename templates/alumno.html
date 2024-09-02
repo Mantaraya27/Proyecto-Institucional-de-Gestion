@@ -426,20 +426,35 @@
         </div>
 
         <form
-          id="studentForm"
-          action="{{ url_for('add_contact') }}"
-          method="POST"
-          class="contact-form"
-        >
-          <h1 class="formTitle">Agregar Alumno</h1>
-          <input type="hidden" name="form_mode" id="form_mode" value="add" />
-          <input type="hidden" name="espe" id="espe" value="{{ espe }}" />
+        <form
+        id="studentForm"
+        action="{{ url_for('add_contact') }}"
+        method="POST"
+        class="contact-form"
+      >
+        <h1 class="formTitle"></h1>
+        <input type="hidden" name="form_mode" id="form_mode" value="add" />
+        <input type="hidden" name="espe" id="espe" value="{{ espe }}" />
+        
+        <div id="ciField">
+          <p class="formTitle">Número de cédula</p>
+          <input
+            type="text"
+            name="ci"
+            id="ci"
+            placeholder="CI"
+            required
+            oninput="this.value = this.value.replace(/[^0-9]/g, ''); loadStudentData()"
+          />
+        </div>
+        
+        <div id="otherFields" style="display:none;">
           <input
             type="text"
             name="nombre"
             id="nombre"
             placeholder="Nombre"
-            oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
+            oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
             required
           />
           <input
@@ -447,7 +462,7 @@
             name="apellido"
             id="apellido"
             placeholder="Apellido"
-            oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
+            oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
             required
           />
           <p class="formTitle">Curso</p>
@@ -458,8 +473,7 @@
           </select>
           <p class="formTitle">Sección</p>
           <select name="seccion" id="seccion" required>
-            {% if espe == 'Química' or espe == 'Construccion civil' or espe ==
-            'Electricidad' or espe == 'Electrónica' %}
+            {% if espe == 'Química' or espe == 'Construccion civil' or espe == 'Electricidad' or espe == 'Electrónica' %}
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -468,37 +482,28 @@
             <option value="2">2</option>
             {% endif %}
           </select>
-          <p class="formTitle">Número de cedula</p>
-          <input
-            type="text"
-            name="ci"
-            id="ci"
-            placeholder="CI"
-            required
-            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-          />
           <p class="formTitle">Cantidad correo</p>
-    <select id="cantidadCorreo">
-        <option value="1">1</option>
-        <option value="2">2</option>
-    </select>
+          <select id="cantidadCorreo" name="cantidadCorreo">
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+          <p class="formTitle">Correo Electronico encargado</p>
+          <input type="email" name="correo_encargado" id="correo_encargado" required />
+          <div id="extraCorreo"></div>
+        </div>
+        
+        <input
+          type="hidden"
+          id="current_ci"
+          name="current_ci"
+          value="{{ current_ci_value }}"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+        />
+      
+        <button type="submit" onclick="validar_alumno(event)">Enviar</button>
+      </form>
+      
 
-    <p class="formTitle">Correo Electronico encargado</p>
-    <input type="email" name="correo_encargado" id="correo_encargado" required />
-    
-
-    <div id="extraCorreo"></div>
-          <!-- Este campo oculto debe estar presente solo en modo de edición -->
-          <input
-            type="hidden"
-            id="current_ci"
-            name="current_ci"
-            value="{{ current_ci_value }}"
-            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-          />
-
-          <button type="submit" onclick="validar_alumno(event)">Enviar</button>
-        </form>
 
         <form
           id="deleteForm"
@@ -649,94 +654,158 @@
             }
         });
 
-      // Validaciones específicas para especialidad y sección
-      const especialidadSelect = document.getElementById("especialidad");
-      const seccionSelect = document.getElementById("seccion");
+     // Función para cambiar entre modos de formulario (Agregar, Modificar, Eliminar)
+function setFormMode(mode) {
+  console.log("setFormMode called with mode:", mode);
 
-      especialidadSelect.addEventListener("change", function () {
-        const selectedEspecialidad = especialidadSelect.value;
+  const form = document.getElementById("studentForm");
+  const deleteForm = document.getElementById("deleteForm");
 
-        // Lógica para mostrar opciones de sección basada en la especialidad seleccionada
-        if (
-          selectedEspecialidad === "Electronica" ||
-          selectedEspecialidad === "Construccion civil" ||
-          selectedEspecialidad === "Quimica"
-        ) {
-          // Mostrar opción de tercera sección
-          seccionSelect.innerHTML = `
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                `;
-        } else {
-          // Mostrar solo opciones de primera y segunda sección
-          seccionSelect.innerHTML = `
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                `;
-        }
-      });
-      // Función para cambiar entre modos de formulario (Agregar, Modificar, Eliminar)
-      function setFormMode(mode) {
-        console.log("setFormMode called with mode:", mode);
+  if (!form || !deleteForm) {
+    console.error("Form or deleteForm not found");
+    return;
+  }
 
-        const form = document.getElementById("studentForm");
-        const deleteForm = document.getElementById("deleteForm");
+  const formTitle = document.querySelector(".formTitle");
+  const formModeInput = document.getElementById("form_mode");
+  const formTitleDelete = document.getElementById("formTitleDelete");
+  const formModeInputDelete = document.getElementById("form_mode_delete");
 
-        if (!form || !deleteForm) {
-          console.error("Form or deleteForm not found");
-          return;
-        }
+  const addButton = document.querySelector(".form-buttons button:nth-child(1)");
+  const editButton = document.querySelector(".form-buttons button:nth-child(2)");
+  const deleteButton = document.querySelector(".form-buttons button:nth-child(3)");
 
-        const formTitle = document.querySelector(".formTitle");
-        const formModeInput = document.getElementById("form_mode");
-        const formTitleDelete = document.getElementById("formTitleDelete");
-        const formModeInputDelete = document.getElementById("form_mode_delete");
+  form.reset();
+  deleteForm.reset();
 
-        const addButton = document.querySelector(
-          ".form-buttons button:nth-child(1)"
-        );
-        const editButton = document.querySelector(
-          ".form-buttons button:nth-child(2)"
-        );
-        const deleteButton = document.querySelector(
-          ".form-buttons button:nth-child(3)"
-        );
+  if (mode === "add") {
+    form.style.display = "block";
+    deleteForm.style.display = "none";
+    form.action = "{{ url_for('add_contact') }}";
+    formTitle.innerText = "Agregar Alumno";
+    formModeInput.value = "add";
 
-        form.reset();
-        deleteForm.reset();
+    // Mostrar todos los campos necesarios para agregar un nuevo alumno
+    document.getElementById("ciField").style.display = "block";
+    document.getElementById("otherFields").style.display = "block";
+    document.getElementById("extraCorreo").style.display = "none";
 
-        if (mode === "add") {
-          form.style.display = "block";
-          deleteForm.style.display = "none";
-          form.action = "{{ url_for('add_contact') }}";
-          formTitle.innerText = "Agregar Alumno";
-          formModeInput.value = "add";
+    // Limpiar campos
+    document.getElementById("ci").value = "";
+    document.getElementById("nombre").value = "";
+    document.getElementById("apellido").value = "";
+    document.getElementById("curso").value = "";
+    document.getElementById("seccion").value = "";
+    document.getElementById("cantidadCorreo").value = "1";
+    document.getElementById("correo_encargado").value = "";
+    document.getElementById("extraCorreo").innerHTML = "";
 
-          addButton.classList.add("active");
-          editButton.classList.remove("active");
-          deleteButton.classList.remove("active");
-        } else if (mode === "edit") {
-          form.style.display = "block";
-          deleteForm.style.display = "none";
-          form.action = "{{ url_for('edit_contact') }}";
-          formTitle.innerText = "Modificar Alumno";
-          formModeInput.value = "edit";
+    addButton.classList.add("active");
+    editButton.classList.remove("active");
+    deleteButton.classList.remove("active");
+  } else if (mode === "edit") {
+    form.style.display = "block";
+    deleteForm.style.display = "none";
+    form.action = "{{ url_for('edit_contact') }}";
+    formTitle.innerText = "Modificar Alumno";
+    formModeInput.value = "edit";
 
-          addButton.classList.remove("active");
-          editButton.classList.add("active");
-          deleteButton.classList.remove("active");
-        } else if (mode === "delete") {
-          form.style.display = "none";
-          deleteForm.style.display = "block";
-          formTitleDelete.innerText = "Eliminar Alumno";
-          formModeInputDelete.value = "delete";
+    // Solo mostrar el campo de CI al inicio
+    document.getElementById("ciField").style.display = "block";
+    document.getElementById("otherFields").style.display = "none";
+    document.getElementById("extraCorreo").style.display = "none";
 
-          addButton.classList.remove("active");
-          editButton.classList.remove("active");
-          deleteButton.classList.add("active");
-        }
-      }
+    addButton.classList.remove("active");
+    editButton.classList.add("active");
+    deleteButton.classList.remove("active");
+  } else if (mode === "delete") {
+    form.style.display = "none";
+    deleteForm.style.display = "block";
+    formTitleDelete.innerText = "Eliminar Alumno";
+    formModeInputDelete.value = "delete";
+
+    addButton.classList.remove("active");
+    editButton.classList.remove("active");
+    deleteButton.classList.add("active");
+  }
+}
+
+// Función para manejar la visibilidad del campo adicional de correo electrónico
+function handleCorreoCountChange() {
+  const cantidadCorreo = document.getElementById("cantidadCorreo").value;
+  const extraCorreoDiv = document.getElementById("extraCorreo");
+
+  if (cantidadCorreo === "2") {
+    extraCorreoDiv.style.display = "block";
+    if (!document.getElementById("correo_encargado2")) {
+      extraCorreoDiv.innerHTML = `
+        <p class="formTitle">Correo Electrónico Adicional</p>
+        <input type="email" name="correo_encargado2" id="correo_encargado2" />
+      `;
+    }
+  } else {
+    extraCorreoDiv.style.display = "none";
+  }
+}
+
+// Asignar el evento change al campo de "Cantidad de correos"
+document.getElementById("cantidadCorreo").addEventListener("change", handleCorreoCountChange);
+
+// Llamada a setFormMode para mostrar el modo de agregar por defecto al cargar la página
+window.onload = function() {
+  setFormMode("add");
+};
+
+
+ 
+
+  function loadStudentData() {
+    const ci = document.getElementById("ci").value;
+
+    if (ci && document.getElementById("form_mode").value === "edit") {
+      fetch(`/get_student_data?ci=${ci}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.error) {
+            console.error("Error loading student data:", data.error);
+            return;
+          }
+
+          document.getElementById("otherFields").style.display = "block";
+          document.getElementById("extraCorreo").style.display = data.correo_encargado2 ? "block" : "none";
+
+          document.getElementById("nombre").value = data.nombre || '';
+          document.getElementById("apellido").value = data.apellido || '';
+          document.getElementById("curso").value = data.curso || '';
+          document.getElementById("seccion").value = data.seccion || '';
+          document.getElementById("correo_encargado").value = data.correo_encargado || '';
+
+          const extraCorreoDiv = document.getElementById("extraCorreo");
+          extraCorreoDiv.innerHTML = '';
+          if (data.correo_encargado2) {
+            extraCorreoDiv.innerHTML = `
+              <p class="formTitle">Correo Electrónico Adicional</p>
+              <input type="email" name="correo_encargado2" id="correo_encargado2" value="${data.correo_encargado2 || ''}" />
+            `;
+          }
+        })
+        .catch(error => {
+          console.error("Error loading student data:", error);
+        });
+    }
+  }
+
+  // Asignar el evento input al campo C.I. para cargar datos en modo de edición
+  document.getElementById("ci").addEventListener("input", loadStudentData);
+
+
+
+
 
       function validar_campos_vacios() {
         const nombre = document.getElementById("nombre").value.trim();
