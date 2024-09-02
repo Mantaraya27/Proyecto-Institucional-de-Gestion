@@ -10,381 +10,431 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Panel de Administración</title>
     <style>
-      /* Estilos generales y de la barra lateral */
-      body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          height: 100vh;
-          background-color: rgb(43, 36, 36);
-          overflow: hidden;
-      }
+              /* Estilos generales y de la barra lateral */
+              body {
+                  font-family: Arial, sans-serif;
+                  margin: 0;
+                  padding: 0;
+                  display: flex;
+                  height: 100vh;
+                  background-color: rgb(43, 36, 36);
+                  overflow: hidden;
+              }
 
-      .sidebar {
-          width: 250px;
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          color: rgb(255, 255, 255);
-          height: 100%;
-          padding: 20px;
-          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-          position: fixed;
-          transition: transform 0.3s ease;
-      }
+              .sidebar {
+                  width: 250px;
+                  background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                  color: rgb(255, 255, 255);
+                  height: 100%;
+                  padding: 20px;
+                  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+                  position: fixed;
+                  transition: transform 0.3s ease;
+              }
 
-      .sidebar.closed {
-          transform: translateX(-250px);
-      }
+              .sidebar.closed {
+                  transform: translateX(-250px);
+              }
 
-      .sidebar h2 {
-          text-align: center;
-          font-size: 1.5em;
-          margin-top: 0;
-      }
+              .sidebar h2 {
+                  text-align: center;
+                  font-size: 1.5em;
+                  margin-top: 0;
+              }
 
-      .sidebar ul {
-          list-style: none;
-          padding: 0;
-          font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
-      }
+              .sidebar ul {
+                  list-style: none;
+                  padding: 0;
+                  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+              }
 
-      .sidebar ul li {
-          margin: 20px 0;
-      }
+              .sidebar ul li {
+                  margin: 20px 0;
+              }
 
-      .formTitle {
-          color: white;
-      }
+              .formTitle {
+                  color: white;
+              }
 
-      .sidebar ul li a {
-          color: white;
-          text-decoration: none;
-          font-weight: bold;
-          display: block;
-          padding: 10px;
-          border-radius: 5px;
-          transition: background-color 0.3s;
-          display: flex;
-          align-items: center;
-      }
+              .sidebar ul li a {
+                  color: white;
+                  text-decoration: none;
+                  font-weight: bold;
+                  display: block;
+                  padding: 10px;
+                  border-radius: 5px;
+                  transition: background-color 0.3s;
+                  display: flex;
+                  align-items: center;
+              }
 
-      .sidebar ul li a i {
-          margin-right: 10px;
-      }
+              .sidebar ul li a i {
+                  margin-right: 10px;
+              }
 
-      .sidebar ul li a:hover {
-          background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
-      }
+              .sidebar ul li a:hover {
+                  background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+              }
 
-      .formTitle {
-          color: white;
-      }
+              .formTitle {
+                  color: white;
+              }
 
-      /* Estilos del contenido */
-      .content {
-          margin-left: 270px;
-          flex-grow: 1;
-          padding: 20px;
-          overflow-y: auto;
-          width: calc(100% - 270px);
-          transition: margin-left 0.3s ease;
-          display: flex;
-          flex-direction: row;
-      }
+              /* Estilos del contenido */
+              .content {
+                  margin-left: 270px;
+                  flex-grow: 1;
+                  padding: 20px;
+                  overflow-y: auto;
+                  width: calc(100% - 270px);
+                  transition: margin-left 0.3s ease;
+                  display: flex;
+                  flex-direction: row;
+              }
 
-      /* Estilos de la barra superior */
-      .top-bar {
-          margin-left: 0;
-          color: #ecd9d9;
-          padding: 10px 20px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
+              /* Estilos de la barra superior */
+              .top-bar {
+                  margin-left: 0;
+                  color: #ecd9d9;
+                  padding: 10px 20px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 20px;
 
-      }
+              }
 
-      .top-bar .menu-icon {
-          cursor: pointer;
-          font-size: 24px;
-          color: white;
-      }
+              .top-bar .menu-icon {
+                  cursor: pointer;
+                  font-size: 24px;
+                  color: white;
+              }
 
-      .top-bar .profile {
-          display: flex;
-          align-items: center;
-      }
+              .top-bar .profile {
+                  display: flex;
+                  align-items: center;
+              }
 
-      .top-bar .profile img {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          margin-left: 10px;
-      }
+              .top-bar .profile img {
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 50%;
+                  margin-left: 10px;
+              }
 
-      /* Estilos del formulario y botones */
-      .form-container {
-          width: 40%;
-          margin-left: 20px;
-          padding-left: 20px;
-          background-color: rgb(43, 36, 36);
-          box-shadow: 0 0 10px rgba(202, 82, 82, 0.1);
-          border-radius: 8px;
-          margin-right: 20px;
-          transition: width 0.3s ease;
-      }
+              /* Estilos del formulario y botones */
+              .form-container {
+                  width: 40%;
+                  margin-left: 20px;
+                  padding-left: 20px;
+                  background-color: rgb(43, 36, 36);
+                  box-shadow: 0 0 10px rgba(202, 82, 82, 0.1);
+                  border-radius: 8px;
+                  margin-right: 20px;
+                  transition: width 0.3s ease;
+              }
 
-      .form-container h1 {
+              .form-container h1 {
+                  color: #eeecec;
+                  text-align: center;
+              }
+
+              .contact-form input[type="text"],
+              .contact-form select {
+                  display: flex;
+                  width: 80%;
+                  gap: 10px;
+                  margin: 20px 0;
+                  padding: 10px;
+                  border: 1px solid #2b2727;
+                  border-radius: 4px;
+                  background-color: #ebd6d6;
+              }
+
+              .contact-form input[type="email"],
+              .contact-form select {
+                  display: flex;
+                  width: 80%;
+                  gap: 10px;
+                  margin: 20px 0;
+                  padding: 10px;
+                  border: 1px solid #2b2727;
+                  border-radius: 4px;
+                  background-color: #ebd6d6;
+              }
+
+              .contact-form button {
+                  padding: 10px;
+                  width: 100px;
+                  margin-left: 38%;
+                  background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                  color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+              }
+
+              .contact-form button:hover {
+                  background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+              }
+
+
+              #email {
+                  width: 100%;
+                  padding: 10px;
+                  border: 1px solid #2b2727;
+                  border-radius: 4px;
+                  background-color: #ebd6d6;
+                  font-size: 14px;
+                  color: #333333;
+              }
+
+              .form-buttons {
+                  display: flex;
+                  justify-content: center;
+                  gap: 10px;
+                  margin-bottom: 20px;
+              }
+
+              .form-buttons button {
+                  padding: 10px 20px;
+                  background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                  color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  transition: transform 0.3s;
+              }
+
+              .form-buttons button:hover {
+                  background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                  transform: scale(1.05);
+              }
+
+              .form-buttons button.active {
+                  background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+              }
+
+              .form-buttons button.active:hover {
+                  background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                  transform: scale(1.05);
+              }
+
+              /* Estilos de la tabla */
+              .list-container {
+                  width: 60%;
+              }
+
+              table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin: 20px 0;
+                  background-color: rgb(48, 45, 45);
+              }
+
+              table,
+              th,
+              td {
+                  border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                  ;
+              }
+
+              td {
+                  color: rgb(247, 226, 226);
+              }
+
+              th,
+              td {
+                  padding: 10px;
+                  text-align: left;
+              }
+
+              th {
+                  background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                  color: #fff;
+              }
+
+              /* Estilos de la barra de búsqueda */
+              .barra {
+                  background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                  color: white;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  padding: 20px;
+                  border-radius: 18px;
+              }
+
+              .barra h2 {
+                  margin: 0;
+                  padding-bottom: 20px;
+                  color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+              }
+
+              .barra input[type="text"] {
+                  width: 80%;
+                  padding: 10px;
+                  border: none;
+                  border-radius: 4px;
+                  font-size: 14px;
+                  color: #333333;
+                  outline: none;
+                  background-color: #f2f2f2;
+                  margin-bottom: 20px;
+              }
+
+              .barra button {
+                  padding: 10px 20px;
+                  background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  transition: background-color 0.3s;
+              }
+
+              .barra button:hover {
+                  background-color: #7e083f;
+              }
+
+              .search-container {
+                  position: relative;
+                  width: 80%;
+                  margin-bottom: 20px;
+              }
+
+              .search-container input[type="text"] {
+                  width: 100%;
+                  padding: 10px 10px 10px 40px;
+                  /* Ajuste de padding para espacio del icono */
+                  border: none;
+                  border-radius: 4px;
+                  font-size: 14px;
+                  color: #333333;
+                  background-color: #f2f2f2;
+              }
+
+              .search-container .fas.fa-search {
+                  position: absolute;
+                  top: 34%;
+                  left: 10px;
+                  transform: translateY(-50%);
+                  color: #666666;
+              }
+
+              .active {
+                  background-color: yellow;
+              }
+
+
+
+
+
+              @media (max-width: 768px) {
+                  .sidebar {
+                      width: 100%;
+                      height: auto;
+                      position: relative;
+                      transform: none;
+                  }
+
+                  .sidebar.closed {
+                      transform: none;
+                  }
+
+                  .content {
+                      margin-left: 0;
+                      width: 100%;
+                  }
+
+                  .form-container {
+                      width: 100%;
+                      padding: 10px;
+                      margin: 10px 0;
+                  }
+
+                  .list-container {
+                      width: 100%;
+                      margin: 10px 0;
+                  }
+
+                  .top-bar {
+                      flex-direction: column;
+                      align-items: flex-start;
+                  }
+
+                  .top-bar .profile {
+                      margin-top: 10px;
+                  }
+              }
+
+              @media (max-width: 480px) {
+
+                  .contact-form input[type="text"],
+                  .contact-form select {
+                      width: calc(100% - 10px);
+                      margin: 5px;
+                      padding: 8px;
+                  }
+
+                  .contact-form button {
+                      padding: 8px;
+                      width: 80px;
+                  }
+
+                  .form-buttons button {
+                      padding: 8px 16px;
+                  }
+              }
+              /* Estilos específicos para el formulario Excel */
+
+        #excelForm .formTitle {
           color: #eeecec;
           text-align: center;
-      }
+          margin-bottom: 20px;
+        }
 
-      .contact-form input[type="text"],
-      .contact-form select {
-          display: flex;
-          width: 80%;
-          gap: 10px;
-          margin: 20px 0;
-          padding: 10px;
-          border: 1px solid #2b2727;
-          border-radius: 4px;
-          background-color: #ebd6d6;
-      }
-
-      .contact-form input[type="email"],
-      .contact-form select {
-          display: flex;
-          width: 80%;
-          gap: 10px;
-          margin: 20px 0;
-          padding: 10px;
-          border: 1px solid #2b2727;
-          border-radius: 4px;
-          background-color: #ebd6d6;
-      }
-
-      .contact-form button {
-          padding: 10px;
-          width: 100px;
-          margin-left: 38%;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-      }
-
-      .contact-form button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-      }
-
-
-      #email {
-          width: 100%;
+        #excelForm input[type="file"] {
+          width: 90%;
+          margin: 10px 0;
           padding: 10px;
           border: 1px solid #2b2727;
           border-radius: 4px;
           background-color: #ebd6d6;
           font-size: 14px;
           color: #333333;
-      }
-
-      .form-buttons {
-          display: flex;
-          justify-content: center;
-          gap: 10px;
-          margin-bottom: 20px;
-      }
-
-      .form-buttons button {
-          padding: 10px 20px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
           cursor: pointer;
-          transition: transform 0.3s;
+          display: block;
       }
 
-      .form-buttons button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          transform: scale(1.05);
-      }
-
-      .form-buttons button.active {
+        #excelForm button {
+          padding: 10px 20px; /* Ajustar el padding del botón */
+          width: auto; /* Ajustar el ancho del botón */
+          margin-top: 10px;
           background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-      }
-
-      .form-buttons button.active:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          transform: scale(1.05);
-      }
-
-      /* Estilos de la tabla */
-      .list-container {
-          width: 60%;
-      }
-
-      table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 20px 0;
-          background-color: rgb(48, 45, 45);
-      }
-
-      table,
-      th,
-      td {
-          border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          ;
-      }
-
-      td {
-          color: rgb(247, 226, 226);
-      }
-
-      th,
-      td {
-          padding: 10px;
-          text-align: left;
-      }
-
-      th {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          color: #fff;
-      }
-
-      /* Estilos de la barra de búsqueda */
-      .barra {
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: white;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 20px;
-          border-radius: 18px;
-      }
-
-      .barra h2 {
-          margin: 0;
-          padding-bottom: 20px;
           color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-      }
-
-      .barra input[type="text"] {
-          width: 80%;
-          padding: 10px;
-          border: none;
-          border-radius: 4px;
-          font-size: 14px;
-          color: #333333;
-          outline: none;
-          background-color: #f2f2f2;
-          margin-bottom: 20px;
-      }
-
-      .barra button {
-          padding: 10px 20px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: white;
           border: none;
           border-radius: 4px;
           cursor: pointer;
           transition: background-color 0.3s;
-      }
+        }
 
-      .barra button:hover {
-          background-color: #7e083f;
-      }
-
-      .search-container {
-          position: relative;
-          width: 80%;
-          margin-bottom: 20px;
-      }
-
-      .search-container input[type="text"] {
-          width: 100%;
-          padding: 10px 10px 10px 40px;
-          /* Ajuste de padding para espacio del icono */
+        #excelForm button:hover {
+          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+        }
+        #excelForm input[type="file"]::file-selector-button {
+          padding: 10px 20px;
+          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
           border: none;
           border-radius: 4px;
+          cursor: pointer;
           font-size: 14px;
-          color: #333333;
-          background-color: #f2f2f2;
+          transition: background-color 0.3s;
       }
 
-      .search-container .fas.fa-search {
-          position: absolute;
-          top: 34%;
-          left: 10px;
-          transform: translateY(-50%);
-          color: #666666;
-      }
-
-      .active {
-          background-color: yellow;
-      }
-
-
-
-
-
-      @media (max-width: 768px) {
-          .sidebar {
-              width: 100%;
-              height: auto;
-              position: relative;
-              transform: none;
-          }
-
-          .sidebar.closed {
-              transform: none;
-          }
-
-          .content {
-              margin-left: 0;
-              width: 100%;
-          }
-
-          .form-container {
-              width: 100%;
-              padding: 10px;
-              margin: 10px 0;
-          }
-
-          .list-container {
-              width: 100%;
-              margin: 10px 0;
-          }
-
-          .top-bar {
-              flex-direction: column;
-              align-items: flex-start;
-          }
-
-          .top-bar .profile {
-              margin-top: 10px;
-          }
-      }
-
-      @media (max-width: 480px) {
-
-          .contact-form input[type="text"],
-          .contact-form select {
-              width: calc(100% - 10px);
-              margin: 5px;
-              padding: 8px;
-          }
-
-          .contact-form button {
-              padding: 8px;
-              width: 80px;
-          }
-
-          .form-buttons button {
-              padding: 8px 16px;
-          }
+      #excelForm input[type="file"]::file-selector-button:hover {
+          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
       }
     </style>
   </head>
@@ -423,6 +473,7 @@
           <button onclick="setFormMode('add')" class="active">Agregar</button>
           <button onclick="setFormMode('edit')">Modificar</button>
           <button onclick="setFormMode('delete')">Eliminar</button>
+          <button onclick="setFormMode('excel')">Importar Excel</button>
         </div>
 
         <form
@@ -535,6 +586,26 @@
             Enviar
           </button>
         </form>
+
+        <form
+          id="excelForm"
+          action="{{ url_for('cargar_datos') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          class="contact-form"
+          style="display: none"
+        >
+          <h1 class="formTitle">Importar Excel</h1>
+          <input type="hidden" name="form_mode" value="excel" />
+          <input
+            type="file"
+            name="file"
+            id="file"
+            accept=".xlsx, .xls"
+            required
+          />
+          <button type="submit">Importar</button>
+        </form>
       </div>
 
       <div class="list-container">
@@ -578,6 +649,53 @@
     </div>
 
     <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("excelForm");
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          let formData = new FormData(form);
+
+          fetch(form.action, {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.status === "success") {
+                Swal.fire({
+                  icon: "success",
+                  title: "Éxito",
+                  text: data.message,
+                  timer: 3000,
+                  timerProgressBar: true,
+                  showConfirmButton: false,
+                }).then(() => {
+                  location.reload(); // Recarga la página después de mostrar la alerta de éxito
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: data.message,
+                  timer: 3000,
+                  timerProgressBar: true,
+                  showConfirmButton: false,
+                });
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                icon: "error",
+                title: "Error de red",
+                text: "Hubo un problema al enviar el archivo.",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+              });
+            });
+        });
+      });
       document
         .getElementById("busqueda")
         .addEventListener("input", function () {
@@ -688,9 +806,10 @@
 
         const form = document.getElementById("studentForm");
         const deleteForm = document.getElementById("deleteForm");
+        const excelForm = document.getElementById("excelForm");
 
-        if (!form || !deleteForm) {
-          console.error("Form or deleteForm not found");
+        if (!form || !deleteForm || !excelForm) {
+          console.error("Forms not found");
           return;
         }
 
@@ -708,9 +827,17 @@
         const deleteButton = document.querySelector(
           ".form-buttons button:nth-child(3)"
         );
+        const excelButton = document.querySelector(
+          ".form-buttons button:nth-child(4)"
+        );
+
+        form.style.display = "none";
+        deleteForm.style.display = "none";
+        excelForm.style.display = "none";
 
         form.reset();
         deleteForm.reset();
+        excelForm.reset();
 
         if (mode === "add") {
           form.style.display = "block";
@@ -741,6 +868,16 @@
           addButton.classList.remove("active");
           editButton.classList.remove("active");
           deleteButton.classList.add("active");
+        } else if (mode === "excel") {
+          form.style.display = "none";
+          deleteForm.style.display = "none";
+          excelForm.style.display = "block";
+          formTitle.innerText = "Importar Excel";
+
+          addButton.classList.remove("active");
+          editButton.classList.remove("active");
+          deleteButton.classList.remove("active");
+          excelButton.classList.add("active");
         }
       }
 

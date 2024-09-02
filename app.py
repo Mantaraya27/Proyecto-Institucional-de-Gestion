@@ -5,7 +5,9 @@ from flask import jsonify
 from flask_mail import Mail, Message
 from email_validator import validate_email, EmailNotValidError
 from datetime import datetime
+import pandas as pd
 import pdfkit
+import unicodedata
 
 def crear_app(): 
     app = Flask(__name__)
@@ -111,8 +113,7 @@ def crear_app():
                 especialidad = session['espe']
                 ci = request.form['ci']
                 correo_encargado = request.form['correo_encargado']
-                correo_encargado2 = request.form.get('correo_encargado_2', '')  # Asignar cadena vacía si no se proporciona
-
+                correo_encargado2 = request.form.get('correo_encargado_2', '')
                 nombre = capitalizar_palabras(nombre)
                 apellido = capitalizar_palabras(apellido)
 
@@ -1816,8 +1817,6 @@ WHERE h.especialidad = %s;
             return jsonify({'error': 'Ocurrió un error al verificar el CI: ' + str(e)}), 500
 
 
-
-    # ////////////////////////////////////////////////////////
     @app.route('/check_conductuales', methods=['POST'])
     def check_conductuales():
         if 'role' in session and session['role'] == 'administrador':
@@ -2111,6 +2110,57 @@ WHERE h.especialidad = %s;
     @app.route("/<espe>/<curso>/<seccion>")
     def seleccion_add_imp(espe, curso, seccion):
         return render_template('seleccion.html', espe=espe, curso=curso, seccion=seccion, role=session['role'])
+    
+    @app.route("/cargar_datos", methods=['POST'])
+    def cargar_datos():
+        cur = mysql.connection.cursor()
+        if 'file' not in request.files:
+            return jsonify({'status': 'error', 'message': 'No file part'}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'status': 'error', 'message': 'No selected file'}), 400
+        if file and file.filename.endswith(('.xlsx', '.xls')):
+            df = pd.read_excel(file)
+            lista_datos = df.values.tolist()
+            print(lista_datos)
+            try:
+                for datos in lista_datos:
+                    if pd.isna(datos[7]):
+                        cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[5],))
+                        alumno = cur.fetchone()
+                        if alumno:
+                            cur.execute("""
+                                    UPDATE alumno 
+                                    SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s, Correo_encargado2 = NULL 
+                                    WHERE ci = %s
+                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[6], datos[5]))
+                        else:
+                            cur.execute("""
+                                    INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[5], datos[6]))
+                    else:
+                        cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[5],))
+                        alumno = cur.fetchone()
+                        if alumno:
+                            cur.execute("""
+                                    UPDATE alumno 
+                                    SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s, Correo_encargado2 = %s 
+                                    WHERE ci = %s
+                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[6], datos[7], datos[5]))
+                        else:
+                            cur.execute("""
+                                    INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado, Correo_encargado2)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[5], datos[6], datos[7]))
+                    mysql.connection.commit()
+                return jsonify({'status': 'success', 'message': 'Archivo importado correctamente'})
+            except Exception as e:
+                mysql.connection.rollback()
+                return jsonify({'status': 'error', 'message': str(e)}), 400
+            finally:
+                cur.close()
+        return jsonify({'status': 'error', 'message': 'Archivo no permitido'}), 400
     return app
 def email_valido(email):
     try:
@@ -2130,8 +2180,11 @@ def verificar_superposicion(horario_nuevo, horarios_guardados):
         guardado_inicio, guardado_fin = convertir_horario_a_datetime(horario)
         if max(nuevo_inicio, guardado_inicio) < min(nuevo_fin, guardado_fin):
             return True
-    
     return False
+def normalize_text(text):
+    if isinstance(text, str):
+        return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+    return text
 
 if __name__ == '__main__':
     app = crear_app()
