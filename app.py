@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 import re
 from flask_mysqldb import MySQL
 from flask import jsonify
@@ -2161,6 +2161,14 @@ WHERE h.especialidad = %s;
             finally:
                 cur.close()
         return jsonify({'status': 'error', 'message': 'Archivo no permitido'}), 400
+    @app.route('/Manual_de_usuario')
+    def Manual_de_usuario():
+        return send_from_directory(
+            directory='static',
+            path='Manual.pdf',
+            as_attachment=False,
+            download_name='Manual De Usuario.pdf'
+        )
     return app
 def email_valido(email):
     try:
