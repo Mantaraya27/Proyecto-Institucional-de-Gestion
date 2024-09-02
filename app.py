@@ -2120,7 +2120,7 @@ WHERE h.especialidad = %s;
         if file.filename == '':
             return jsonify({'status': 'error', 'message': 'No selected file'}), 400
         if file and file.filename.endswith(('.xlsx', '.xls')):
-            df = pd.read_excel(file)
+            df = pd.read_excel(file, skiprows=2)
             lista_datos = df.values.tolist()
             print(lista_datos)
             try:
