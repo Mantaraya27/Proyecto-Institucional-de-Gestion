@@ -2152,12 +2152,26 @@ WHERE h.especialidad = %s;
         if file.filename == '':
             return jsonify({'status': 'error', 'message': 'No selected file'}), 400
         if file and file.filename.endswith(('.xlsx', '.xls')):
-            df = pd.read_excel(file, skiprows=2)
+            df = pd.read_excel(file, skiprows=1)
             lista_datos = df.values.tolist()
             print(lista_datos)
             try:
                 for datos in lista_datos:
-                    if pd.isna(datos[6]):
+                    if pd.isna(datos[6]) and pd.isna(datos[5]):
+                        cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[4],))
+                        alumno = cur.fetchone()
+                        if alumno:
+                            cur.execute("""
+                                    UPDATE alumno 
+                                    SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = Null, Correo_encargado2 = NULL 
+                                    WHERE ci = %s
+                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[5]))
+                        else:
+                            cur.execute("""
+                                    INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci)
+                                    VALUES (%s, %s, %s, %s, %s, %s)
+                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[4]))
+                    elif pd.isna(datos[6]):
                         cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[4],))
                         alumno = cur.fetchone()
                         if alumno:
