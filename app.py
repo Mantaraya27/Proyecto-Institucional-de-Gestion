@@ -2125,34 +2125,34 @@ WHERE h.especialidad = %s;
             print(lista_datos)
             try:
                 for datos in lista_datos:
-                    if pd.isna(datos[7]):
-                        cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[5],))
+                    if pd.isna(datos[6]):
+                        cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[4],))
                         alumno = cur.fetchone()
                         if alumno:
                             cur.execute("""
                                     UPDATE alumno 
                                     SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s, Correo_encargado2 = NULL 
                                     WHERE ci = %s
-                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[6], datos[5]))
+                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[5], datos[4]))
                         else:
                             cur.execute("""
                                     INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado)
                                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[5], datos[6]))
+                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[4], datos[5]))
                     else:
-                        cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[5],))
+                        cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[4],))
                         alumno = cur.fetchone()
                         if alumno:
                             cur.execute("""
                                     UPDATE alumno 
                                     SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = %s, Correo_encargado2 = %s 
                                     WHERE ci = %s
-                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[6], datos[7], datos[5]))
+                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[5], datos[6], datos[4]))
                         else:
                             cur.execute("""
                                     INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci, correo_encargado, Correo_encargado2)
                                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                                """, (datos[0], datos[1], datos[2], datos[3], datos[4], datos[5], datos[6], datos[7]))
+                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[4], datos[5], datos[6]))
                     mysql.connection.commit()
                 return jsonify({'status': 'success', 'message': 'Archivo importado correctamente'})
             except Exception as e:
