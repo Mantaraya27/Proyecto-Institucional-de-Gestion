@@ -417,29 +417,31 @@
                 <button type="submit" onclick="validar_materia_add(event)">Enviar</button>
             </form>
 
-            <form id="editSubjectForm" action="{{ url_for('edit_materia') }}" method="POST" class="contact-form"
-                style="display:none;">
+            <form id="editSubjectForm" action="{{ url_for('edit_materia') }}" method="POST" class="contact-form" style="display:none;">
                 <h1>Modificar Asignatura</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="edit">
                 <input type="hidden" name="espe_edit" id="espe_edit" value="{{espe}}">
-                <input type="text" name="subject_id" id="edit_subject_id" placeholder="ID de la Asignatura" oninput="this.value = this.value.replace(/[^0-9]/g,'');"required>
-                <input type="text" name="nombre" id="edit_nombre" placeholder="Nombre de la Asignatura" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g,'');"required>
-                <select name="especialidad" id="especialidad" required>
-                    <option value="Plan Común">Plan Común</option>
-                    <option value="{{ espe }}">{{ espe }}</option>
-                </select>
-                <select name="anios" id="anios_edit" required>
-                    <option value="1ro 2do y 3ro">1ro 2do y 3ro</option>
-                    <option value="solo 1ro">Solo 1ro</option>
-                    <option value="solo 2do">Solo 2do</option>
-                    <option value="solo 3ro">Solo 3ro</option>
-                    <option value="solo 1ro y 2do">Solo 1ro y 2do</option>
-                    <option value="solo 1ro y 3ro">Solo 1ro y 3ro</option>
-                    <option value="solo 2do y 3ro">Solo 2do y 3ro</option>
-                    
-                </select>
-                <button type="submit" onclick="validar_materia_edit(event)">Modificar</button>
+                <input type="text" name="subject_id" id="edit_subject_id" placeholder="ID de la Asignatura" oninput="this.value = this.value.replace(/[^0-9]/g,'');" required>
+                <div id="editSubjectFields" style="display:none;">
+                    <input type="text" name="nombre" id="edit_nombre" placeholder="Nombre de la Asignatura" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g,'');" required>
+                    <select name="especialidad" id="especialidad" required>
+                        <option value="Plan Común">Plan Común</option>
+                        <option value="{{ espe }}">{{ espe }}</option>
+                    </select>
+                    <select name="anios" id="anios_edit" required>
+                        <option value="1ro 2do y 3ro">1ro 2do y 3ro</option>
+                        <option value="solo 1ro">Solo 1ro</option>
+                        <option value="solo 2do">Solo 2do</option>
+                        <option value="solo 3ro">Solo 3ro</option>
+                        <option value="solo 1ro y 2do">Solo 1ro y 2do</option>
+                        <option value="solo 1ro y 3ro">Solo 1ro y 3ro</option>
+                        <option value="solo 2do y 3ro">Solo 2do y 3ro</option>
+                    </select>
+                    <button type="submit" onclick="validar_materia_edit(event)">Modificar</button>
+                </div>
             </form>
+            
+            
 
             <form id="deleteSubjectForm" action="{{ url_for('delete_materia') }}" method="POST" class="contact-form"
                 style="display:none;">
@@ -483,7 +485,37 @@
     </div>
 
     <script>
-        
+       document.getElementById('edit_subject_id').addEventListener('input', function() {
+    const subjectId = this.value;
+    const fieldsContainer = document.getElementById('editSubjectFields');
+
+    if (subjectId) {
+        // Aquí puedes hacer una solicitud AJAX para obtener los datos de la asignatura
+        // y actualizar los campos del formulario. Por ejemplo:
+        fetch(`/get_subject_data?id=${subjectId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Actualizar los campos con los datos recibidos
+                document.getElementById('edit_nombre').value = data.nombre;
+                document.getElementById('especialidad').value = data.especialidad;
+                document.getElementById('anios_edit').value = data.cursos;
+
+                // Mostrar los campos adicionales
+                fieldsContainer.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error al obtener los datos de la asignatura:', error);
+                // Ocultar los campos en caso de error
+                fieldsContainer.style.display = 'none';
+            });
+    } else {
+        // Ocultar los campos si el ID está vacío
+        fieldsContainer.style.display = 'none';
+    }
+});
+
+
+
 
         document.getElementById('searchInput').addEventListener('input', function () {
     var filter = this.value.toUpperCase(); // Captura el valor del input y lo convierte a mayúsculas
