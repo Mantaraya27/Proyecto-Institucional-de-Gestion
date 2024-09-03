@@ -53,6 +53,11 @@
         .formTitle {
             color: white;
         }
+        input:disabled {
+    background-color: #968585 !important;
+    color: #762c2c !important;
+    border: 1px solid #743434 !important;
+}
 
         .sidebar ul li a {
             color: white;
@@ -421,14 +426,14 @@
                 <h1>Modificar Asignatura</h1>
                 <input type="hidden" name="form_mode" id="form_mode" value="edit">
                 <input type="hidden" name="espe_edit" id="espe_edit" value="{{espe}}">
-                <input type="text" name="subject_id" id="edit_subject_id" placeholder="ID de la Asignatura" oninput="this.value = this.value.replace(/[^0-9]/g,'');" required>
-                <div id="editSubjectFields" style="display:none;">
-                    <input type="text" name="nombre" id="edit_nombre" placeholder="Nombre de la Asignatura" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g,'');" required>
+                <input type="text" name="edit_subject_id" id="edit_subject_id" placeholder="ID de la Asignatura" oninput="this.value = this.value.replace(/[^0-9]/g,'');" required>
+                
+                    <input type="text" name="edit_nombre" id="edit_nombre" placeholder="Nombre de la Asignatura" oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g,'');" required>
                     <select name="especialidad" id="especialidad" required>
                         <option value="Plan Común">Plan Común</option>
                         <option value="{{ espe }}">{{ espe }}</option>
                     </select>
-                    <select name="anios" id="anios_edit" required>
+                    <select name="anios_edit" id="anios_edit" required>
                         <option value="1ro 2do y 3ro">1ro 2do y 3ro</option>
                         <option value="solo 1ro">Solo 1ro</option>
                         <option value="solo 2do">Solo 2do</option>
@@ -437,8 +442,8 @@
                         <option value="solo 1ro y 3ro">Solo 1ro y 3ro</option>
                         <option value="solo 2do y 3ro">Solo 2do y 3ro</option>
                     </select>
-                    <button type="submit" onclick="validar_materia_edit(event)">Modificar</button>
-                </div>
+                
+                <button type="submit" onclick="validar_materia_edit(event)">Modificar</button>
             </form>
             
             
@@ -447,7 +452,7 @@
                 style="display:none;">
                 <h1>Eliminar Asignatura</h1>
                 <input type="hidden" name="espe" id="espe" value="{{ espe }}">
-                <input type="text" name="subject_id" id="delete_subject_id" placeholder="ID de la Asignatura" required>
+                <input type="text" name="delete_subject_id" id="delete_subject_id" placeholder="ID de la Asignatura" required>
                 <button type="submit" onclick="validar_materia_delete(event)">Enviar</button>
             </form>
         </div>
@@ -485,32 +490,69 @@
     </div>
 
     <script>
-       document.getElementById('edit_subject_id').addEventListener('input', function() {
-    const subjectId = this.value;
-    const fieldsContainer = document.getElementById('editSubjectFields');
+    const id = document.getElementById('edit_subject_id').value.trim();
+    const nombre = document.getElementById('edit_nombre').value.trim();
+    const espe = document.getElementById('espe_edit').value;
+    const anios = document.getElementById('anios_edit').value;
 
+    document.getElementById('edit_subject_id').addEventListener('input', function() {
+    const subjectId = this.value.trim();
+    
     if (subjectId) {
-        // Aquí puedes hacer una solicitud AJAX para obtener los datos de la asignatura
-        // y actualizar los campos del formulario. Por ejemplo:
-        fetch(`/get_subject_data?id=${subjectId}`)
+        console.log("正在获取数据...");
+        
+        
+        // 进行fetch请求
+        fetch(`/check_materia_lis?id=${subjectId}`)
             .then(response => response.json())
             .then(data => {
-                // Actualizar los campos con los datos recibidos
-                document.getElementById('edit_nombre').value = data.nombre;
-                document.getElementById('especialidad').value = data.especialidad;
-                document.getElementById('anios_edit').value = data.cursos;
+                if (data.existe) {
+                    // 更新表单字段
+                    document.getElementById('edit_nombre').value = data.nombre;
+                    document.getElementById('especialidad').value = data.especialidad || 'Plan Común';
+                    document.getElementById('anios_edit').value = data.cursos;
 
-                // Mostrar los campos adicionales
-                fieldsContainer.style.display = 'block';
+                    // 启用字段
+                    document.getElementById('edit_nombre').disabled = false;
+                    document.getElementById('especialidad').disabled = false;
+                    document.getElementById('anios_edit').disabled = false;
+
+                    console.log('获取数据成功:', data);
+                    
+                } else {
+                    console.log('找不到数据，禁用字段...');
+                    // 禁用字段
+                    document.getElementById('edit_nombre').disabled = true;
+                    document.getElementById('especialidad').disabled = true;
+                    document.getElementById('anios_edit').disabled = true;
+                    document.getElementById('edit_nombre').value = '';
+                    document.getElementById('especialidad').value = 'Plan Común';
+                    document.getElementById('anios_edit').value = '1ro 2do y 3ro';
+                }
             })
             .catch(error => {
-                console.error('Error al obtener los datos de la asignatura:', error);
-                // Ocultar los campos en caso de error
-                fieldsContainer.style.display = 'none';
+                console.error('获取数据出错:', error);
+                // 禁用字段
+                document.getElementById('edit_nombre').disabled = true;
+                document.getElementById('especialidad').disabled = true;
+                document.getElementById('anios_edit').disabled = true;
+
+                document.getElementById('edit_nombre').value = '';
+                document.getElementById('especialidad').value = 'Plan Común';
+                document.getElementById('anios_edit').value = '1ro 2do y 3ro';
             });
     } else {
-        // Ocultar los campos si el ID está vacío
-        fieldsContainer.style.display = 'none';
+        // 清空输入框并禁用字段
+        document.getElementById('edit_nombre').value = '';
+        document.getElementById('especialidad').value = 'Plan Común';
+        document.getElementById('anios_edit').value = '1ro 2do y 3ro';
+
+        document.getElementById('edit_nombre').disabled = true;
+        document.getElementById('especialidad').disabled = true;
+        document.getElementById('anios_edit').disabled = true;
+        
+
+        console.log('ID为空，已禁用字段。');
     }
 });
 
@@ -617,9 +659,17 @@ async function validar_materia_edit(event) {
     event.preventDefault();
 
     const id = document.getElementById('edit_subject_id').value.trim();
+    console.log('ciInput:',id);
     const nombre = document.getElementById('edit_nombre').value.trim();
+    console.log('nombreInput:', nombre);
     const espe = document.getElementById('espe_edit').value;
+    console.log('especialidadSelect:', espe);
     const anios = document.getElementById('anios_edit').value;
+
+    
+    
+    console.log('aniosSelect:', anios);
+    
 
     // Consola para verificar los datos ingresados
     console.log("Datos ingresados:", { id, nombre, espe, anios });
@@ -865,7 +915,47 @@ async function validar_materia_delete(event) {
         }
 
 
-        
+        window.onload = function() {
+    // 获取元素
+    var nombreInput = document.getElementById('edit_nombre');
+    var especialidadSelect = document.getElementById('especialidad');
+    var aniosSelect = document.getElementById('anios_edit');
+    var ciInput = document.getElementById('edit_subject_id');
+
+    // 初始禁用元素
+    nombreInput.disabled = true;
+    especialidadSelect.disabled = true;
+    aniosSelect.disabled = true; 
+
+    nombreInput.classList.add('disabled-input');
+    especialidadSelect.classList.add('disabled-input');
+    aniosSelect.classList.add('disabled-input');
+
+    // 监听CI输入框的输入事件
+    ciInput.addEventListener('input', function() {
+        if (this.value.length < 0) {
+            // CI为空时，禁用其他元素
+            nombreInput.disabled = true;
+            especialidadSelect.disabled = true;
+            aniosSelect.disabled = true;
+
+            nombreInput.disabled = true;
+    especialidadSelect.disabled = true;
+    aniosSelect.disabled = true; 
+
+    nombreInput.classList.add('disabled-input');
+    especialidadSelect.classList.add('disabled-input');
+    aniosSelect.classList.add('disabled-input');
+
+            // 每次输入时检查完整的组合
+            checkMateria();
+        }
+
+    // 监听其他元素的输入或更改事件
+});
+        }
+
+
     </script>
 </body>
 

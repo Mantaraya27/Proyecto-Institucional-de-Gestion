@@ -262,6 +262,11 @@
           background-color: #f2f2f2;
           margin-bottom: 20px;
       }
+      input:disabled {
+    background-color: #968585 !important;
+    color: #762c2c !important;
+    border: 1px solid #743434 !important;
+}
 
       .barra button {
           padding: 10px 20px;
@@ -547,6 +552,84 @@
     </div>
 
     <script>
+
+
+    const id = document.getElementById('edit_conductual_id').value.trim();
+    const nombre = document.getElementById('edit_descripcion').value.trim();
+
+
+    document.getElementById('edit_conductual_id').addEventListener('input', function() {
+    const subjectId = this.value.trim();
+    
+    if (subjectId) {
+        console.log("正在获取数据...");
+        
+        // 进行fetch请求
+        fetch(`/check_ras_lis?id=${subjectId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.existe) {
+                    // 更新表单字段
+                    document.getElementById('edit_descripcion').value = data.nombre;
+
+                    // 启用字段
+                    document.getElementById('edit_descripcion').disabled = false;
+
+
+                    console.log('获取数据成功:', data);
+                    
+                } else {
+                    console.log('找不到数据，禁用字段...');
+                    // 禁用字段
+                    document.getElementById('edit_descripcion').disabled = true;
+
+
+                    document.getElementById('edit_descripcion').value = '';
+
+
+                }
+            })
+            .catch(error => {
+                console.error('获取数据出错:', error);
+                // 禁用字段
+                document.getElementById('edit_descripcion').disabled = true;
+
+
+                document.getElementById('edit_descripcion').value = '';
+
+            });
+    } else {
+        // 清空输入框并禁用字段
+        document.getElementById('edit_descripcion').value = '';
+
+
+        document.getElementById('edit_descripcion').disabled = true;
+ 
+
+        console.log('ID为空，已禁用字段。');
+    }
+});
+
+window.onload = function() {
+    var id = document.getElementById('edit_conductual_id');
+    var nombreInput = document.getElementById('edit_descripcion');
+
+
+    nombreInput.disabled = true;
+    nombreInput.classList.add('disabled-input');
+
+
+    id.addEventListener('input', function() {
+        if (this.value.length === 0) {
+            nombreInput.disabled = true;
+            especialidadSelect.disabled = true;
+            nombreInput.classList.add('disabled-input');
+
+            checkMateria();
+        }
+        // 你可能需要在这里调用 checkMateria()，如果有这个函数。
+    });
+}
       function setFormMode(mode) {
         document.getElementById("form_mode").value = mode;
         document.getElementById("teacherForm").style.display = "none";

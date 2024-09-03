@@ -168,6 +168,11 @@
           <i class="fas fa-home"></i> Menú
         </li>
         {% endif %}
+        {% if role == 'encargado' %}
+            <li onclick="navigateTo('{{ url_for('elegir_curso', espe=espe) }}')">
+                <i class="fas fa-home"></i> Menú
+            </li>
+        {% endif %}
         <li onclick="navigateTo('{{ url_for('login') }}')">
           <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
         </li>

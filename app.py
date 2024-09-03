@@ -164,7 +164,7 @@ def crear_app():
                 return redirect(url_for('alumnos', espe=session['espe']))
         else:
             return redirect(url_for('login'))
-
+    
 
     @app.route('/edit_contact', methods=['POST'])
     def edit_contact():
@@ -212,25 +212,21 @@ def crear_app():
         else:
             return redirect(url_for('login'))
 
-
     @app.route('/get_student_data', methods=['GET'])
     def get_student_data():
         ci = request.args.get('ci')
         
         if not ci:
-            return jsonify({"error": "No CI provided"}), 400
-        
+            return jsonify({"error": "No CI provided"}), 400            
         cur = mysql.connection.cursor()
         cur.execute("""
-            SELECT nombre, apellido, curso, seccion, correo_encargado, correo_encargado2
-            FROM alumno
-            WHERE ci = %s
-        """, (ci,))
-        
+            SELECT nombre, apellido, curso, seccion, correo_encargado, correo_encargado2                FROM alumno
+                WHERE ci = %s
+            """, (ci,))
+            
         student = cur.fetchone()
         print(student)
         cur.close()
-
         if student:
             student_data = {
                 'nombre': student[0],
@@ -242,10 +238,8 @@ def crear_app():
             }
             return jsonify(student_data)
         else:
-            return jsonify({"error": "Student not found"}), 404
+            return jsonify({"error": "Student not found"}), 404    
 
-
-       
 
 
     @app.route('/delete_contact', methods=['POST'])
@@ -471,11 +465,12 @@ def crear_app():
     @app.route('/edit_materia', methods=['POST'])
     def edit_materia():
         if request.method == 'POST':
-            nombre = request.form['nombre']
+            nombre = request.form['edit_nombre']
+            print("hola",nombre)
             nombre=capitalizar_palabras(nombre)
             especialidad = request.form['especialidad']
-            subject_id = request.form['subject_id']
-            cursos = request.form['anios']  # Asegúrate de que 'anios' es el nombre correcto del campo
+            subject_id = request.form['edit_subject_id']
+            cursos = request.form['anios_edit']  # Asegúrate de que 'anios' es el nombre correcto del campo
             
             try:
                 cur = mysql.connection.cursor()
@@ -1368,13 +1363,14 @@ WHERE h.especialidad = %s;
 
     @app.route('/check_materia', methods=['POST'])
     def check_materia():
+        
         # Recibiendo los datos enviados por la solicitud POST
         data = request.json
         nombre = data.get('nombre')  # Recibe el nombre de la materia
         especialidad = data.get('espe')  # Recibe la especialidad
         curso = data.get('anios')  # Recibe el ID del curso/horario
 
-        # Imprime los datos recibidos para verificación
+        # Imprime los datos recibidos para verificaciónf
         print(f"Materia nombre recibido: {nombre}")
         print(f"Especialidad recibida: {especialidad}")
         print(f"Curso nombre recibido: {curso}")
@@ -1401,7 +1397,145 @@ WHERE h.especialidad = %s;
             cur.close()
 
         return jsonify({'existe': existe})
+    
 
+    @app.route('/check_materia_lis', methods=['GET'])
+    def check_materia_lis():
+        # 获取URL中的`id`参数
+        subject_id = request.args.get('id')
+
+        # 打印收到的ID进行调试
+        print(f"Materia id recibido: {subject_id}")
+
+        try:
+            # 查询数据库
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT nombre, especialidad, cursos FROM materia WHERE id_materia = %s", (subject_id,))
+            materia = cur.fetchone()
+            print(materia)
+
+            # 如果找到记录，返回数据
+            if materia:
+                return jsonify({
+                    'existe': True,
+                    'nombre': materia[0],
+                    'especialidad': materia[1],
+                    'cursos': materia[2]
+                })
+            else:
+                return jsonify({'existe': False})
+
+        except Exception as e:
+            print(f"Error en la consulta: {e}")
+            return jsonify({'existe': False})
+
+        finally:
+            cur.close()
+
+    @app.route('/check_prof_lis', methods=['GET'])
+    def check_prof_lis():
+        # 获取URL中的`id`参数
+        subject_id = request.args.get('id')
+
+        # 打印收到的ID进行调试
+        print(f"Materia id recibido: {subject_id}")
+
+        try:
+            # 查询数据库
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT nombre, apellido FROM profesor WHERE id_profesor = %s", (subject_id,))
+            materia = cur.fetchone()
+            print(materia)
+
+            # 如果找到记录，返回数据
+            if materia:
+                return jsonify({
+                    'existe': True,
+                    'nombre': materia[0],
+                    'ape': materia[1]
+                })
+            else:
+                return jsonify({'existe': False})
+
+        except Exception as e:
+            print(f"Error en la consulta: {e}")
+            return jsonify({'existe': False})
+
+        finally:
+            cur.close()
+
+
+    @app.route('/check_hor_lis', methods=['GET'])
+    def check_hor_lis():
+        # 获取URL中的`id`参数
+
+        subject_id = request.args.get('id')
+        especialidad = request.args.get('especialidad')
+        print("Espe")
+        print(especialidad)
+
+        # 打印收到的ID进行调试
+        print(f"Materia id recibido: {subject_id}")
+
+        try:
+            # 查询数据库
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT curso, seccion,especialidad FROM horario WHERE id_horario = %s", (subject_id,))
+            materia = cur.fetchone()
+            print(materia)
+
+            # 如果找到记录，返回数据
+            if materia and materia[2]==especialidad:
+                return jsonify({
+                    'existe': True,
+                    'nombre': materia[0],
+                    'ape': materia[1]
+                })
+            else:
+                return jsonify({'existe': False})
+
+        except Exception as e:
+            print(f"Error en la consulta: {e}")
+            return jsonify({'existe': False})
+
+        finally:
+            cur.close()
+
+
+
+    @app.route('/check_ras_lis', methods=['GET'])
+    def check_ras_lis():
+        # 获取URL中的`id`参数
+
+        subject_id = request.args.get('id')
+        print("hola")
+
+
+        # 打印收到的ID进行调试
+        print(f"Materia id recibido: {subject_id}")
+
+        try:
+            # 查询数据库
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT descripcion FROM rasgos_conductuales WHERE id_rasgo = %s", (subject_id,))
+            materia = cur.fetchone()
+            print(materia)
+
+            # 如果找到记录，返回数据
+            if materia :
+                return jsonify({
+                    'existe': True,
+                    'nombre': materia[0]
+                })
+            else:
+                return jsonify({'existe': False})
+
+        except Exception as e:
+            print(f"Error en la consulta: {e}")
+            return jsonify({'existe': False})
+
+        finally:
+            cur.close()
 
 
     
@@ -2157,6 +2291,7 @@ WHERE h.especialidad = %s;
             print(lista_datos)
             try:
                 for datos in lista_datos:
+                    print(datos)
                     if pd.isna(datos[6]) and pd.isna(datos[5]):
                         cur.execute("SELECT * FROM alumno WHERE ci = %s", (datos[4],))
                         alumno = cur.fetchone()
@@ -2165,7 +2300,7 @@ WHERE h.especialidad = %s;
                                     UPDATE alumno 
                                     SET nombre = %s, apellido = %s, curso = %s, seccion = %s, especialidad = %s, correo_encargado = Null, Correo_encargado2 = NULL 
                                     WHERE ci = %s
-                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[5]))
+                                """, (datos[0], datos[1], datos[2], datos[3], session['espe'], datos[4]))
                         else:
                             cur.execute("""
                                     INSERT INTO alumno (nombre, apellido, curso, seccion, especialidad, ci)

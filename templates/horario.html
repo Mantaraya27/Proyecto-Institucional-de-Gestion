@@ -475,7 +475,7 @@
             oninput="this.value = this.value.replace(/[^0-9]/g,'');"
             required
           />
-          <input type="hidden" name="espe" id="espe_edit" value="{{ espe }}" />
+          <input type="hidden" name="espe_edit" id="espe_edit" value="{{ espe }}" />
           <p>Curso</p>
           <select name="curso" id="curso_edit_time" required>
             <option value="1">1</option>
@@ -567,6 +567,64 @@
     </div>
 
     <script>
+
+window.onload = function() {
+    var id = document.getElementById('id_modif_time');
+    var nombreInput = document.getElementById('curso_edit_time');
+    var especialidadSelect = document.getElementById('seccion_edit_time');
+    var especialidad = document.getElementById('espe_edit').value;
+    console.log (especialidad);
+    console.log("holaa");
+
+    nombreInput.disabled = true;
+    especialidadSelect.disabled = true;
+
+    id.addEventListener('input', function() {
+        const subjectId = this.value.trim();
+
+
+
+        if (subjectId.length === 0) {
+            nombreInput.disabled = true;
+            especialidadSelect.disabled = true;
+        } else {
+            fetch(`/check_hor_lis?id=${subjectId}&especialidad=${especialidad}`)
+                .then(response => response.json())
+                .then(data => {
+                  var especialidad = data.especialidad;
+                  console.log('Especialidad:', especialidad);
+                    if (data.existe) {
+                        // 更新表单字段
+                        
+                        nombreInput.value = data.nombre;
+                        especialidadSelect.value = data.ape;
+
+                        // 启用字段
+                        nombreInput.disabled = false;
+                        especialidadSelect.disabled = false;
+                    } else {
+                        console.log('找不到数据，禁用字段...');
+                        // 禁用字段
+                        nombreInput.disabled = true;
+                        especialidadSelect.disabled = true;
+
+                        nombreInput.value = '1';
+                        especialidadSelect.value = '1';
+                    }
+                })
+                .catch(error => {
+                    console.error('获取数据出错:', error);
+                    // 禁用字段
+                    nombreInput.disabled = true;
+                    especialidadSelect.disabled = true;
+
+                    nombreInput.value = '1';
+                    especialidadSelect.value = '1';
+                });
+        }
+    });
+};
+
       function setFormMode(event, mode) {
         var formTitle = document.getElementById("formTitle");
         var formMode = document.getElementById("form_mode");

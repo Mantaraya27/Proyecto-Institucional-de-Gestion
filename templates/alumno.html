@@ -162,6 +162,13 @@
           border-radius: 4px;
           background-color: #ebd6d6;
       }
+      input:disabled {
+    background-color: #968585 !important;
+    color: #762c2c !important;
+    border: 1px solid #743434 !important;
+}
+
+
 
       .contact-form button {
           padding: 10px;
@@ -326,7 +333,7 @@
           background-color: yellow;
       }
 
-
+      
 
 
 
@@ -829,8 +836,8 @@ function setFormMode(mode) {
     document.getElementById("ci").value = "";
     document.getElementById("nombre").value = "";
     document.getElementById("apellido").value = "";
-    document.getElementById("curso").value = "";
-    document.getElementById("seccion").value = "";
+    document.getElementById("curso").value = "1";
+    document.getElementById("seccion").value = "1";
     document.getElementById("cantidadCorreo").value = "1";
     document.getElementById("correo_encargado").value = "";
     document.getElementById("extraCorreo").innerHTML = "";
@@ -847,12 +854,56 @@ function setFormMode(mode) {
 
     // Solo mostrar el campo de CI al inicio
     document.getElementById("ciField").style.display = "block";
-    document.getElementById("otherFields").style.display = "none";
+    document.getElementById("otherFields").style.display = "block";
     document.getElementById("extraCorreo").style.display = "none";
 
     addButton.classList.remove("active");
     editButton.classList.add("active");
     deleteButton.classList.remove("active");
+    var ci=document.getElementById("ci");
+    var nombre=document.getElementById("nombre");
+    var ape=document.getElementById("apellido");
+    var curso=document.getElementById("curso");
+    var seccion=document.getElementById("seccion");
+    var cant=document.getElementById("cantidadCorreo");
+    var correo=document.getElementById("correo_encargado");
+    var correo2=document.getElementById("extraCorreo");
+    console.log("babababbabbsbasdbb");
+
+
+    nombre.disabled = true;
+    ape.disabled = true;
+    curso.disabled = true;
+    seccion.disabled = true;
+    cant.disabled = true;
+    correo.disabled = true;
+    correo2.disabled = true;
+nombre.classList.add('disabled-input');
+ape.classList.add('disabled-input');
+curso.classList.add('disabled-input');
+seccion.classList.add('disabled-input');
+cant.classList.add('disabled-input');
+correo.classList.add('disabled-input');
+correo2.classList.add('disabled-input');
+document.getElementById("ci").value = "";
+    document.getElementById("nombre").value = "";
+    document.getElementById("apellido").value = "";
+    document.getElementById("curso").value = "1";
+    document.getElementById("seccion").value = "1";
+    document.getElementById("cantidadCorreo").value = "1";
+    document.getElementById("correo_encargado").value = "";
+    document.getElementById("extraCorreo").innerHTML = "";
+
+
+    id.addEventListener('input', function() {
+        if (this.value.length === 0) {
+            nombreInput.disabled = true;
+            especialidadSelect.disabled = true;
+
+            checkMateria();
+        }
+        // 你可能需要在这里调用 checkMateria()，如果有这个函数。
+    });
   } else if (mode === "delete") {
     form.style.display = "none";
     deleteForm.style.display = "block";
@@ -895,58 +946,85 @@ function handleCorreoCountChange() {
 
 // Asignar el evento change al campo de "Cantidad de correos"
 document.getElementById("cantidadCorreo").addEventListener("change", handleCorreoCountChange);
-
 // Llamada a setFormMode para mostrar el modo de agregar por defecto al cargar la página
 window.onload = function() {
   setFormMode("add");
 };
 
-
+    
+    
  
 
-  function loadStudentData() {
-    const ci = document.getElementById("ci").value;
+function loadStudentData() {
+    const ci = document.getElementById("ci").value.trim();
+    const formMode = document.getElementById("form_mode").value;
+    const otherFields = document.getElementById("otherFields");
+    const inputs = otherFields.querySelectorAll('input, select');
 
-    if (ci && document.getElementById("form_mode").value === "edit") {
-      fetch(`/get_student_data?ci=${ci}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          if (data.error) {
-            console.error("Error loading student data:", data.error);
-            return;
-          }
+    // Deshabilitar los campos inicialmente
+    inputs.forEach(function(input) {
+        input.disabled = true;
+    });
 
-          document.getElementById("otherFields").style.display = "block";
-          document.getElementById("extraCorreo").style.display = data.correo_encargado2 ? "block" : "none";
+    // Solo proceder si hay un CI y estamos en modo edición
+    if (ci && formMode === "edit") {
+        fetch(`/get_student_data?ci=${ci}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error("Error loading student data:", data.error);
+                    return;
+                }
 
-          document.getElementById("nombre").value = data.nombre || '';
-          document.getElementById("apellido").value = data.apellido || '';
-          document.getElementById("curso").value = data.curso || '';
-          document.getElementById("seccion").value = data.seccion || '';
-          document.getElementById("correo_encargado").value = data.correo_encargado || '';
+                // Mostrar los campos adicionales
+                otherFields.style.display = "block";
+                document.getElementById("extraCorreo").style.display = data.correo_encargado2 ? "block" : "none";
 
-          const extraCorreoDiv = document.getElementById("extraCorreo");
-          extraCorreoDiv.innerHTML = '';
-          if (data.correo_encargado2) {
-            extraCorreoDiv.innerHTML = `
-              <p class="formTitle">Correo Electrónico Adicional</p>
-              <input type="email" name="correo_encargado2" id="correo_encargado2" value="${data.correo_encargado2 || ''}" />
-            `;
-          }
-        })
-        .catch(error => {
-          console.error("Error loading student data:", error);
-        });
+                // Rellenar los campos con los datos recibidos
+                document.getElementById("nombre").value = data.nombre || '';
+                document.getElementById("apellido").value = data.apellido || '';
+                document.getElementById("curso").value = data.curso || '';
+                document.getElementById("seccion").value = data.seccion || '';
+                document.getElementById("correo_encargado").value = data.correo_encargado || '';
+
+                // Habilitar los campos si se encuentra el CI
+                inputs.forEach(function(input) {
+                    input.disabled = false;
+                });
+
+                // Manejar el campo de correo electrónico adicional
+                const extraCorreoDiv = document.getElementById("extraCorreo");
+                extraCorreoDiv.innerHTML = '';
+                if (data.correo_encargado2) {
+                    extraCorreoDiv.innerHTML = `
+                        <p class="formTitle">Correo Electrónico Adicional</p>
+                        <input type="email" name="correo_encargado2" id="correo_encargado2" value="${data.correo_encargado2 || ''}" />
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error("Error loading student data:", error);
+            });
+    }else{
+      document.getElementById("ci").value = "";
+    document.getElementById("nombre").value = "";
+    document.getElementById("apellido").value = "";
+    document.getElementById("curso").value = "1";
+    document.getElementById("seccion").value = "1";
+    document.getElementById("cantidadCorreo").value = "1";
+    document.getElementById("correo_encargado").value = "";
+    document.getElementById("extraCorreo").innerHTML = "";
     }
-  }
+}
 
-  // Asignar el evento input al campo C.I. para cargar datos en modo de edición
-  document.getElementById("ci").addEventListener("input", loadStudentData);
+// Asignar el evento input al campo C.I. para cargar datos en modo de edición
+document.getElementById("ci").addEventListener("input", loadStudentData);
+
 
 
 
