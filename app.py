@@ -19,9 +19,9 @@ def crear_app():
     app.config['MAIL_PASSWORD'] = 'ucspfhcmjyrebeze'  # Tu contraseña
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
-    app.config['MYSQL_HOST'] = '186.17.87.89'
-    app.config['MYSQL_USER'] = 'info'
-    app.config['MYSQL_PASSWORD'] = 'Infoctn024'
+    app.config['MYSQL_HOST'] = '192.168.100.10'
+    app.config['MYSQL_USER'] = 'Alumnos'
+    app.config['MYSQL_PASSWORD'] = 'Info024'
     app.config['MYSQL_DB'] = 'informatica'
     app.secret_key = 'mysecretkey'
     mail = Mail(app)
@@ -114,8 +114,8 @@ def crear_app():
                 ci = request.form['ci']
                 correo_encargado = request.form['correo_encargado']
                 correo_encargado2 = request.form.get('correo_encargado_2', '')
-                nombre = capitalizar_palabras(nombre)
-                apellido = capitalizar_palabras(apellido)
+                nombre = nombre.upper()
+                apellido = apellido.upper()
 
                 # Validar longitud del CI
                 if len(ci) < 7 or len(ci) > 8:
@@ -178,8 +178,8 @@ def crear_app():
                 especialidad = session['espe']
                 correo_encargado = request.form['correo_encargado']
                 correo_encargado2 = request.form.get('correo_encargado_2', '')  # Default to empty string if not provided
-                nombre = capitalizar_palabras(nombre)
-                apellido = capitalizar_palabras(apellido)
+                nombre = nombre.upper()
+                apellido = apellido.upper()
 
                 cur = mysql.connection.cursor()
 
@@ -193,7 +193,7 @@ def crear_app():
                 if alumno_existente:
                     flash('Ya existe un alumno con estos datos', 'error')
                     return redirect(url_for('alumnos', espe=session['espe']))
-
+                
                 # Actualizar registro
                 try:
                     cur.execute("""
@@ -511,7 +511,7 @@ def crear_app():
     def delete_materia():
         if 'role' in session and session['role'] == 'administrador':
             if request.method == 'POST':
-                subject_id = request.form.get('subject_id', '')
+                subject_id = request.form.get('delete_subject_id', '')
                 print(f"Recibida solicitud para eliminar materia con ID: {subject_id}")
 
                 if not subject_id:
@@ -2260,7 +2260,7 @@ WHERE h.especialidad = %s;
                         print(rasgos)
                         rendered = render_template('enviar.html', reportes=reportes, rasgos=rasgos, alumno=alumno, id_reportes=id_reportes)
                         pdf = pdfkit.from_string(rendered, False)
-                        msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=['luanycastillo66@gmail.com'])
+                        msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=[email[0]])
                         msg.body = "Reporte Conductual del mes " + month + " del alumno " + alumno[1] + " " + alumno[2]
                         msg.attach((alumno[1] + " " + alumno[2] +".pdf"), "application/pdf", pdf)
                         mail.send(msg)
