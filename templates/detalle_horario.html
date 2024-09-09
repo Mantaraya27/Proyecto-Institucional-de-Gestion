@@ -1,1138 +1,1047 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Panel de Administración</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-      /* Estilos generales y de la barra lateral */
-      body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          height: 100vh;
-          background-color: rgb(43, 36, 36);
-          overflow: hidden;
-      }
+        /* Estilos generales y de la barra lateral */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: rgb(43, 36, 36);
+            overflow: hidden;
+        }
 
-      .sidebar {
-          width: 250px;
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          color: rgb(255, 255, 255);
-          height: 100%;
-          padding: 20px;
-          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-          position: fixed;
-          transition: transform 0.3s ease;
-      }
+        .sidebar {
+            width: 250px;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            color: rgb(255, 255, 255);
+            height: 100%;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            transition: transform 0.3s ease;
+        }
 
-      .sidebar.closed {
-          transform: translateX(-250px);
-      }
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
 
-      .sidebar h2 {
-          text-align: center;
-          font-size: 1.5em;
-          margin-top: 0;
-      }
+        .sidebar h2 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 0;
+        }
 
-      .sidebar ul {
-          list-style: none;
-          padding: 0;
-          font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
-      }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+        }
 
-      .sidebar ul li {
-          margin: 20px 0;
-      }
+        .sidebar ul li {
+            margin: 20px 0;
+        }
 
-      .formTitle {
-          color: white;
-      }
+        .formTitle {
+            color: white;
+        }
 
-      .sidebar ul li a {
-          color: white;
-          text-decoration: none;
-          font-weight: bold;
-          display: block;
-          padding: 10px;
-          border-radius: 5px;
-          transition: background-color 0.3s;
-          display: flex;
-          align-items: center;
-      }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
 
-      .sidebar ul li a i {
-          margin-right: 10px;
-      }
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
 
-      .sidebar ul li a:hover {
-          background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
-      }
+        .sidebar ul li a:hover {
+            background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+        }
 
-      .formTitle {
-          color: white;
-      }
+        .formTitle {
+            color: white;
+        }
 
-      /* Estilos del contenido */
-      .content {
-          margin-left: 270px;
-          flex-grow: 1;
-          padding: 20px;
-          overflow-y: auto;
-          width: calc(100% - 270px);
-          transition: margin-left 0.3s ease;
-          display: flex;
-          flex-direction: row;
-      }
+        /* Estilos del contenido */
+        .content {
+            margin-left: 270px;
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            width: calc(100% - 270px);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: row;
+        }
 
-      /* Estilos de la barra superior */
-      .top-bar {
-          margin-left: 0;
-          color: #ecd9d9;
-          padding: 10px 20px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
+        /* Estilos de la barra superior */
+        .top-bar {
+            margin-left: 0;
+            color: #ecd9d9;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
 
-      }
+        }
 
-      .top-bar .menu-icon {
-          cursor: pointer;
-          font-size: 24px;
-          color: white;
-      }
+        .top-bar .menu-icon {
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+        }
 
-      .top-bar .profile {
-          display: flex;
-          align-items: center;
-      }
+        .top-bar .profile {
+            display: flex;
+            align-items: center;
+        }
 
-      .top-bar .profile img {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          margin-left: 10px;
-      }
+        .top-bar .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
 
-      .form-container p {
-          color: #fff;
-      }
-      /* Estilos del formulario y botones */
-      .form-container {
-          width: 40%;
-          margin-left: 20px;
-          padding-left: 20px;
-          background-color: rgb(43, 36, 36);
-          box-shadow: 0 0 10px rgba(202, 82, 82, 0.1);
-          border-radius: 8px;
-          margin-right: 20px;
-          transition: width 0.3s ease;
-      }
+        .form-container p {
+            color: #fff;
+        }
+        /* Estilos del formulario y botones */
+        .form-container {
+            width: 40%;
+            margin-left: 20px;
+            padding-left: 20px;
+            background-color: rgb(43, 36, 36);
+            box-shadow: 0 0 10px rgba(202, 82, 82, 0.1);
+            border-radius: 8px;
+            margin-right: 20px;
+            transition: width 0.3s ease;
+        }
 
-      .form-container h1 {
-          color: #eeecec;
-          text-align: center;
-      }
+        .form-container h1 {
+            color: #eeecec;
+            text-align: center;
+        }
 
-      .contact-form input[type="text"],
-      .contact-form select {
-          display: flex;
-          width: 80%;
-          gap: 10px;
-          margin: 20px 0;
-          padding: 10px;
-          border: 1px solid #2b2727;
-          border-radius: 4px;
-          background-color: #ebd6d6;
-      }
+        .contact-form input[type="text"],
+        .contact-form select {
+            display: flex;
+            width: 80%;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #2b2727;
+            border-radius: 4px;
+            background-color: #ebd6d6;
+        }
 
-      .contact-form button {
-          padding: 10px;
-          width: 100px;
-          margin-left: 38%;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-      }
+        .contact-form button {
+            padding: 10px;
+            width: 100px;
+            margin-left: 38%;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-      .contact-form button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-      }
+        .contact-form button:hover {
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+        }
 
-      .form-buttons {
-          display: flex;
-          justify-content: center;
-          gap: 10px;
-          margin-bottom: 20px;
-      }
+        .form-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-      .form-buttons button {
-          padding: 10px 20px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: transform 0.3s;
-      }
+        .form-buttons button {
+            padding: 10px 20px;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
 
-      .form-buttons button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          transform: scale(1.05);
-      }
+        .form-buttons button:hover {
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            transform: scale(1.05);
+        }
 
-      .form-buttons button.active {
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-      }
+        .form-buttons button.active {
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+        }
 
-      .form-buttons button.active:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          transform: scale(1.05);
-      }
+        .form-buttons button.active:hover {
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            transform: scale(1.05);
+        }
 
-      /* Estilos de la tabla */
-      .list-container {
-          width: 60%;
-      }
+        /* Estilos de la tabla */
+        .list-container {
+            width: 60%;
+        }
 
-      table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 20px 0;
-          background-color: rgb(48, 45, 45);
-      }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: rgb(48, 45, 45);
+        }
 
-      table,
-      th,
-      td {
-          border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-      }
+        table,
+        th,
+        td {
+            border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+        }
 
-      td {
-          color: rgb(247, 226, 226);
-      }
+        td {
+            color: rgb(247, 226, 226);
+        }
 
-      th,
-      td {
-          padding: 10px;
-          text-align: left;
-      }
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
 
-      th {
-          color: #fff;
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-      }
+        th {
+            color: #fff;
+            background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+        }
 
-      /* Estilos de la barra de búsqueda */
-      .barra {
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: white;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 20px;
-          border-radius: 18px;
-      }
+        /* Estilos de la barra de búsqueda */
+        .barra {
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-radius: 18px;
+        }
 
-      .barra h2 {
-          margin: 0;
-          padding-bottom: 20px;
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-      }
+        .barra h2 {
+            margin: 0;
+            padding-bottom: 20px;
+            color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+        }
 
-      .barra input[type="text"] {
-          width: 80%;
-          padding: 10px;
-          border: none;
-          border-radius: 4px;
-          font-size: 14px;
-          color: #333333;
-          outline: none;
-          background-color: #f2f2f2;
-          margin-bottom: 20px;
-      }
+        .barra input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333333;
+            outline: none;
+            background-color: #f2f2f2;
+            margin-bottom: 20px;
+        }
 
-      .barra button {
-          padding: 10px 20px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background-color 0.3s;
-      }
+        .barra button {
+            padding: 10px 20px;
+            background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-      .barra button:hover {
-          background-color: #7e083f;
-      }
+        .barra button:hover {
+            background-color: #7e083f;
+        }
 
-      .search-container {
-          position: relative;
-          width: 80%;
-          margin-bottom: 20px;
-      }
+        .search-container {
+            position: relative;
+            width: 80%;
+            margin-bottom: 20px;
+        }
 
-      .search-container input[type="text"] {
-          width: 100%;
-          padding: 10px 10px 10px 40px;
-          /* Ajuste de padding para espacio del icono */
-          border: none;
-          border-radius: 4px;
-          font-size: 14px;
-          color: #333333;
-          background-color: #f2f2f2;
-      }
+        .search-container input[type="text"] {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            /* Ajuste de padding para espacio del icono */
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333333;
+            background-color: #f2f2f2;
+        }
 
-      .search-container .fas.fa-search {
-          position: absolute;
-          top: 34%;
-          left: 10px;
-          transform: translateY(-50%);
-          color: #666666;
-      }
+        .search-container .fas.fa-search {
+            position: absolute;
+            top: 34%;
+            left: 10px;
+            transform: translateY(-50%);
+            color: #666666;
+        }
 
+        
 
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: none;
+            }
 
-      @media (max-width: 768px) {
-          .sidebar {
-              width: 100%;
-              height: auto;
-              position: relative;
-              transform: none;
-          }
+            .sidebar.closed {
+                transform: none;
+            }
 
-          .sidebar.closed {
-              transform: none;
-          }
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
 
-          .content {
-              margin-left: 0;
-              width: 100%;
-          }
+            .form-container {
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+            }
 
-          .form-container {
-              width: 100%;
-              padding: 10px;
-              margin: 10px 0;
-          }
+            .list-container {
+                width: 100%;
+                margin: 10px 0;
+            }
 
-          .list-container {
-              width: 100%;
-              margin: 10px 0;
-          }
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
 
-          .top-bar {
-              flex-direction: column;
-              align-items: flex-start;
-          }
+            .top-bar .profile {
+                margin-top: 10px;
+            }
+        }
 
-          .top-bar .profile {
-              margin-top: 10px;
-          }
-      }
+        @media (max-width: 480px) {
 
-      @media (max-width: 480px) {
+            .contact-form input[type="text"],
+            .contact-form select {
+                width: calc(100% - 10px);
+                margin: 5px;
+                padding: 8px;
+            }
 
-          .contact-form input[type="text"],
-          .contact-form select {
-              width: calc(100% - 10px);
-              margin: 5px;
-              padding: 8px;
-          }
+            .contact-form button {
+                padding: 8px;
+                width: 80px;
+            }
 
-          .contact-form button {
-              padding: 8px;
-              width: 80px;
-          }
-
-          .form-buttons button {
-              padding: 8px 16px;
-          }
-      }
+            .form-buttons button {
+                padding: 8px 16px;
+            }
+        }
     </style>
-  </head>
+</head>
 
-  <body>
+<body>
     <div class="sidebar">
-      <h2>Admin Panel</h2>
-      <ul>
-        <li>
-          <a href="{{ url_for('admin', espe=espe) }}"
-            ><i class="fa fa-home"></i> Inicio</a
-          >
-        </li>
-        <li>
-          <a href="{{ url_for('Manual_de_usuario') }}"
-            ><i class="fa fa-question-circle"></i> Soporte</a
-          >
-        </li>
-        <li>
-          <a href="{{url_for('materia', espe=espe)}}"
-            ><i class="fa fa-user-plus"></i>Agregar/Editar Materia</a
-          >
-        </li>
-        <li>
-          <a href="{{url_for('horario', espe=espe)}}"
-            ><i class="fa fa-user-plus"></i>Agregar/Editar Horario</a
-          >
-        </li>
-        <li>
-          <a href="{{ url_for('logout') }}"
-            ><i class="fa fa-sign-out-alt"></i> Cerrar Sesión</a
-          >
-        </li>
-      </ul>
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="{{ url_for('admin', espe=espe) }}"><i class="fa fa-home"></i> Inicio</a></li>
+            <li><a href="#"><i class="fa fa-life-ring"></i> Soporte</a></li>
+            <li><a href="{{url_for('materia', espe=espe)}}"><i class="fa fa-user-plus"></i>Agregar/Editar Materia</a></li>
+            <li><a href="{{url_for('horario', espe=espe)}}"><i class="fa fa-user-plus"></i>Agregar/Editar Horario</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+        </ul>
     </div>
 
     <div class="content">
-      <div class="form-container">
-        <div class="top-bar">
-          <i class="fa fa-bars menu-icon" onclick="toggleSidebar()"></i>
-          <div class="profile">
-            <span>Bienvenido, {{ session['role'].capitalize() }}</span>
-            <img src="https://via.placeholder.com/40" alt="Foto de Perfil" />
-          </div>
+        <div class="form-container">
+            <div class="top-bar">
+                <i class="fa fa-bars menu-icon" onclick="toggleSidebar()"></i>
+                <div class="profile">
+                    <span>Bienvenido, {{ session['role'].capitalize() }}</span>
+                    <img src="https://via.placeholder.com/40" alt="Foto de Perfil">
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                <button onclick="setFormMode('add')" class="active">Agregar</button>
+                <button onclick="setFormMode('edit')">Modificar</button>
+                <button onclick="setFormMode('delete')">Eliminar</button>
+            </div>
+
+            <form id="addForm" action="{{ url_for('add_dethora') }}" method="POST" class="contact-form">
+                <h1 class="formTitle">Agregar Relación</h1>
+                <input type="hidden" id="espe" name="espe" value="{{espe}}">
+                <select name="horarioo" id="horario_add" required>
+                    {% if horarios %}
+                    <option value="" disabled selected>Seleccione el id del curso</option>
+                    {% for curs in horarios %}
+                    <option value="{{ curs[0] }}" >{{curs[1]}} {{ curs[2] }}° {{curs[3]}}°</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay cursos</option>
+                    {% endif %}
+                </select>
+                <select name="materiaa" id="materia_add" required>
+                    {% if materias %}
+                    <option value="" disabled selected>Seleccione una materia</option>
+                    {% for materia in materias %}
+                    <option value="{{ materia[0] }}">{{ materia[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay materias disponibles</option>
+                    {% endif %}
+                </select>
+                <p class="formTitle">Día</p>
+                <select name="tian" id="tian" required>
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <option value="Miércoles">Miércoles</option>
+                    <option value="Jueves">Jueves</option>
+                    <option value="Viernes">Viernes</option>
+                </select>
+                <p class="formTitle">Horarios</p>
+                <select name="horario" id="horario" required>
+                    <option value="7:00-7:35">7:00-7:35</option>
+                    <option value="7:00-8:10">7:00-8:10</option>
+                    <option value="7:00-8:45">7:00-8:45</option>
+                    <option value="7:00-9:20">7:00-9:20</option>
+                    <option value="7:35-8:10">7:35-8:10</option>
+                    <option value="7:35-8:45">7:35-8:45</option>
+                    <option value="7:35-9:20">7:35-9:20</option>
+                    <option value="8:10-8:45">8:10-8:45</option>
+                    <option value="8:10-9:20">8:10-9:20</option>
+                    <option value="8:45-9:20">8:45-9:20</option>
+                    <option value="9:40-10:15">9:40-10:15</option>
+                    <option value="9:40-10:50">9:40-10:50</option>
+                    <option value="9:40-11:25">9:40-11:25</option>
+                    <option value="9:40-12:00">9:40-12:00</option>
+                    <option value="10:15-10:50">10:15-10:50</option>
+                    <option value="10:15-11:25">10:15-11:25</option>
+                    <option value="10:15-12:00">10:15-12:00</option>
+                    <option value="10:50-11:25">10:50-11:25</option>
+                    <option value="10:50-12:00">10:50-12:00</option>
+                    <option value="11:25-12:00">11:25-12:00</option>
+                    <option value="13:00-13:35">13:00-13:35</option>
+                    <option value="13:00-14:10">13:00-14:10</option>
+                    <option value="13:00-14:45">13:00-14:45</option>
+                    <option value="13:00-15:20">13:00-15:20</option>
+                    <option value="13:35-14:10">13:35-14:10</option>
+                    <option value="13:35-14:45">13:35-14:45</option>
+                    <option value="13:35-15:20">13:35-15:20</option>
+                    <option value="14:10-14:45">14:10-14:45</option>
+                    <option value="14:10-15:20">14:10-15:20</option>
+                    <option value="14:45-15:20">14:45-15:20</option>
+                    <option value="15:40-16:15">15:40-16:15</option>
+                    <option value="15:40-16:50">15:40-16:50</option>
+                    <option value="15:40-17:25">15:40-17:25</option>
+                    <option value="15:40-18:00">15:40-18:00</option>
+                    <option value="16:15-16:50">16:15-16:50</option>
+                    <option value="16:15-17:25">16:15-17:25</option>
+                    <option value="16:15-18:00">16:15-18:00</option>
+                    <option value="16:50-17:25">16:50-17:25</option>
+                    <option value="16:50-18:00">16:50-18:00</option>
+                    <option value="17:25-18:00">17:25-18:00</option>
+                </select>
+                <button type="submit"  onclick="validar_funcion(event)">Enviar</button>
+            </form>
+            <form id="editForm" action="{{ url_for('edit_dethora') }}" method="POST" class="contact-form">
+                <h1 id="formTitle">Editar Relación</h1>
+                <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                <input type="text" name="old_horario_id" id="edit_old_horario_id" placeholder="id del curso"oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                
+                <select name="horarioo" id="cursoId_edit" required>
+                    {% if horarios %}
+                    <option value="" disabled selected>Seleccione el id del curso</option>
+                    {% for curs in horarios %}
+                    <option value="{{ curs[0] }}" id="cursoId_edit">{{curs[1]}} {{ curs[2] }}° {{curs[3]}}°</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay cursos</option>
+                    {% endif %}
+                </select>
+                <select name="materiaa" id="materia_edit" required>
+                    {% if materias %}
+                    <option value="" disabled selected>Seleccione una materia</option>
+                    {% for materia in materias %}
+                    <option value="{{ materia[0] }}" id="materiaId_edit">{{ materia[1] }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="">No hay materias disponibles</option>
+                    {% endif %}
+                </select>
+                <p class="formTitle">Día</p>
+                <select name="tian" id="tian_edit" required>
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <option value="Miércoles">Miércoles</option>
+                    <option value="Jueves">Jueves</option>
+                    <option value="Viernes">Viernes</option>
+                </select>
+                <p class="formTitle">Horarios</p>
+                <select name="horario" id="horario_edit" required>
+                    <option value="7:00-7:35">7:00-7:35</option>
+                    <option value="7:00-8:10">7:00-8:10</option>
+                    <option value="7:00-8:45">7:00-8:45</option>
+                    <option value="7:00-9:20">7:00-9:20</option>
+                    <option value="7:35-8:10">7:35-8:10</option>
+                    <option value="7:35-8:45">7:35-8:45</option>
+                    <option value="7:35-9:20">7:35-9:20</option>
+                    <option value="8:10-8:45">8:10-8:45</option>
+                    <option value="8:10-9:20">8:10-9:20</option>
+                    <option value="8:45-9:20">8:45-9:20</option>
+                    <option value="9:40-10:15">9:40-10:15</option>
+                    <option value="9:40-10:50">9:40-10:50</option>
+                    <option value="9:40-11:25">9:40-11:25</option>
+                    <option value="9:40-12:00">9:40-12:00</option>
+                    <option value="10:15-10:50">10:15-10:50</option>
+                    <option value="10:15-11:25">10:15-11:25</option>
+                    <option value="10:15-12:00">10:15-12:00</option>
+                    <option value="10:50-11:25">10:50-11:25</option>
+                    <option value="10:50-12:00">10:50-12:00</option>
+                    <option value="11:25-12:00">11:25-12:00</option>
+                    <option value="13:00-13:35">13:00-13:35</option>
+                    <option value="13:00-14:10">13:00-14:10</option>
+                    <option value="13:00-14:45">13:00-14:45</option>
+                    <option value="13:00-15:20">13:00-15:20</option>
+                    <option value="13:35-14:10">13:35-14:10</option>
+                    <option value="13:35-14:45">13:35-14:45</option>
+                    <option value="13:35-15:20">13:35-15:20</option>
+                    <option value="14:10-14:45">14:10-14:45</option>
+                    <option value="14:10-15:20">14:10-15:20</option>
+                    <option value="14:45-15:20">14:45-15:20</option>
+                    <option value="15:40-16:15">15:40-16:15</option>
+                    <option value="15:40-16:50">15:40-16:50</option>
+                    <option value="15:40-17:25">15:40-17:25</option>
+                    <option value="15:40-18:00">15:40-18:00</option>
+                    <option value="16:15-16:50">16:15-16:50</option>
+                    <option value="16:15-17:25">16:15-17:25</option>
+                    <option value="16:15-18:00">16:15-18:00</option>
+                    <option value="16:50-17:25">16:50-17:25</option>
+                    <option value="16:50-18:00">16:50-18:00</option>
+                    <option value="17:25-18:00">17:25-18:00</option>
+                </select>
+                <button type="submit" onclick="checkAndSubmitForm_edit(event)">Enviar</button>
+            </form>
+
+            <form id="deleteForm" action="{{ url_for('delete_dethora') }}" method="POST" class="contact-form"
+                style="display:none;">
+                <h1>Eliminar Relacion</h1>
+                <input type="text" name="old_materia_id" id="delete_old_materia_id" placeholder="id de la materia"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '');"required>
+                <input type="text" name="old_horario_id" id="delete_old_horario_id" placeholder="id del curso"oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                <button type="submit" onclick="adelete(event)">Eliminar</button>
+            </form>
         </div>
+        <div class="list-container">
+            <div class="barra">
+                <h2>Lista de Relaciones</h2>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Buscar...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
 
-        <div class="form-buttons">
-          <button onclick="setFormMode('add')" class="active">Agregar</button>
-          <button onclick="setFormMode('edit')">Modificar</button>
-          <button onclick="setFormMode('delete')">Eliminar</button>
+            <table id="teacherTable">
+                <thead>
+                    <tr>
+                        <th>ID Mat</th>
+                        <th>Materia</th>
+                        <th>ID Cur</th>
+                        <th>Curso</th>
+                        <th>Hora</th>
+                        <th>Dia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in materia_hora %}
+                    <tr>
+                        <td>{{ row[0] }}</td> <!-- ID Materia -->
+                        <td>{{ row[1] }}</td> <!-- Nombre de Materia -->
+                        <td>{{ row[2] }}</td> <!-- ID Horario -->
+                        <td>{{ row[3] }}</td> <!-- Información del Horario -->
+                        <td>{{ row[4] }}</td> <!-- Hora -->
+                        <td>{{ row[5] }}</td> <!-- Día -->
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-
-        <form
-          id="addForm"
-          action="{{ url_for('add_dethora') }}"
-          method="POST"
-          class="contact-form"
-        >
-          <h1 class="formTitle">Agregar Relación</h1>
-          <input type="hidden" id="espe" name="espe" value="{{espe}}" />
-          <select name="horarioo" id="horario_add" required>
-            {% if horarios %}
-            <option value="" disabled selected>
-              Seleccione el id del curso
-            </option>
-            {% for curs in horarios %}
-            <option value="{{ curs[0] }}">
-              {{curs[1]}} {{ curs[2] }}° {{curs[3]}}°
-            </option>
-            {% endfor %} {% else %}
-            <option value="">No hay cursos</option>
-            {% endif %}
-          </select>
-          <select name="materiaa" id="materia_add" required>
-            {% if materias %}
-            <option value="" disabled selected>Seleccione una materia</option>
-            {% for materia in materias %}
-            <option value="{{ materia[0] }}">{{ materia[1] }}</option>
-            {% endfor %} {% else %}
-            <option value="">No hay materias disponibles</option>
-            {% endif %}
-          </select>
-          <p class="formTitle">Día</p>
-          <select name="tian" id="tian" required>
-            <option value="Lunes">Lunes</option>
-            <option value="Martes">Martes</option>
-            <option value="Miércoles">Miércoles</option>
-            <option value="Jueves">Jueves</option>
-            <option value="Viernes">Viernes</option>
-          </select>
-          <p class="formTitle">Horarios</p>
-          <select name="horario" id="horario" required>
-            <option value="7:00-7:35">7:00-7:35</option>
-            <option value="7:00-8:10">7:00-8:10</option>
-            <option value="7:00-8:45">7:00-8:45</option>
-            <option value="7:00-9:20">7:00-9:20</option>
-            <option value="7:35-8:10">7:35-8:10</option>
-            <option value="7:35-8:45">7:35-8:45</option>
-            <option value="7:35-9:20">7:35-9:20</option>
-            <option value="8:10-8:45">8:10-8:45</option>
-            <option value="8:10-9:20">8:10-9:20</option>
-            <option value="8:45-9:20">8:45-9:20</option>
-            <option value="9:40-10:15">9:40-10:15</option>
-            <option value="9:40-10:50">9:40-10:50</option>
-            <option value="9:40-11:25">9:40-11:25</option>
-            <option value="9:40-12:00">9:40-12:00</option>
-            <option value="10:15-10:50">10:15-10:50</option>
-            <option value="10:15-11:25">10:15-11:25</option>
-            <option value="10:15-12:00">10:15-12:00</option>
-            <option value="10:50-11:25">10:50-11:25</option>
-            <option value="10:50-12:00">10:50-12:00</option>
-            <option value="11:25-12:00">11:25-12:00</option>
-            <option value="13:00-13:35">13:00-13:35</option>
-            <option value="13:00-14:10">13:00-14:10</option>
-            <option value="13:00-14:45">13:00-14:45</option>
-            <option value="13:00-15:20">13:00-15:20</option>
-            <option value="13:35-14:10">13:35-14:10</option>
-            <option value="13:35-14:45">13:35-14:45</option>
-            <option value="13:35-15:20">13:35-15:20</option>
-            <option value="14:10-14:45">14:10-14:45</option>
-            <option value="14:10-15:20">14:10-15:20</option>
-            <option value="14:45-15:20">14:45-15:20</option>
-            <option value="15:40-16:15">15:40-16:15</option>
-            <option value="15:40-16:50">15:40-16:50</option>
-            <option value="15:40-17:25">15:40-17:25</option>
-            <option value="15:40-18:00">15:40-18:00</option>
-            <option value="16:15-16:50">16:15-16:50</option>
-            <option value="16:15-17:25">16:15-17:25</option>
-            <option value="16:15-18:00">16:15-18:00</option>
-            <option value="16:50-17:25">16:50-17:25</option>
-            <option value="16:50-18:00">16:50-18:00</option>
-            <option value="17:25-18:00">17:25-18:00</option>
-          </select>
-          <button type="submit" onclick="validar_funcion(event)">Enviar</button>
-        </form>
-        <form
-          id="editForm"
-          action="{{ url_for('edit_dethora') }}"
-          method="POST"
-          class="contact-form"
-        >
-          <h1 id="formTitle">Editar Relación</h1>
-          <input
-            type="text"
-            name="old_materia_id"
-            id="edit_old_materia_id"
-            placeholder="id de la materia"
-            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-            required
-          />
-          <input
-            type="text"
-            name="old_horario_id"
-            id="edit_old_horario_id"
-            placeholder="id del curso"
-            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-            required
-          />
-
-          <select name="horarioo" id="cursoId_edit" required>
-            {% if horarios %}
-            <option value="" disabled selected>
-              Seleccione el id del curso
-            </option>
-            {% for curs in horarios %}
-            <option value="{{ curs[0] }}" id="cursoId_edit">
-              {{curs[1]}} {{ curs[2] }}° {{curs[3]}}°
-            </option>
-            {% endfor %} {% else %}
-            <option value="">No hay cursos</option>
-            {% endif %}
-          </select>
-          <select name="materiaa" id="materia_edit" required>
-            {% if materias %}
-            <option value="" disabled selected>Seleccione una materia</option>
-            {% for materia in materias %}
-            <option value="{{ materia[0] }}" id="materiaId_edit">
-              {{ materia[1] }}
-            </option>
-            {% endfor %} {% else %}
-            <option value="">No hay materias disponibles</option>
-            {% endif %}
-          </select>
-          <p class="formTitle">Día</p>
-          <select name="tian" id="tian_edit" required>
-            <option value="Lunes">Lunes</option>
-            <option value="Martes">Martes</option>
-            <option value="Miércoles">Miércoles</option>
-            <option value="Jueves">Jueves</option>
-            <option value="Viernes">Viernes</option>
-          </select>
-          <p class="formTitle">Horarios</p>
-          <select name="horario" id="horario_edit" required>
-            <option value="7:00-7:35">7:00-7:35</option>
-            <option value="7:00-8:10">7:00-8:10</option>
-            <option value="7:00-8:45">7:00-8:45</option>
-            <option value="7:00-9:20">7:00-9:20</option>
-            <option value="7:35-8:10">7:35-8:10</option>
-            <option value="7:35-8:45">7:35-8:45</option>
-            <option value="7:35-9:20">7:35-9:20</option>
-            <option value="8:10-8:45">8:10-8:45</option>
-            <option value="8:10-9:20">8:10-9:20</option>
-            <option value="8:45-9:20">8:45-9:20</option>
-            <option value="9:40-10:15">9:40-10:15</option>
-            <option value="9:40-10:50">9:40-10:50</option>
-            <option value="9:40-11:25">9:40-11:25</option>
-            <option value="9:40-12:00">9:40-12:00</option>
-            <option value="10:15-10:50">10:15-10:50</option>
-            <option value="10:15-11:25">10:15-11:25</option>
-            <option value="10:15-12:00">10:15-12:00</option>
-            <option value="10:50-11:25">10:50-11:25</option>
-            <option value="10:50-12:00">10:50-12:00</option>
-            <option value="11:25-12:00">11:25-12:00</option>
-            <option value="13:00-13:35">13:00-13:35</option>
-            <option value="13:00-14:10">13:00-14:10</option>
-            <option value="13:00-14:45">13:00-14:45</option>
-            <option value="13:00-15:20">13:00-15:20</option>
-            <option value="13:35-14:10">13:35-14:10</option>
-            <option value="13:35-14:45">13:35-14:45</option>
-            <option value="13:35-15:20">13:35-15:20</option>
-            <option value="14:10-14:45">14:10-14:45</option>
-            <option value="14:10-15:20">14:10-15:20</option>
-            <option value="14:45-15:20">14:45-15:20</option>
-            <option value="15:40-16:15">15:40-16:15</option>
-            <option value="15:40-16:50">15:40-16:50</option>
-            <option value="15:40-17:25">15:40-17:25</option>
-            <option value="15:40-18:00">15:40-18:00</option>
-            <option value="16:15-16:50">16:15-16:50</option>
-            <option value="16:15-17:25">16:15-17:25</option>
-            <option value="16:15-18:00">16:15-18:00</option>
-            <option value="16:50-17:25">16:50-17:25</option>
-            <option value="16:50-18:00">16:50-18:00</option>
-            <option value="17:25-18:00">17:25-18:00</option>
-          </select>
-          <button type="submit" onclick="checkAndSubmitForm_edit(event)">
-            Enviar
-          </button>
-        </form>
-
-        <form
-          id="deleteForm"
-          action="{{ url_for('delete_dethora') }}"
-          method="POST"
-          class="contact-form"
-          style="display: none"
-        >
-          <h1>Eliminar Relacion</h1>
-          <input
-            type="text"
-            name="old_materia_id"
-            id="delete_old_materia_id"
-            placeholder="id de la materia"
-            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-            required
-          />
-          <input
-            type="text"
-            name="old_horario_id"
-            id="delete_old_horario_id"
-            placeholder="id del curso"
-            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-            required
-          />
-          <button type="submit" onclick="adelete(event)">Eliminar</button>
-        </form>
-      </div>
-      <div class="list-container">
-        <div class="barra">
-          <h2>Lista de Relaciones</h2>
-          <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Buscar..." />
-            <i class="fas fa-search"></i>
-          </div>
-        </div>
-
-        <table id="teacherTable">
-          <thead>
-            <tr>
-              <th>ID Mat</th>
-              <th>Materia</th>
-              <th>ID Cur</th>
-              <th>Curso</th>
-              <th>Hora</th>
-              <th>Dia</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in materia_hora %}
-            <tr>
-              <td>{{ row[0] }}</td>
-              <!-- ID Materia -->
-              <td>{{ row[1] }}</td>
-              <!-- Nombre de Materia -->
-              <td>{{ row[2] }}</td>
-              <!-- ID Horario -->
-              <td>{{ row[3] }}</td>
-              <!-- Información del Horario -->
-              <td>{{ row[4] }}</td>
-              <!-- Hora -->
-              <td>{{ row[5] }}</td>
-              <!-- Día -->
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
     </div>
 
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-      document
-        .getElementById("horario_add")
-        .addEventListener("change", function () {
-          const cursoId = this.value; // 获取选中的课程ID
-          const materiaSelect = document.getElementById("materia_add");
-          const espe = document.getElementById("espe").value;
-          if (cursoId) {
-            // 发起 AJAX 请求到后端，获取相应的科目
-            fetch("/get_materias", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ curso_id: cursoId, espe: espe }),
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                materiaSelect.innerHTML = "";
-                // 清空之前的选项
-                const defaultOption = document.createElement("option");
-                defaultOption.value = "";
-                defaultOption.textContent = "Seleccione una materia";
-                defaultOption.disabled = true;
-                defaultOption.selected = true;
-                materiaSelect.appendChild(defaultOption);
+        
 
-                // 添加新的选项
-                if (data.length > 0) {
-                  data.forEach((materia) => {
-                    const option = document.createElement("option");
-                    option.value = materia.id;
-                    option.textContent = materia.name;
-                    materiaSelect.appendChild(option);
-                  });
-                  materiaSelect.disabled = false; // 启用下拉框
-                } else {
-                  const option = document.createElement("option");
-                  option.textContent = "No hay materias disponibles";
-                  materiaSelect.appendChild(option);
-                  materiaSelect.disabled = true; // 禁用下拉框
-                }
-              })
-              .catch((error) => console.error("Error:", error));
-          } else {
-            // 如果没有选择课程，禁用并清空科目选择框
-            materiaSelect.innerHTML =
-              '<option value="">Seleccione una materia</option>';
-            materiaSelect.disabled = true;
-          }
-        });
-
-      document
-        .getElementById("cursoId_edit")
-        .addEventListener("change", function () {
-          const cursoId = this.value;
-          console.log("holaa"); // 获取选中的课程ID
-          console.log(cursoId);
-          console.log("holaa");
-          const materiaSelect = document.getElementById("materia_edit");
-          const espe = document.getElementById("espe").value;
-          if (cursoId) {
-            // 发起 AJAX 请求到后端，获取相应的科目
-            fetch("/get_materias", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ curso_id: cursoId, espe: espe }),
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                // 清空之前的选项
-                materiaSelect.innerHTML = "";
-
-                const defaultOption = document.createElement("option");
-                defaultOption.value = "";
-                defaultOption.textContent = "Seleccione una materia";
-                defaultOption.disabled = true;
-                defaultOption.selected = true;
-                materiaSelect.appendChild(defaultOption);
-
-                // 添加新的选项
-                if (data.length > 0) {
-                  data.forEach((materia) => {
-                    const option = document.createElement("option");
-                    option.value = materia.id;
-                    option.textContent = materia.name;
-                    materiaSelect.appendChild(option);
-                  });
-                  materiaSelect.disabled = false; // 启用下拉框
-                } else {
-                  const option = document.createElement("option");
-                  option.textContent = "No hay materias disponibles";
-                  materiaSelect.appendChild(option);
-                  materiaSelect.disabled = true; // 禁用下拉框
-                }
-              })
-              .catch((error) => console.error("Error:", error));
-          } else {
-            // 如果没有选择课程，禁用并清空科目选择框
-            materiaSelect.innerHTML =
-              '<option value="">Seleccione una materia</option>';
-            materiaSelect.disabled = true;
-          }
-        });
-
-      function validar_funcion() {
-        console.log("holaaaa");
-        event.preventDefault();
-
-        const materiaId = document.getElementById("materia_add").value;
-        const cursoId = document.getElementById("horario_add").value;
-        const dia = document.getElementById("tian").value;
-        const horario = document.getElementById("horario").value;
-
-        if (!materiaId || !cursoId) {
-          console.log("Missing Materia ID or Horario ID");
-          return;
-        }
-        console.log(materiaId);
-        console.log(cursoId);
-        // 第一个 AJAX 请求：检查科目和课程是否重复
-        $.ajax({
-          url: "/check_materia_horario",
-          type: "POST",
-          contentType: "application/json", // 指定请求的内容类型为 JSON
-          data: JSON.stringify({
-            materia_id: materiaId,
-            horario_id: cursoId,
-            dia: dia,
-          }),
-
-          success: function (response) {
-            if (response.exists) {
-              Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Ya existe la relacion.",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-              });
-            } else {
-              // 如果第一个检查通过，继续进行第二个 AJAX 请求
-              checkHorario(materiaId, cursoId, dia, horario);
-            }
-          },
-          error: function (xhr, status, error) {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Hubo un problema al verificar los datos.",
-              timer: 3000,
-              timerProgressBar: true,
-              showConfirmButton: false,
-            });
-          },
-        });
-      }
-
-      // 第二个 AJAX 请求：检查时间是否重复
-      function checkHorario(materiaId, cursoId, dia, horario) {
-        $.ajax({
-          url: "/check_materia_repeat",
-          type: "POST",
-          data: {
-            horario_id: cursoId,
-            dia: dia,
-            horario: horario,
-          },
-          success: function (response) {
-            if (response.exists) {
-              Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Ya existe este horario en este curso.",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-              });
-            } else {
-              Swal.fire({
-                icon: "success",
-                title: "Éxito",
-                text: "Guardado con éxito.",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-              }).then(() => {
-                document.getElementById("addForm").submit();
-              });
-            }
-          },
-          error: function (xhr, status, error) {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Hubo un problema al verificar los datos.",
-              timer: 3000,
-              timerProgressBar: true,
-              showConfirmButton: false,
-            });
-          },
-        });
-      }
-
-      function checkAndSubmitForm_edit() {
-        event.preventDefault();
-        const materiaId = document.getElementById("edit_old_materia_id").value;
-        const cursoId = document.getElementById("edit_old_horario_id").value;
-
-        if (!materiaId || !cursoId) {
-          Swal.fire({
-            icon: "error",
-            title: "Campo vacío",
-            text: "El campo ID del rasgo conductual es obligatorio.",
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          });
-          return false;
-        }
-
-        console.log("Materia ID:", materiaId);
-        console.log("Horario ID:", cursoId);
-
-        // 确保 ID 被正确获取后才发起请求
-        if (materiaId && cursoId) {
-          $.ajax({
-            url: "/check_materia_horario_edit",
-            type: "POST",
-            data: {
-              materia_id: materiaId,
-              horario_id: cursoId,
-            },
-            success: function (response) {
-              if (!response.exists) {
-                Swal.fire({
-                  icon: "error",
-                  title: "Error",
-                  text: "No existe esta relacion.",
-                  timer: 3000,
-                  timerProgressBar: true,
-                  showConfirmButton: false,
-                });
-              } else {
-                Swal.fire({
-                  icon: "success",
-                  title: "Éxito",
-                  text: "Guardado con éxito.",
-                  timer: 3000,
-                  timerProgressBar: true,
-                  showConfirmButton: false,
-                }).then(() => {
-                  document.getElementById("editForm").submit();
-                });
-              }
-            },
-            error: function (xhr, status, error) {
-              Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Hubo un problema al verificar los datos.",
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-              });
-            },
-          });
-        } else {
-          console.log("Missing Materia ID or Horario ID");
-        }
-      }
-
-      async function adelete(event) {
-        event.preventDefault(); // Evita el envío del formulario hasta que se realicen las validaciones
-
-        const materiaId = document.getElementById(
-          "delete_old_materia_id"
-        ).value;
-        const cursoId = document.getElementById("delete_old_horario_id").value;
-
-        // Verificar que el campo ID no esté vacío
-        if (!materiaId || !cursoId) {
-          Swal.fire({
-            icon: "error",
-            title: "Campo vacío",
-            text: "Los campos son obligatorio.",
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-          });
-          return false;
-        }
-
-        try {
-          // Enviar una solicitud para verificar si el ID del rasgo conductual existe
-          const response = await fetch("/check_materia_horario_delete", {
-            method: "POST",
+        document.getElementById('horario_add').addEventListener('change', function() {
+    const cursoId = this.value;  // 获取选中的课程ID
+    const materiaSelect = document.getElementById('materia_add');
+    const espe = document.getElementById('espe').value;
+    if (cursoId) {
+        // 发起 AJAX 请求到后端，获取相应的科目
+        fetch('/get_materias', {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ materiaId, cursoId }),
-          });
+            body: JSON.stringify({ curso_id: cursoId, espe:espe })
+        })
+        .then(response => response.json())
+        .then(data => {
+            materiaSelect.innerHTML = '';
+            // 清空之前的选项
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccione una materia';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            materiaSelect.appendChild(defaultOption);
+            
+            
+            
+            // 添加新的选项
+            if (data.length > 0) {
+                data.forEach(materia => {
+                    const option = document.createElement('option');
+                    option.value = materia.id;
+                    option.textContent = materia.name;
+                    materiaSelect.appendChild(option);
+                });
+                materiaSelect.disabled = false;  // 启用下拉框
+            } else {
+                const option = document.createElement('option');
+                option.textContent = 'No hay materias disponibles';
+                materiaSelect.appendChild(option);
+                materiaSelect.disabled = true;  // 禁用下拉框
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+        // 如果没有选择课程，禁用并清空科目选择框
+        materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
+        materiaSelect.disabled = true;
+    }
+});
 
-          const data = await response.json();
+document.getElementById('cursoId_edit').addEventListener('change', function() {
+    const cursoId = this.value; 
+    console.log("holaa"); // 获取选中的课程ID
+    console.log(cursoId);
+    console.log("holaa");
+    const materiaSelect = document.getElementById('materia_edit');
+    const espe = document.getElementById('espe').value;
+    if (cursoId) {
+        // 发起 AJAX 请求到后端，获取相应的科目
+        fetch('/get_materias', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ curso_id: cursoId, espe:espe })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 清空之前的选项
+            materiaSelect.innerHTML = '';
 
-          // Manejar respuesta si el ID no existe
-          if (response.status === 404 && data.error === "ID no existe") {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccione una materia';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            materiaSelect.appendChild(defaultOption);
+            
+            // 添加新的选项
+            if (data.length > 0) {
+                data.forEach(materia => {
+                    const option = document.createElement('option');
+                    option.value = materia.id;
+                    option.textContent = materia.name;
+                    materiaSelect.appendChild(option);
+                });
+                materiaSelect.disabled = false;  // 启用下拉框
+            } else {
+                const option = document.createElement('option');
+                option.textContent = 'No hay materias disponibles';
+                materiaSelect.appendChild(option);
+                materiaSelect.disabled = true;  // 禁用下拉框
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+        // 如果没有选择课程，禁用并清空科目选择框
+        materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
+        materiaSelect.disabled = true;
+    }
+});
+
+function validar_funcion() {
+    console.log("holaaaa");
+    event.preventDefault();
+    
+    const materiaId = document.getElementById('materia_add').value;
+    const cursoId = document.getElementById('horario_add').value;
+    const dia = document.getElementById('tian').value;
+    const horario = document.getElementById('horario').value;
+
+    if (!materiaId || !cursoId) {
+        console.log("Missing Materia ID or Horario ID");
+        return;
+    }
+
+    // 第一个 AJAX 请求：检查科目和课程是否重复
+    $.ajax({
+        url: '/check_materia',
+    type: 'POST',
+    contentType: 'application/json',  // 指定请求的内容类型为 JSON
+    data: JSON.stringify({
+            materia_id: materiaId,
+            horario_id: cursoId
+        }),
+        success: function(response) {
+            if (response.exists) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ya existe la relacion.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+            } else {
+                // 如果第一个检查通过，继续进行第二个 AJAX 请求
+                checkHorario(materiaId, cursoId, dia, horario);
+            }
+        },
+        error: function(xhr, status, error) {
             Swal.fire({
-              icon: "error",
-              title: "ID no existe",
-              text: "La relacion que intenta eliminar no existe.",
-              timer: 3000,
-              timerProgressBar: true,
-              showConfirmButton: false,
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al verificar los datos.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        }
+    });
+}
+
+// 第二个 AJAX 请求：检查时间是否重复
+function checkHorario(materiaId, cursoId, dia, horario) {
+    $.ajax({
+        url: '/check_materia_repeat',
+        type: 'POST',
+        data: {
+            horario_id: cursoId,
+            dia: dia,
+            horario: horario
+        },
+        success: function(response) {
+            if (response.exists) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ya existe este horario en este curso.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: 'Guardado con éxito.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                }).then(() => {
+                    document.getElementById('addForm').submit();
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al verificar los datos.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        }
+    });
+}
+
+
+function checkAndSubmitForm_edit() {
+            event.preventDefault();
+    const materiaId = document.getElementById('edit_old_materia_id').value;
+    const cursoId = document.getElementById('edit_old_horario_id').value;
+
+    if (!materiaId||!cursoId) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campo vacío',
+            text: 'El campo ID del rasgo conductual es obligatorio.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        return false;
+    }
+
+    console.log("Materia ID:", materiaId);
+    console.log("Horario ID:", cursoId);
+    
+    // 确保 ID 被正确获取后才发起请求
+    if (materiaId && cursoId) {
+        $.ajax({
+            url: '/check_materia_horario_edit',
+            type: 'POST',
+            data: {
+                materia_id: materiaId,
+                horario_id: cursoId
+            },
+            success: function(response) {
+                if (!response.exists) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No existe esta relacion.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: 'Guardado con éxito.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                }).then(() => {
+                    document.getElementById('editForm').submit();
+                });
+            }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al verificar los datos.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+            }
+        });
+    } else {
+        console.log("Missing Materia ID or Horario ID");
+    }
+}
+
+
+
+async function adelete(event) {
+    event.preventDefault(); // Evita el envío del formulario hasta que se realicen las validaciones
+
+    const materiaId = document.getElementById('delete_old_materia_id').value;
+    const cursoId = document.getElementById('delete_old_horario_id').value;
+
+    // Verificar que el campo ID no esté vacío
+    if (!materiaId||!cursoId) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campo vacío',
+            text: 'Los campos son obligatorio.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        return false;
+    }
+
+    try {
+        // Enviar una solicitud para verificar si el ID del rasgo conductual existe
+        const response = await fetch('/check_materia_horario_delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ materiaId,cursoId }),
+        });
+
+        const data = await response.json();
+
+        // Manejar respuesta si el ID no existe
+        if (response.status === 404 && data.error === 'ID no existe') {
+            Swal.fire({
+                icon: 'error',
+                title: 'ID no existe',
+                text: 'La relacion que intenta eliminar no existe.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
             });
             return false;
-          }
+        }
 
-          // Confirmación de eliminación
-          const result = await Swal.fire({
-            title: "¿Estás seguro?",
-            text: "Esta acción eliminará el rasgo conductual de forma permanente.",
-            icon: "warning",
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+        // Confirmación de eliminación
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción eliminará el rasgo conductual de forma permanente.',
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
             showCancelButton: true,
-            confirmButtonText: "Sí, eliminar",
-            cancelButtonText: "Cancelar",
-          });
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+        });
 
-          if (result.isConfirmed) {
+        if (result.isConfirmed) {
             // Confirmar eliminación y enviar el formulario
             Swal.fire({
-              icon: "success",
-              title: "Eliminado",
-              text: "Relacion eliminado con éxito.",
-              timer: 3000,
-              timerProgressBar: true,
-              showConfirmButton: false,
+                icon: 'success',
+                title: 'Eliminado',
+                text: 'Relacion eliminado con éxito.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
             }).then(() => {
-              document.getElementById("deleteForm").submit();
+                document.getElementById('deleteForm').submit();
             });
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error de servidor",
-            text: "Hubo un problema al verificar el rasgo conductual. Por favor, intente nuevamente.",
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de servidor',
+            text: 'Hubo un problema al verificar el rasgo conductual. Por favor, intente nuevamente.',
             timer: 3000,
             timerProgressBar: true,
             showConfirmButton: false,
-          });
-        }
-      }
+        });
+    }
+}
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('deleteForm').style.display = 'none';
+        });
+        function setFormMode(mode, materia_id = '', horario_id = '') {
+            var formTitle = document.getElementById('formTitle');
+            var teacherForm = document.getElementById('addForm');
+            var editTeacherForm = document.getElementById('editForm');
+            var deleteTeacherForm = document.getElementById('deleteForm');
+            teacherForm.reset();
+            editTeacherForm.reset();
+            deleteTeacherForm.reset();
 
-      document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("editForm").style.display = "none";
-        document.getElementById("deleteForm").style.display = "none";
-      });
-      function setFormMode(mode, materia_id = "", horario_id = "") {
-        var formTitle = document.getElementById("formTitle");
-        var teacherForm = document.getElementById("addForm");
-        var editTeacherForm = document.getElementById("editForm");
-        var deleteTeacherForm = document.getElementById("deleteForm");
-        teacherForm.reset();
-        editTeacherForm.reset();
-        deleteTeacherForm.reset();
-
-        if (mode === "add") {
-          formTitle.textContent = "Agregar Relacion";
-          teacherForm.style.display = "block";
-          editTeacherForm.style.display = "none";
-          deleteTeacherForm.style.display = "none";
-        } else if (mode === "edit") {
-          formTitle.textContent = "Modificar Relacion";
-          document.getElementById("edit_old_materia_id").value = materia_id;
-          document.getElementById("edit_old_horario_id").value = horario_id;
-          const materiaSelect = document.getElementById("materia_edit");
-          materiaSelect.innerHTML =
-            '<option value="">Seleccione una materia</option>';
-          materiaSelect.disabled = true;
-          editTeacherForm.style.display = "block";
-          teacherForm.style.display = "none";
-          deleteTeacherForm.style.display = "none";
-        } else if (mode === "delete") {
-          formTitle.textContent = "Eliminar Relacion";
-          document.getElementById("edit_old_materia_id").value = materia_id;
-          document.getElementById("edit_old_horario_id").value = horario_id;
-          deleteTeacherForm.style.display = "block";
-          teacherForm.style.display = "none";
-          editTeacherForm.style.display = "none";
-        }
-      }
-
-      function toggleSidebar() {
-        var sidebar = document.querySelector(".sidebar");
-        var content = document.querySelector(".content");
-        sidebar.classList.toggle("closed");
-        if (sidebar.classList.contains("closed")) {
-          content.style.marginLeft = "0";
-          content.style.width = "100%";
-        } else {
-          content.style.marginLeft = "270px";
-          content.style.width = "calc(100% - 270px)";
-        }
-      }
-
-      document
-        .getElementById("searchInput")
-        .addEventListener("input", function () {
-          var filter = this.value.toUpperCase();
-          var rows = document.querySelectorAll("#teacherTable tbody tr");
-
-          rows.forEach(function (row) {
-            var idCurso = row
-              .querySelector("td:nth-child(1)")
-              .textContent.toUpperCase();
-            var idMateria = row
-              .querySelector("td:nth-child(2)")
-              .textContent.toUpperCase();
-            var hora = row
-              .querySelector("td:nth-child(3)")
-              .textContent.toUpperCase();
-            var dia = row
-              .querySelector("td:nth-child(4)")
-              .textContent.toUpperCase();
-
-            if (
-              idCurso.includes(filter) ||
-              idMateria.includes(filter) ||
-              hora.includes(filter) ||
-              dia.includes(filter)
-            ) {
-              row.style.display = "";
-            } else {
-              row.style.display = "none";
+            if (mode === 'add') {
+                formTitle.textContent = 'Agregar Relacion';
+                teacherForm.style.display = 'block';
+                editTeacherForm.style.display = 'none';
+                deleteTeacherForm.style.display = 'none';
+            } else if (mode === 'edit') {
+                formTitle.textContent = 'Modificar Relacion';
+                document.getElementById('edit_old_materia_id').value = materia_id;
+                document.getElementById('edit_old_horario_id').value = horario_id;
+                const materiaSelect = document.getElementById('materia_edit');
+                materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
+                materiaSelect.disabled = true;
+                editTeacherForm.style.display = 'block';
+                teacherForm.style.display = 'none';
+                deleteTeacherForm.style.display = 'none';
+            } else if (mode === 'delete') {
+                formTitle.textContent = 'Eliminar Relacion';
+                document.getElementById('edit_old_materia_id').value = materia_id;
+                document.getElementById('edit_old_horario_id').value = horario_id;
+                deleteTeacherForm.style.display = 'block';
+                teacherForm.style.display = 'none';
+                editTeacherForm.style.display = 'none';
             }
-          });
-        });
 
-      document.getElementById("materia_add").disabled = true; // Deshabilitar el select de materias al cargar la página
-
-      document
-        .getElementById("horario_add")
-        .addEventListener("change", function () {
-          const materiaSelect = document.getElementById("materia_add");
-          if (this.value) {
-            materiaSelect.disabled = false; // Habilitar el select de materias cuando se selecciona un curso
-          } else {
-            materiaSelect.disabled = true; // Mantenerlo deshabilitado si no hay curso seleccionado
-          }
-        });
-
-      function checkAndSubmitForm(event) {
-        const cursoSelect = document.getElementById("horario_add");
-        const materiaSelect = document.getElementById("materia_add");
-
-        if (!cursoSelect.value) {
-          event.preventDefault(); // Prevenir el envío del formulario si no hay curso seleccionado
-          alert("Por favor, selecciona un curso antes de elegir una materia.");
         }
-      }
+
+        function toggleSidebar() {
+            var sidebar = document.querySelector('.sidebar');
+            var content = document.querySelector('.content');
+            sidebar.classList.toggle('closed');
+            if (sidebar.classList.contains('closed')) {
+                content.style.marginLeft = '0';
+                content.style.width = '100%';
+            } else {
+                content.style.marginLeft = '270px';
+                content.style.width = 'calc(100% - 270px)';
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function () {
+            var filter = this.value.toUpperCase();
+            var rows = document.querySelectorAll('#teacherTable tbody tr');
+
+            rows.forEach(function (row) {
+                var idCurso = row.querySelector('td:nth-child(1)').textContent.toUpperCase();
+                var idMateria = row.querySelector('td:nth-child(2)').textContent.toUpperCase();
+                var hora = row.querySelector('td:nth-child(3)').textContent.toUpperCase();
+                var dia = row.querySelector('td:nth-child(4)').textContent.toUpperCase();
+
+                if (idCurso.includes(filter) || idMateria.includes(filter) || hora.includes(filter) || dia.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+
+
+        document.getElementById('materia_add').disabled = true; // Deshabilitar el select de materias al cargar la página
+
+document.getElementById('horario_add').addEventListener('change', function() {
+    const materiaSelect = document.getElementById('materia_add');
+    if (this.value) {
+        materiaSelect.disabled = false;  // Habilitar el select de materias cuando se selecciona un curso
+    } else {
+        materiaSelect.disabled = true;   // Mantenerlo deshabilitado si no hay curso seleccionado
+    }
+});
+
+function checkAndSubmitForm(event) {
+    const cursoSelect = document.getElementById('horario_add');
+    const materiaSelect = document.getElementById('materia_add');
+
+    if (!cursoSelect.value) {
+        event.preventDefault(); // Prevenir el envío del formulario si no hay curso seleccionado
+        alert('Por favor, selecciona un curso antes de elegir una materia.');
+    }
+}
     </script>
-  </body>
+
+
+</body>
+
 </html>
