@@ -114,8 +114,8 @@ def crear_app():
                 ci = request.form['ci']
                 correo_encargado = request.form['correo_encargado']
                 correo_encargado2 = request.form.get('correo_encargado_2', '')
-                nombre = capitalizar_palabras(nombre)
-                apellido = capitalizar_palabras(apellido)
+                nombre = nombre.upper()
+                apellido = apellido.upper()
 
                 # Validar longitud del CI
                 if len(ci) < 7 or len(ci) > 8:
@@ -178,8 +178,8 @@ def crear_app():
                 especialidad = session['espe']
                 correo_encargado = request.form['correo_encargado']
                 correo_encargado2 = request.form.get('correo_encargado_2', '')  # Default to empty string if not provided
-                nombre = capitalizar_palabras(nombre)
-                apellido = capitalizar_palabras(apellido)
+                nombre = nombre.upper()
+                apellido = apellido.upper()
 
                 cur = mysql.connection.cursor()
 
@@ -193,7 +193,7 @@ def crear_app():
                 if alumno_existente:
                     flash('Ya existe un alumno con estos datos', 'error')
                     return redirect(url_for('alumnos', espe=session['espe']))
-
+                
                 # Actualizar registro
                 try:
                     cur.execute("""
@@ -511,7 +511,7 @@ def crear_app():
     def delete_materia():
         if 'role' in session and session['role'] == 'administrador':
             if request.method == 'POST':
-                subject_id = request.form.get('subject_id', '')
+                subject_id = request.form.get('delete_subject_id', '')
                 print(f"Recibida solicitud para eliminar materia con ID: {subject_id}")
 
                 if not subject_id:
@@ -960,16 +960,17 @@ def crear_app():
 
             # Obtener la relación materia-horario
             cur.execute("""
-                SELECT d.materia_id_materia AS id_materia, m2.nombre AS materia_nombre, d.horario_id_horario AS id_horario, 
+                SELECT d.id_dethora AS id_dethora, m2.nombre AS materia_nombre, d.horario_id_horario AS id_horario, 
 CONCAT(h.especialidad, ' ', h.curso, ' ', h.seccion) AS horario_info, d.dia, d.horario 
 FROM detalle_horario d 
-JOIN materia m2 ON m2.id_materia = d.materia_id_materia 
+JOIN materia m2 ON m2.id_materia = d.id_dethora 
 JOIN horario h ON h.id_horario = d.horario_id_horario 
 WHERE h.especialidad = %s;
 
             """, (espe, ))
 
             materia_hora = cur.fetchall()
+            print(materia_hora)
             
             cur.close()
 
@@ -1483,6 +1484,7 @@ WHERE h.especialidad = %s;
             cur.execute("SELECT curso, seccion,especialidad FROM horario WHERE id_horario = %s", (subject_id,))
             materia = cur.fetchone()
             print(materia)
+            
 
             # 如果找到记录，返回数据
             if materia and materia[2]==especialidad:
@@ -1501,6 +1503,47 @@ WHERE h.especialidad = %s;
         finally:
             cur.close()
 
+
+    @app.route('/check_dethor_lis', methods=['GET'])
+    def check_dethor_lis():
+        # 获取URL中的`id`参数
+
+        iid = request.args.get('id')
+        especialidad = request.args.get('especialidad')
+        print("Espe")
+        print(especialidad)
+
+        # 打印收到的ID进行调试
+        print(f"Materia id recibido: {iid}")
+
+        try:
+            # 查询数据库
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT horario_id_horario,materia_id_materia,horario,dia from detalle_horario where id_dethora=%s ", (iid,))
+            materia = cur.fetchone()
+            print(materia)
+            cur.execute("Select especialidad from horario WHERE id_horario = %s", (materia[0],))
+            pp=cur.fetchone()
+            print(pp)
+
+            # 如果找到记录，返回数据
+            if pp[0]==especialidad:
+                return jsonify({
+                    'existe': True,
+                    'curso': materia[0],
+                    'materia': materia[1],
+                    'horario': materia[2],
+                    'dia': materia[3]
+                })
+            else:
+                return jsonify({'existe': False})
+
+        except Exception as e:
+            print(f"Error en la consulta: {e}")
+            return jsonify({'existe': False})
+
+        finally:
+            cur.close()
 
 
     @app.route('/check_ras_lis', methods=['GET'])
@@ -2260,7 +2303,7 @@ WHERE h.especialidad = %s;
                         print(rasgos)
                         rendered = render_template('enviar.html', reportes=reportes, rasgos=rasgos, alumno=alumno, id_reportes=id_reportes)
                         pdf = pdfkit.from_string(rendered, False)
-                        msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=['luanycastillo66@gmail.com'])
+                        msg = Message('Reporte Conductual de ' + alumno[1] + ' ' + alumno[2] , sender='reportesctn@outlook.com', recipients=[email[0]])
                         msg.body = "Reporte Conductual del mes " + month + " del alumno " + alumno[1] + " " + alumno[2]
                         msg.attach((alumno[1] + " " + alumno[2] +".pdf"), "application/pdf", pdf)
                         mail.send(msg)

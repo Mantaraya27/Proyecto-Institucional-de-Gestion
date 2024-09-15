@@ -466,9 +466,9 @@
             </form>
             <form id="editForm" action="{{ url_for('edit_dethora') }}" method="POST" class="contact-form">
                 <h1 id="formTitle">Editar Relación</h1>
-                <input type="text" name="old_materia_id" id="edit_old_materia_id" placeholder="id de la materia"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
-                <input type="text" name="old_horario_id" id="edit_old_horario_id" placeholder="id del curso"oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                <input type="hidden" id="espe" name="espe" value="{{espe}}">
+                
+                <input type="text" name="id_rela" id="id_rela" placeholder="ID de la relacion"oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
                 
                 <select name="horarioo" id="cursoId_edit" required>
                     {% if horarios %}
@@ -565,9 +565,8 @@
             <table id="teacherTable">
                 <thead>
                     <tr>
-                        <th>ID Mat</th>
+                        <th>ID relacion</th>
                         <th>Materia</th>
-                        <th>ID Cur</th>
                         <th>Curso</th>
                         <th>Hora</th>
                         <th>Dia</th>
@@ -578,7 +577,6 @@
                     <tr>
                         <td>{{ row[0] }}</td> <!-- ID Materia -->
                         <td>{{ row[1] }}</td> <!-- Nombre de Materia -->
-                        <td>{{ row[2] }}</td> <!-- ID Horario -->
                         <td>{{ row[3] }}</td> <!-- Información del Horario -->
                         <td>{{ row[4] }}</td> <!-- Hora -->
                         <td>{{ row[5] }}</td> <!-- Día -->
@@ -645,6 +643,80 @@
     }
 });
 
+
+window.onload = function() {
+    var iid=document.getElementById('id_rela');
+    var id_cur = document.getElementById('cursoId_edit');
+    var materia = document.getElementById('materia_edit');
+    var tian = document.getElementById('tian_edit');
+    var hor = document.getElementById('horario_edit');
+    var espe=document.getElementById('espe').value;
+    console.log (espe);
+    console.log("holaa");
+    console.log(id_cur.value,materia.value,tian.value,hor.value,espe);
+
+
+    id_cur.disabled = true;
+    materia.disabled = true;
+    tian.disabled = true;
+    hor.disabled = true;
+    console.log(iid.value);
+
+
+
+    iid.addEventListener('input', function() {
+        const iid = this.value.trim();
+        console.log('Curso ID:', iid.value);
+
+        if (cursoId_edit.length === 0) {
+            id_cur.disabled = true;
+            materia.disabled = true;
+            tian.disabled = true;
+            hor.disabled = true;
+        } else {
+            fetch(`/check_dethor_lis?id=${iid}&especialidad=${espe}`)
+                .then(response => response.json())
+                .then(data => {
+                  var especialidad = data.especialidad;
+                  console.log('Especialidad:', espe);
+                    if (data.existe) {
+                        // 更新表单字段
+                        id_cur.value=data.curso;
+                        materia.value=data.materia;
+                        tian.value=data.dia;
+                        hor.value=data.horario;
+                        // 启用字段
+                        id_cur.disabled = false;
+                        materia.disabled = false;
+                        tian.disabled = false;
+                        hor.disabled =false;
+                    } else {
+                        console.log('找不到数据，禁用字段...');
+                        // 禁用字段
+                        id_cur.disabled = true;
+                        materia.disabled = true;
+                        tian.disabled = true;
+                        hor.disabled = true;
+                        id_cur.value="";
+                        tian.value='Lunes';
+                        hor.value='7:00-7:35';
+                    }
+                })
+                .catch(error => {
+                    console.error('获取数据出错:', error);
+                    // 禁用字段
+                    id_cur.disabled = true;
+                    materia.disabled = true;
+                    tian.disabled = true;
+                    hor.disabled = true;
+                    id_cur.value="";
+                    tian.value='Lunes';
+                    hor.value='7:00-7:35';
+                });
+        }
+    });
+};
+
 document.getElementById('cursoId_edit').addEventListener('change', function() {
     const cursoId = this.value; 
     console.log("holaa"); // 获取选中的课程ID
@@ -705,6 +777,8 @@ function validar_funcion() {
     const cursoId = document.getElementById('horario_add').value;
     const dia = document.getElementById('tian').value;
     const horario = document.getElementById('horario').value;
+    console.log(materiaId, dia, horario);
+    console.log('holaaa');
 
     if (!materiaId || !cursoId) {
         console.log("Missing Materia ID or Horario ID");
@@ -718,7 +792,6 @@ function validar_funcion() {
     contentType: 'application/json',  // 指定请求的内容类型为 JSON
     data: JSON.stringify({
             materia_id: materiaId,
-            horario_id: cursoId
         }),
         success: function(response) {
             if (response.exists) {
@@ -797,10 +870,9 @@ function checkHorario(materiaId, cursoId, dia, horario) {
 
 function checkAndSubmitForm_edit() {
             event.preventDefault();
-    const materiaId = document.getElementById('edit_old_materia_id').value;
-    const cursoId = document.getElementById('edit_old_horario_id').value;
+    const materiaId = document.getElementById('id_rela').value;
 
-    if (!materiaId||!cursoId) {
+    if (!materiaId) {
         Swal.fire({
             icon: 'error',
             title: 'Campo vacío',
@@ -813,7 +885,6 @@ function checkAndSubmitForm_edit() {
     }
 
     console.log("Materia ID:", materiaId);
-    console.log("Horario ID:", cursoId);
     
     // 确保 ID 被正确获取后才发起请求
     if (materiaId && cursoId) {
@@ -868,11 +939,10 @@ function checkAndSubmitForm_edit() {
 async function adelete(event) {
     event.preventDefault(); // Evita el envío del formulario hasta que se realicen las validaciones
 
-    const materiaId = document.getElementById('delete_old_materia_id').value;
-    const cursoId = document.getElementById('delete_old_horario_id').value;
+    const materiaId = document.getElementById('id_rela').value;
 
     // Verificar que el campo ID no esté vacío
-    if (!materiaId||!cursoId) {
+    if (!materiaId) {
         Swal.fire({
             icon: 'error',
             title: 'Campo vacío',
@@ -891,7 +961,7 @@ async function adelete(event) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ materiaId,cursoId }),
+            body: JSON.stringify({ materiaId }),
         });
 
         const data = await response.json();
@@ -967,18 +1037,12 @@ async function adelete(event) {
                 deleteTeacherForm.style.display = 'none';
             } else if (mode === 'edit') {
                 formTitle.textContent = 'Modificar Relacion';
-                document.getElementById('edit_old_materia_id').value = materia_id;
-                document.getElementById('edit_old_horario_id').value = horario_id;
-                const materiaSelect = document.getElementById('materia_edit');
-                materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
-                materiaSelect.disabled = true;
                 editTeacherForm.style.display = 'block';
                 teacherForm.style.display = 'none';
                 deleteTeacherForm.style.display = 'none';
             } else if (mode === 'delete') {
                 formTitle.textContent = 'Eliminar Relacion';
-                document.getElementById('edit_old_materia_id').value = materia_id;
-                document.getElementById('edit_old_horario_id').value = horario_id;
+                document.getElementById('id_dethora').value = materia_id;
                 deleteTeacherForm.style.display = 'block';
                 teacherForm.style.display = 'none';
                 editTeacherForm.style.display = 'none';
@@ -1017,6 +1081,7 @@ async function adelete(event) {
             });
         });
 
+       
 
 
         document.getElementById('materia_add').disabled = true; // Deshabilitar el select de materias al cargar la página

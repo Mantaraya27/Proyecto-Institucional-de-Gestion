@@ -10,443 +10,443 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Panel de Administración</title>
     <style>
-      /* Estilos generales y de la barra lateral */
-      body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          height: 100vh;
-          background-color: rgb(43, 36, 36);
-          overflow: hidden;
+            /* Estilos generales y de la barra lateral */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                height: 100vh;
+                background-color: rgb(43, 36, 36);
+                overflow: hidden;
+            }
+
+            .sidebar {
+                width: 250px;
+                background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                color: rgb(255, 255, 255);
+                height: 100%;
+                padding: 20px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+                position: fixed;
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.closed {
+                transform: translateX(-250px);
+            }
+
+            .sidebar h2 {
+                text-align: center;
+                font-size: 1.5em;
+                margin-top: 0;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+                font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+            }
+
+            .sidebar ul li {
+                margin: 20px 0;
+            }
+
+            .formTitle {
+                color: white;
+            }
+
+            .sidebar ul li a {
+                color: white;
+                text-decoration: none;
+                font-weight: bold;
+                display: block;
+                padding: 10px;
+                border-radius: 5px;
+                transition: background-color 0.3s;
+                display: flex;
+                align-items: center;
+            }
+
+            .sidebar ul li a i {
+                margin-right: 10px;
+            }
+
+            .sidebar ul li a:hover {
+                background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
+            }
+
+            .formTitle {
+                color: white;
+            }
+
+            /* Estilos del contenido */
+            .content {
+                margin-left: 270px;
+                flex-grow: 1;
+                padding: 20px;
+                overflow-y: auto;
+                width: calc(100% - 270px);
+                transition: margin-left 0.3s ease;
+                display: flex;
+                flex-direction: row;
+            }
+
+            /* Estilos de la barra superior */
+            .top-bar {
+                margin-left: 0;
+                color: #ecd9d9;
+                padding: 10px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+
+            }
+
+            .top-bar .menu-icon {
+                cursor: pointer;
+                font-size: 24px;
+                color: white;
+            }
+
+            .top-bar .profile {
+                display: flex;
+                align-items: center;
+            }
+
+            .top-bar .profile img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin-left: 10px;
+            }
+
+            /* Estilos del formulario y botones */
+            .form-container {
+                width: 40%;
+                margin-left: 20px;
+                padding-left: 20px;
+                background-color: rgb(43, 36, 36);
+                box-shadow: 0 0 10px rgba(202, 82, 82, 0.1);
+                border-radius: 8px;
+                margin-right: 20px;
+                transition: width 0.3s ease;
+            }
+
+            .form-container h1 {
+                color: #eeecec;
+                text-align: center;
+            }
+
+            .contact-form input[type="text"],
+            .contact-form select {
+                display: flex;
+                width: 80%;
+                gap: 10px;
+                margin: 20px 0;
+                padding: 10px;
+                border: 1px solid #2b2727;
+                border-radius: 4px;
+                background-color: #ebd6d6;
+            }
+
+            .contact-form input[type="email"],
+            .contact-form select {
+                display: flex;
+                width: 80%;
+                gap: 10px;
+                margin: 20px 0;
+                padding: 10px;
+                border: 1px solid #2b2727;
+                border-radius: 4px;
+                background-color: #ebd6d6;
+            }
+
+            .contact-form button {
+                padding: 10px;
+                width: 100px;
+                margin-left: 38%;
+                background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .contact-form button:hover {
+                background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            }
+
+
+            #email {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #2b2727;
+                border-radius: 4px;
+                background-color: #ebd6d6;
+                font-size: 14px;
+                color: #333333;
+            }
+
+            .form-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .form-buttons button {
+                padding: 10px 20px;
+                background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: transform 0.3s;
+            }
+
+            .form-buttons button:hover {
+                background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                transform: scale(1.05);
+            }
+
+            .form-buttons button.active {
+                background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+            }
+
+            .form-buttons button.active:hover {
+                background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                transform: scale(1.05);
+            }
+
+            /* Estilos de la tabla */
+            .list-container {
+                width: 60%;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                background-color: rgb(48, 45, 45);
+            }
+
+            table,
+            th,
+            td {
+                border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                ;
+            }
+
+            td {
+                color: rgb(247, 226, 226);
+            }
+
+            th,
+            td {
+                padding: 10px;
+                text-align: left;
+            }
+
+            th {
+                background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+                color: #fff;
+            }
+
+            /* Estilos de la barra de búsqueda */
+            .barra {
+                background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                color: white;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+                border-radius: 18px;
+            }
+
+            .barra h2 {
+                margin: 0;
+                padding-bottom: 20px;
+                color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+            }
+
+            .barra input[type="text"] {
+                width: 80%;
+                padding: 10px;
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+                color: #333333;
+                outline: none;
+                background-color: #f2f2f2;
+                margin-bottom: 20px;
+            }
+
+            .barra button {
+                padding: 10px 20px;
+                background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .barra button:hover {
+                background-color: #7e083f;
+            }
+
+            .search-container {
+                position: relative;
+                width: 80%;
+                margin-bottom: 20px;
+            }
+
+            .search-container input[type="text"] {
+                width: 100%;
+                padding: 10px 10px 10px 40px;
+                /* Ajuste de padding para espacio del icono */
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+                color: #333333;
+                background-color: #f2f2f2;
+            }
+
+            .search-container .fas.fa-search {
+                position: absolute;
+                top: 34%;
+                left: 10px;
+                transform: translateY(-50%);
+                color: #666666;
+            }
+
+            .active {
+                background-color: yellow;
+            }
+            /* CSS para campos deshabilitados */
+          /* CSS para campos deshabilitados */
+      .disabled-input {
+        background-color: #968585 !important;
+          color: #762c2c !important;
+          border: 1px solid #743434 !important;
+          cursor: not-allowed !important; /* Cambia el cursor para indicar que el campo no es editable */
       }
 
-      .sidebar {
-          width: 250px;
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          color: rgb(255, 255, 255);
-          height: 100%;
-          padding: 20px;
-          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-          position: fixed;
-          transition: transform 0.3s ease;
-      }
-
-      .sidebar.closed {
-          transform: translateX(-250px);
-      }
-
-      .sidebar h2 {
-          text-align: center;
-          font-size: 1.5em;
-          margin-top: 0;
-      }
-
-      .sidebar ul {
-          list-style: none;
-          padding: 0;
-          font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
-      }
-
-      .sidebar ul li {
-          margin: 20px 0;
-      }
-
-      .formTitle {
-          color: white;
-      }
-
-      .sidebar ul li a {
-          color: white;
-          text-decoration: none;
-          font-weight: bold;
-          display: block;
-          padding: 10px;
-          border-radius: 5px;
-          transition: background-color 0.3s;
-          display: flex;
-          align-items: center;
-      }
-
-      .sidebar ul li a i {
-          margin-right: 10px;
-      }
-
-      .sidebar ul li a:hover {
-          background-color: {{ '#300111' if espe=='Informatica' else '#362c21' if espe== 'Construccion civil' else '#050717' if espe == 'Automotriz' else '#212121' if espe == 'Electrónica' else '#6e6b67' if espe == 'Química' else '#072a61' if espe == 'Electromecanica' else '#030d03' if espe == 'Mecánica Industrial' else '#0e4752' if espe == 'Electricidad'}};
-      }
-
-      .formTitle {
-          color: white;
-      }
-
-      /* Estilos del contenido */
-      .content {
-          margin-left: 270px;
-          flex-grow: 1;
-          padding: 20px;
-          overflow-y: auto;
-          width: calc(100% - 270px);
-          transition: margin-left 0.3s ease;
-          display: flex;
-          flex-direction: row;
-      }
-
-      /* Estilos de la barra superior */
-      .top-bar {
-          margin-left: 0;
-          color: #ecd9d9;
-          padding: 10px 20px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-
-      }
-
-      .top-bar .menu-icon {
-          cursor: pointer;
-          font-size: 24px;
-          color: white;
-      }
-
-      .top-bar .profile {
-          display: flex;
-          align-items: center;
-      }
-
-      .top-bar .profile img {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          margin-left: 10px;
-      }
-
-      /* Estilos del formulario y botones */
-      .form-container {
-          width: 40%;
-          margin-left: 20px;
-          padding-left: 20px;
-          background-color: rgb(43, 36, 36);
-          box-shadow: 0 0 10px rgba(202, 82, 82, 0.1);
-          border-radius: 8px;
-          margin-right: 20px;
-          transition: width 0.3s ease;
-      }
-
-      .form-container h1 {
-          color: #eeecec;
-          text-align: center;
-      }
-
-      .contact-form input[type="text"],
-      .contact-form select {
-          display: flex;
-          width: 80%;
-          gap: 10px;
-          margin: 20px 0;
-          padding: 10px;
-          border: 1px solid #2b2727;
-          border-radius: 4px;
-          background-color: #ebd6d6;
-      }
-
-      .contact-form input[type="email"],
-      .contact-form select {
-          display: flex;
-          width: 80%;
-          gap: 10px;
-          margin: 20px 0;
-          padding: 10px;
-          border: 1px solid #2b2727;
-          border-radius: 4px;
-          background-color: #ebd6d6;
-      }
-
-      .contact-form button {
-          padding: 10px;
-          width: 100px;
-          margin-left: 38%;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-      }
-
-      .contact-form button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-      }
-
-
-      #email {
-          width: 100%;
-          padding: 10px;
-          border: 1px solid #2b2727;
-          border-radius: 4px;
-          background-color: #ebd6d6;
-          font-size: 14px;
-          color: #333333;
-      }
-
-      .form-buttons {
-          display: flex;
-          justify-content: center;
-          gap: 10px;
-          margin-bottom: 20px;
-      }
-
-      .form-buttons button {
-          padding: 10px 20px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: transform 0.3s;
-      }
-
-      .form-buttons button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          transform: scale(1.05);
-      }
-
-      .form-buttons button.active {
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-      }
-
-      .form-buttons button.active:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          transform: scale(1.05);
-      }
-
-      /* Estilos de la tabla */
-      .list-container {
-          width: 60%;
-      }
-
-      table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 20px 0;
-          background-color: rgb(48, 45, 45);
-      }
-
-      table,
-      th,
-      td {
-          border: 1px solid {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          ;
-      }
-
-      td {
-          color: rgb(247, 226, 226);
-      }
-
-      th,
-      td {
-          padding: 10px;
-          text-align: left;
-      }
-
-      th {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-          color: #fff;
-      }
-
-      /* Estilos de la barra de búsqueda */
-      .barra {
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: white;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 20px;
-          border-radius: 18px;
-      }
-
-      .barra h2 {
-          margin: 0;
-          padding-bottom: 20px;
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-      }
-
-      .barra input[type="text"] {
-          width: 80%;
-          padding: 10px;
-          border: none;
-          border-radius: 4px;
-          font-size: 14px;
-          color: #333333;
-          outline: none;
-          background-color: #f2f2f2;
-          margin-bottom: 20px;
-      }
-
-      .barra button {
-          padding: 10px 20px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background-color 0.3s;
-      }
-
-      .barra button:hover {
-          background-color: #7e083f;
-      }
-
-      .search-container {
-          position: relative;
-          width: 80%;
-          margin-bottom: 20px;
-      }
-
-      .search-container input[type="text"] {
-          width: 100%;
-          padding: 10px 10px 10px 40px;
-          /* Ajuste de padding para espacio del icono */
-          border: none;
-          border-radius: 4px;
-          font-size: 14px;
-          color: #333333;
-          background-color: #f2f2f2;
-      }
-
-      .search-container .fas.fa-search {
-          position: absolute;
-          top: 34%;
-          left: 10px;
-          transform: translateY(-50%);
-          color: #666666;
-      }
-
-      .active {
-          background-color: yellow;
-      }
-      /* CSS para campos deshabilitados */
-    /* CSS para campos deshabilitados */
-.disabled-input {
-  background-color: #968585 !important;
-    color: #762c2c !important;
-    border: 1px solid #743434 !important;
-    cursor: not-allowed !important; /* Cambia el cursor para indicar que el campo no es editable */
-}
-
-
-
-
-
-
-
-
-      @media (max-width: 768px) {
-          .sidebar {
-              width: 100%;
-              height: auto;
-              position: relative;
-              transform: none;
-          }
-
-          .sidebar.closed {
-              transform: none;
-          }
-
-          .content {
-              margin-left: 0;
-              width: 100%;
-          }
-
-          .form-container {
-              width: 100%;
-              padding: 10px;
-              margin: 10px 0;
-          }
-
-          .list-container {
-              width: 100%;
-              margin: 10px 0;
-          }
-
-          .top-bar {
-              flex-direction: column;
-              align-items: flex-start;
-          }
-
-          .top-bar .profile {
-              margin-top: 10px;
-          }
-      }
-
-      @media (max-width: 480px) {
-
-          .contact-form input[type="text"],
-          .contact-form select {
-              width: calc(100% - 10px);
-              margin: 5px;
-              padding: 8px;
-          }
-
-          .contact-form button {
-              padding: 8px;
-              width: 80px;
-          }
-
-          .form-buttons button {
-              padding: 8px 16px;
-          }
-      }
-      /* Estilos específicos para el formulario Excel */
-
-      #excelForm .formTitle {
-          color: #eeecec;
-          text-align: center;
-          margin-bottom: 20px;
-        }
-
-        #excelForm input[type="file"] {
-          width: 90%;
-          margin: 10px 0;
-          padding: 10px;
-          border: 1px solid #2b2727;
-          border-radius: 4px;
-          background-color: #ebd6d6;
-          font-size: 14px;
-          color: #333333;
-          cursor: pointer;
-          display: block;
-      }
-
-        #excelForm button {
-          padding: 10px 20px; /* Ajustar el padding del botón */
-          width: auto; /* Ajustar el ancho del botón */
-          margin-top: 10px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background-color 0.3s;
-        }
-
-        #excelForm button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-        }
-        #excelForm input[type="file"]::file-selector-button {
-          padding: 10px 20px;
-          background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
-          color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 14px;
-          transition: background-color 0.3s;
-      }
-
-      #excelForm input[type="file"]::file-selector-button:hover {
-          background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
-      }
+
+
+
+
+
+
+
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                    transform: none;
+                }
+
+                .sidebar.closed {
+                    transform: none;
+                }
+
+                .content {
+                    margin-left: 0;
+                    width: 100%;
+                }
+
+                .form-container {
+                    width: 100%;
+                    padding: 10px;
+                    margin: 10px 0;
+                }
+
+                .list-container {
+                    width: 100%;
+                    margin: 10px 0;
+                }
+
+                .top-bar {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .top-bar .profile {
+                    margin-top: 10px;
+                }
+            }
+
+            @media (max-width: 480px) {
+
+                .contact-form input[type="text"],
+                .contact-form select {
+                    width: calc(100% - 10px);
+                    margin: 5px;
+                    padding: 8px;
+                }
+
+                .contact-form button {
+                    padding: 8px;
+                    width: 80px;
+                }
+
+                .form-buttons button {
+                    padding: 8px 16px;
+                }
+            }
+            /* Estilos específicos para el formulario Excel */
+
+            #excelForm .formTitle {
+                color: #eeecec;
+                text-align: center;
+                margin-bottom: 20px;
+              }
+
+              #excelForm input[type="file"] {
+                width: 90%;
+                margin: 10px 0;
+                padding: 10px;
+                border: 1px solid #2b2727;
+                border-radius: 4px;
+                background-color: #ebd6d6;
+                font-size: 14px;
+                color: #333333;
+                cursor: pointer;
+                display: block;
+            }
+
+              #excelForm button {
+                padding: 10px 20px; /* Ajustar el padding del botón */
+                width: auto; /* Ajustar el ancho del botón */
+                margin-top: 10px;
+                background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+              }
+
+              #excelForm button:hover {
+                background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+              }
+              #excelForm input[type="file"]::file-selector-button {
+                padding: 10px 20px;
+                background-color: {{ '#92024a' if espe=='Informatica' else '#b89874' if espe == 'Construccion civil' else '#161d5c' if espe == 'Automotriz' else '#7a7a7a' if espe == 'Electrónica' else '#ffffff' if espe == 'Química' else '#0e65f0' if espe == 'Electromecanica' else '#155c1b' if espe == 'Mecánica Industrial' else '#27c4e3' if espe == 'Electricidad'}};
+                color: {{ '#000000' if espe == 'Química' else '#ffffff' }};
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background-color 0.3s;
+            }
+
+            #excelForm input[type="file"]::file-selector-button:hover {
+                background-color: {{ '#690325' if espe== 'Informatica' else '#61513f' if espe == 'Construccion civil' else '#0b0e30' if espe == 'Automotriz' else '#424242' if espe == 'Electrónica' else '#a6a29c' if espe == 'Química' else '#0b45a1' if espe == 'Electromecanica' else '#0a2e0d' if espe == 'Mecánica Industrial' else '#198094' if espe == 'Electricidad'}};
+            }
     </style>
   </head>
 
@@ -490,84 +490,88 @@
         </div>
 
         <form
-        <form
-        id="studentForm"
-        action="{{ url_for('add_contact') }}"
-        method="POST"
-        class="contact-form"
-      >
-        <h1 class="formTitle"></h1>
-        <input type="hidden" name="form_mode" id="form_mode" value="add" />
-        <input type="hidden" name="espe" id="espe" value="{{ espe }}" />
-        
-        <div id="ciField">
-          <p class="formTitle">Número de cédula</p>
-          <input
-            type="text"
-            name="ci"
-            id="ci"
-            placeholder="CI"
-            required
-            oninput="this.value = this.value.replace(/[^0-9]/g, ''); loadStudentData()"
-          />
-        </div>
-        
-        <div id="otherFields" style="display:none;">
-          <input
-            type="text"
-            name="nombre"
-            id="nombre"
-            placeholder="Nombre"
-            oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
-            required
-          />
-          <input
-            type="text"
-            name="apellido"
-            id="apellido"
-            placeholder="Apellido"
-            oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
-            required
-          />
-          <p class="formTitle">Curso</p>
-          <select name="curso" id="curso" required>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <p class="formTitle">Sección</p>
-          <select name="seccion" id="seccion" required>
-            {% if espe == 'Química' or espe == 'Construccion civil' or espe == 'Electricidad' or espe == 'Electrónica' %}
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            {% else %}
-            <option value="1">1</option>
-            <option value="2">2</option>
-            {% endif %}
-          </select>
-          <p class="formTitle">Cantidad correo</p>
-          <select id="cantidadCorreo" name="cantidadCorreo">
-            <option value="1">1</option>
-            <option value="2">2</option>
-          </select>
-          <p class="formTitle">Correo Electronico encargado</p>
-          <input type="email" name="correo_encargado" id="correo_encargado" required />
-          <div id="extraCorreo"></div>
-        </div>
+          <form
+          id="studentForm"
+          action="{{ url_for('add_contact') }}"
+          method="POST"
+          class="contact-form"
+        >
+          <h1 class="formTitle"></h1>
+          <input type="hidden" name="form_mode" id="form_mode" value="add" />
+          <input type="hidden" name="espe" id="espe" value="{{ espe }}" />
 
-        <input
-          type="hidden"
-          id="current_ci"
-          name="current_ci"
-          value="{{ current_ci_value }}"
-          oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-        />
-      
-        <button type="submit" onclick="validar_alumno(event)">Enviar</button>
-      </form>
-      
+          <div id="ciField">
+            <p class="formTitle">Número de cédula</p>
+            <input
+              type="text"
+              name="ci"
+              id="ci"
+              placeholder="CI"
+              required
+              oninput="this.value = this.value.replace(/[^0-9]/g, ''); loadStudentData()"
+            />
+          </div>
 
+          <div id="otherFields" style="display: none">
+            <input
+              type="text"
+              name="nombre"
+              id="nombre"
+              placeholder="Nombre"
+              oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
+              required
+            />
+            <input
+              type="text"
+              name="apellido"
+              id="apellido"
+              placeholder="Apellido"
+              oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');"
+              required
+            />
+            <p class="formTitle">Curso</p>
+            <select name="curso" id="curso" required>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+            <p class="formTitle">Sección</p>
+            <select name="seccion" id="seccion" required>
+              {% if espe == 'Química' or espe == 'Construccion civil' or espe ==
+              'Electricidad' or espe == 'Electrónica' %}
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              {% else %}
+              <option value="1">1</option>
+              <option value="2">2</option>
+              {% endif %}
+            </select>
+            <p class="formTitle">Cantidad correo</p>
+            <select id="cantidadCorreo" name="cantidadCorreo">
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+            <p class="formTitle">Correo Electronico encargado</p>
+            <input
+              type="email"
+              name="correo_encargado"
+              id="correo_encargado"
+              required
+            />
+            <div id="extraCorreo"></div>
+          </div>
+
+          <input
+            type="hidden"
+            id="current_ci"
+            name="current_ci"
+            value="{{ current_ci_value }}"
+            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+          />
+
+          <button type="submit" onclick="validar_alumno(event)">Enviar</button>
+        </form>
 
         <form
           id="deleteForm"
@@ -766,45 +770,45 @@
           var extraCorreoDiv = document.getElementById("extraCorreo");
           extraCorreoDiv.innerHTML = ""; // 清空之前的内容
 
-            console.log("Cambio detectado. Valor seleccionado:", this.value); // 调试信息
+          console.log("Cambio detectado. Valor seleccionado:", this.value); // 调试信息
 
-            if (this.value == "2") {
-                console.log("添加第二个 Correo Electronico encargado"); // 调试信息
+          if (this.value == "2") {
+            console.log("添加第二个 Correo Electronico encargado"); // 调试信息
 
-                var newTitle = document.createElement('p');
-                newTitle.className = 'formTitle';
-                newTitle.textContent = 'Correo Electronico encargado';
+            var newTitle = document.createElement("p");
+            newTitle.className = "formTitle";
+            newTitle.textContent = "Correo Electronico encargado";
 
-                var newInput = document.createElement('input');
-                newInput.type = 'email';
-                newInput.name = 'correo_encargado_2';
-                newInput.id = 'correo_encargado_2';
-                newInput.required = true;
+            var newInput = document.createElement("input");
+            newInput.type = "email";
+            newInput.name = "correo_encargado_2";
+            newInput.id = "correo_encargado_2";
+            newInput.required = true;
 
-                extraCorreoDiv.appendChild(newTitle);
-                extraCorreoDiv.appendChild(newInput);
-            }
+            extraCorreoDiv.appendChild(newTitle);
+            extraCorreoDiv.appendChild(newInput);
+          }
         });
 
-     // Función para cambiar entre modos de formulario (Agregar, Modificar, Eliminar)
-function setFormMode(mode) {
-  console.log("setFormMode called with mode:", mode);
+      // Función para cambiar entre modos de formulario (Agregar, Modificar, Eliminar)
+      function setFormMode(mode) {
+        console.log("setFormMode called with mode:", mode);
 
-  const form = document.getElementById("studentForm");
-  const deleteForm = document.getElementById("deleteForm");
-  const excelForm = document.getElementById("excelForm");
+        const form = document.getElementById("studentForm");
+        const deleteForm = document.getElementById("deleteForm");
+        const excelForm = document.getElementById("excelForm");
 
-  if (!form || !deleteForm || !excelForm) {
+        if (!form || !deleteForm || !excelForm) {
           console.error("Forms not found");
           return;
         }
 
-  const formTitle = document.querySelector(".formTitle");
-  const formModeInput = document.getElementById("form_mode");
-  const formTitleDelete = document.getElementById("formTitleDelete");
-  const formModeInputDelete = document.getElementById("form_mode_delete");
+        const formTitle = document.querySelector(".formTitle");
+        const formModeInput = document.getElementById("form_mode");
+        const formTitleDelete = document.getElementById("formTitleDelete");
+        const formModeInputDelete = document.getElementById("form_mode_delete");
 
-  const addButton = document.querySelector(
+        const addButton = document.querySelector(
           ".form-buttons button:nth-child(1)"
         );
         const editButton = document.querySelector(
@@ -821,139 +825,132 @@ function setFormMode(mode) {
         deleteForm.style.display = "none";
         excelForm.style.display = "none";
 
-  form.reset();
-  deleteForm.reset();
-  excelForm.reset();
-  if (mode === "add") {
-    form.style.display = "block";
-    deleteForm.style.display = "none";
-    form.action = "{{ url_for('add_contact') }}";
-    formTitle.innerText = "Agregar Alumno";
-    formModeInput.value = "add";
+        form.reset();
+        deleteForm.reset();
+        excelForm.reset();
+        if (mode === "add") {
+          form.style.display = "block";
+          deleteForm.style.display = "none";
+          form.action = "{{ url_for('add_contact') }}";
+          formTitle.innerText = "Agregar Alumno";
+          formModeInput.value = "add";
 
-    // Mostrar todos los campos necesarios para agregar un nuevo alumno
-    document.getElementById("ciField").style.display = "block";
-    document.getElementById("otherFields").style.display = "block";
-    document.getElementById("extraCorreo").style.display = "none";
+          // Mostrar todos los campos necesarios para agregar un nuevo alumno
+          document.getElementById("ciField").style.display = "block";
+          document.getElementById("otherFields").style.display = "block";
+          document.getElementById("extraCorreo").style.display = "none";
 
-    // Limpiar campos
-    document.getElementById("ci").value = "";
-    document.getElementById("nombre").value = "";
-    document.getElementById("apellido").value = "";
-    document.getElementById("curso").value = "";
-    document.getElementById("seccion").value = "";
-    document.getElementById("cantidadCorreo").value = "1";
-    document.getElementById("correo_encargado").value = "";
-    document.getElementById("extraCorreo").innerHTML = "";
+          // Limpiar campos
+          document.getElementById("ci").value = "";
+          document.getElementById("nombre").value = "";
+          document.getElementById("apellido").value = "";
+          document.getElementById("curso").value = "1";
+          document.getElementById("seccion").value = "1";
+          document.getElementById("cantidadCorreo").value = "1";
+          document.getElementById("correo_encargado").value = "";
+          document.getElementById("extraCorreo").innerHTML = "";
 
-    addButton.classList.add("active");
-    editButton.classList.remove("active");
-    deleteButton.classList.remove("active");
-  } else if (mode === "edit") {
-    form.style.display = "block";
-    deleteForm.style.display = "none";
-    form.action = "{{ url_for('edit_contact') }}";
-    formTitle.innerText = "Modificar Alumno";
-    formModeInput.value = "edit";
+          addButton.classList.add("active");
+          editButton.classList.remove("active");
+          deleteButton.classList.remove("active");
+        } else if (mode === "edit") {
+          form.style.display = "block";
+          deleteForm.style.display = "none";
+          form.action = "{{ url_for('edit_contact') }}";
+          formTitle.innerText = "Modificar Alumno";
+          formModeInput.value = "edit";
 
-    // Mostrar todos los campos inicialmente
-    document.getElementById("ciField").style.display = "block";
-    document.getElementById("otherFields").style.display = "block";
-    document.getElementById("extraCorreo").style.display = "none";
+          // Mostrar todos los campos inicialmente
+          document.getElementById("ciField").style.display = "block";
+          document.getElementById("otherFields").style.display = "block";
+          document.getElementById("extraCorreo").style.display = "none";
 
-    addButton.classList.remove("active");
-    editButton.classList.add("active");
-    deleteButton.classList.remove("active");
+          addButton.classList.remove("active");
+          editButton.classList.add("active");
+          deleteButton.classList.remove("active");
 
-    // Obtener los elementos del formulario
-    var ci = document.getElementById("ci");
-    var nombre = document.getElementById("nombre");
-    var ape = document.getElementById("apellido");
-    var curso = document.getElementById("curso");
-    var seccion = document.getElementById("seccion");
-    var cant = document.getElementById("cantidadCorreo");
-    var correo = document.getElementById("correo_encargado");
-    var correo2 = document.getElementById("extraCorreo");
+          // Obtener los elementos del formulario
+          var ci = document.getElementById("ci");
+          var nombre = document.getElementById("nombre");
+          var ape = document.getElementById("apellido");
+          var curso = document.getElementById("curso");
+          var seccion = document.getElementById("seccion");
+          var cant = document.getElementById("cantidadCorreo");
+          var correo = document.getElementById("correo_encargado");
+          var correo2 = document.getElementById("extraCorreo");
 
-    // Inicialmente deshabilitar los campos y aplicar la clase
-    var disabledStyle = "background-color: #333; color: #ccc; border: 1px solid #666; cursor: not-allowed;";
-    nombre.disabled = true;
-    ape.disabled = true;
-    curso.disabled = true;
-    seccion.disabled = true;
-    cant.disabled = true;
-    correo.disabled = true;
-    correo2.disabled = true;
+          // Inicialmente deshabilitar los campos y aplicar la clase
+          var disabledStyle =
+            "background-color: #333; color: #ccc; border: 1px solid #666; cursor: not-allowed;";
+          nombre.disabled = true;
+          ape.disabled = true;
+          curso.disabled = true;
+          seccion.disabled = true;
+          cant.disabled = true;
+          correo.disabled = true;
+          correo2.disabled = true;
 
-    // Añadir la clase de deshabilitado
-    nombre.classList.add('disabled-input');
-    ape.classList.add('disabled-input');
-    curso.classList.add('disabled-input');
-    seccion.classList.add('disabled-input');
-    cant.classList.add('disabled-input');
-    correo.classList.add('disabled-input');
-    correo2.classList.add('disabled-input');
+          // Añadir la clase de deshabilitado
+          nombre.classList.add("disabled-input");
+          ape.classList.add("disabled-input");
+          curso.classList.add("disabled-input");
+          seccion.classList.add("disabled-input");
+          cant.classList.add("disabled-input");
+          correo.classList.add("disabled-input");
+          correo2.classList.add("disabled-input");
 
-    // Habilitar campos cuando se ingresa un número de cédula
-    ci.addEventListener('input', function() {
-        if (this.value.length > 0) {
-            nombre.disabled = false;
-            ape.disabled = false;
-            curso.disabled = false;
-            seccion.disabled = false;
-            cant.disabled = false;
-            correo.disabled = false;
-            correo2.disabled = false;
+          // Habilitar campos cuando se ingresa un número de cédula
+          ci.addEventListener("input", function () {
+            if (this.value.length > 0) {
+              nombre.disabled = false;
+              ape.disabled = false;
+              curso.disabled = false;
+              seccion.disabled = false;
+              cant.disabled = false;
+              correo.disabled = false;
+              correo2.disabled = false;
 
-            // Remover la clase de deshabilitado
-            nombre.classList.remove('disabled-input');
-            ape.classList.remove('disabled-input');
-            curso.classList.remove('disabled-input');
-            seccion.classList.remove('disabled-input');
-            cant.classList.remove('disabled-input');
-            correo.classList.remove('disabled-input');
-            correo2.classList.remove('disabled-input');
+              // Remover la clase de deshabilitado
+              nombre.classList.remove("disabled-input");
+              ape.classList.remove("disabled-input");
+              curso.classList.remove("disabled-input");
+              seccion.classList.remove("disabled-input");
+              cant.classList.remove("disabled-input");
+              correo.classList.remove("disabled-input");
+              correo2.classList.remove("disabled-input");
 
-            // Aquí puedes añadir lógica adicional para cargar los datos del alumno
-            // loadStudentData(this.value);
-        } else {
-            // Deshabilitar los campos si el CI está vacío
-            nombre.disabled = true;
-            ape.disabled = true;
-            curso.disabled = true;
-            seccion.disabled = true;
-            cant.disabled = true;
-            correo.disabled = true;
-            correo2.disabled = true;
+              // Aquí puedes añadir lógica adicional para cargar los datos del alumno
+              // loadStudentData(this.value);
+            } else {
+              // Deshabilitar los campos si el CI está vacío
+              nombre.disabled = true;
+              ape.disabled = true;
+              curso.disabled = true;
+              seccion.disabled = true;
+              cant.disabled = true;
+              correo.disabled = true;
+              correo2.disabled = true;
 
-            // Añadir la clase de deshabilitado
-            nombre.classList.add('disabled-input');
-            ape.classList.add('disabled-input');
-            curso.classList.add('disabled-input');
-            seccion.classList.add('disabled-input');
-            cant.classList.add('disabled-input');
-            correo.classList.add('disabled-input');
-            correo2.classList.add('disabled-input');
-        }
-    });
+              // Añadir la clase de deshabilitado
+              nombre.classList.add("disabled-input");
+              ape.classList.add("disabled-input");
+              curso.classList.add("disabled-input");
+              seccion.classList.add("disabled-input");
+              cant.classList.add("disabled-input");
+              correo.classList.add("disabled-input");
+              correo2.classList.add("disabled-input");
+            }
+          });
+        } else if (mode === "delete") {
+          form.style.display = "none";
+          deleteForm.style.display = "block";
+          formTitleDelete.innerText = "Eliminar Alumno";
+          formModeInputDelete.value = "delete";
 
-
-
-
-
-            
-
-
-  } else if (mode === "delete") {
-    form.style.display = "none";
-    deleteForm.style.display = "block";
-    formTitleDelete.innerText = "Eliminar Alumno";
-    formModeInputDelete.value = "delete";
-
-    addButton.classList.remove("active");
-    editButton.classList.remove("active");
-    deleteButton.classList.add("active");
-  } else if (mode === "excel") {
+          addButton.classList.remove("active");
+          editButton.classList.remove("active");
+          deleteButton.classList.add("active");
+        } else if (mode === "excel") {
           form.style.display = "none";
           deleteForm.style.display = "none";
           excelForm.style.display = "block";
@@ -966,88 +963,87 @@ function setFormMode(mode) {
         }
       }
 
-// Función para manejar la visibilidad del campo adicional de correo electrónico
-function handleCorreoCountChange() {
-  const cantidadCorreo = document.getElementById("cantidadCorreo").value;
-  const extraCorreoDiv = document.getElementById("extraCorreo");
+      // Función para manejar la visibilidad del campo adicional de correo electrónico
+      function handleCorreoCountChange() {
+        const cantidadCorreo = document.getElementById("cantidadCorreo").value;
+        const extraCorreoDiv = document.getElementById("extraCorreo");
 
-  if (cantidadCorreo === "2") {
-    extraCorreoDiv.style.display = "block";
-    if (!document.getElementById("correo_encargado2")) {
-      extraCorreoDiv.innerHTML = `
+        if (cantidadCorreo === "2") {
+          extraCorreoDiv.style.display = "block";
+          if (!document.getElementById("correo_encargado2")) {
+            extraCorreoDiv.innerHTML = `
         <p class="formTitle">Correo Electrónico Adicional</p>
         <input type="email" name="correo_encargado2" id="correo_encargado2" />
       `;
-    }
-  } else {
-    extraCorreoDiv.style.display = "none";
-  }
-}
-
-// Asignar el evento change al campo de "Cantidad de correos"
-document.getElementById("cantidadCorreo").addEventListener("change", handleCorreoCountChange);
-
-// Llamada a setFormMode para mostrar el modo de agregar por defecto al cargar la página
-window.onload = function() {
-  setFormMode("add");
-};
-
-
- 
-
-  function loadStudentData() {
-    const ci = document.getElementById("ci").value;
-
-    if (ci && document.getElementById("form_mode").value === "edit") {
-      fetch(`/get_student_data?ci=${ci}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
           }
-          return response.json();
-        })
-        .then(data => {
-          if (data.error) {
-            console.error("Error loading student data:", data.error);
-            return;
-          }
+        } else {
+          extraCorreoDiv.style.display = "none";
+        }
+      }
 
-          document.getElementById("otherFields").style.display = "block";
-          document.getElementById("extraCorreo").style.display = data.correo_encargado2 ? "block" : "none";
+      // Asignar el evento change al campo de "Cantidad de correos"
+      document
+        .getElementById("cantidadCorreo")
+        .addEventListener("change", handleCorreoCountChange);
 
-          document.getElementById("nombre").value = data.nombre || '';
-          document.getElementById("apellido").value = data.apellido || '';
-          document.getElementById("curso").value = data.curso || '';
-          document.getElementById("seccion").value = data.seccion || '';
-          document.getElementById("correo_encargado").value = data.correo_encargado || '';
+      // Llamada a setFormMode para mostrar el modo de agregar por defecto al cargar la página
+      window.onload = function () {
+        setFormMode("add");
+      };
 
-          const extraCorreoDiv = document.getElementById("extraCorreo");
-          extraCorreoDiv.innerHTML = '';
-          if (data.correo_encargado2) {
-            extraCorreoDiv.innerHTML = `
+      function loadStudentData() {
+        const ci = document.getElementById("ci").value;
+
+        if (ci && document.getElementById("form_mode").value === "edit") {
+          fetch(`/get_student_data?ci=${ci}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.error) {
+                console.error("Error loading student data:", data.error);
+                return;
+              }
+
+              document.getElementById("otherFields").style.display = "block";
+              document.getElementById("extraCorreo").style.display =
+                data.correo_encargado2 ? "block" : "none";
+
+              document.getElementById("nombre").value = data.nombre || "";
+              document.getElementById("apellido").value = data.apellido || "";
+              document.getElementById("curso").value = data.curso || "";
+              document.getElementById("seccion").value = data.seccion || "";
+              document.getElementById("correo_encargado").value =
+                data.correo_encargado || "";
+
+              const extraCorreoDiv = document.getElementById("extraCorreo");
+              extraCorreoDiv.innerHTML = "";
+              if (data.correo_encargado2) {
+                extraCorreoDiv.innerHTML = `
               <p class="formTitle">Correo Electrónico Adicional</p>
-              <input type="email" name="correo_encargado2" id="correo_encargado2" value="${data.correo_encargado2 || ''}" />
+              <input type="email" name="correo_encargado2" id="correo_encargado2" value="${
+                data.correo_encargado2 || ""
+              }" />
             `;
-          }
-        })
-        .catch(error => {
-          console.error("Error loading student data:", error);
-        });
-    }
-  }
+              }
+            })
+            .catch((error) => {
+              console.error("Error loading student data:", error);
+            });
+        }
+      }
 
-  // Asignar el evento input al campo C.I. para cargar datos en modo de edición
-  document.getElementById("ci").addEventListener("input", loadStudentData);
-
-
-
-
+      // Asignar el evento input al campo C.I. para cargar datos en modo de edición
+      document.getElementById("ci").addEventListener("input", loadStudentData);
 
       function validar_campos_vacios() {
         const nombre = document.getElementById("nombre").value.trim();
         const apellido = document.getElementById("apellido").value.trim();
         const ci = document.getElementById("ci").value.trim();
-        
+
         // Solo valida `correo_encargado_2` si está presente en el DOM
         const correoEncargado2 = document.getElementById("correo_encargado_2");
         const currentCi = correoEncargado2 && correoEncargado2.value.trim();
@@ -1065,7 +1061,6 @@ window.onload = function() {
         }
         return true;
       }
-
 
       function validarEmail(email) {
         const emailPattern = /^[^\s@]+@[^\s@]+\.(com)$/; // Permite .com, .org, .net, .edu
@@ -1208,148 +1203,156 @@ window.onload = function() {
       }
 
       async function validar_alumno(event) {
-    event.preventDefault(); // Previene el envío automático del formulario
+        event.preventDefault(); // Previene el envío automático del formulario
 
-    // Validar campos vacíos y nombres
-    if (!validar_campos_vacios() || !validar_nombre_apellido()) {
-        return; // Si alguna validación falla, no envíes el formulario
-    }
+        // Validar campos vacíos y nombres
+        if (!validar_campos_vacios() || !validar_nombre_apellido()) {
+          return; // Si alguna validación falla, no envíes el formulario
+        }
 
-    const ci = document.getElementById("ci").value.trim();
-    const email = document.getElementById("correo_encargado").value.trim();
-    const correoEncargado2Element = document.getElementById("correo_encargado_2");
-    const email2 = correoEncargado2Element ? correoEncargado2Element.value.trim() : null;
-    const formMode = document.getElementById("form_mode").value; // Obtener el modo del formulario
-    const espe = document.getElementById("espe").value;
+        const ci = document.getElementById("ci").value.trim();
+        const email = document.getElementById("correo_encargado").value.trim();
+        const correoEncargado2Element =
+          document.getElementById("correo_encargado_2");
+        const email2 = correoEncargado2Element
+          ? correoEncargado2Element.value.trim()
+          : null;
+        const formMode = document.getElementById("form_mode").value; // Obtener el modo del formulario
+        const espe = document.getElementById("espe").value;
 
-    // Validar longitud del CI
-    if (ci.length < 7 || ci.length > 8) {
-        Swal.fire({
+        // Validar longitud del CI
+        if (ci.length < 7 || ci.length > 8) {
+          Swal.fire({
             icon: "error",
             title: "Error",
             text: "El CI debe tener entre 7 y 8 caracteres.",
             timer: 3000,
             showConfirmButton: false,
             timerProgressBar: true,
-        });
-        return; // Detiene el proceso si la longitud no es válida
-    }
+          });
+          return; // Detiene el proceso si la longitud no es válida
+        }
 
-    // Validar que el CI sea numérico
-    if (!/^\d+$/.test(ci)) {
-        Swal.fire({
+        // Validar que el CI sea numérico
+        if (!/^\d+$/.test(ci)) {
+          Swal.fire({
             icon: "error",
             title: "Error",
             text: "El CI debe ser numérico.",
             timer: 3000,
             showConfirmButton: false,
             timerProgressBar: true,
-        });
-        return; // Detiene el proceso si el CI no es numérico
-    }
+          });
+          return; // Detiene el proceso si el CI no es numérico
+        }
 
-    // Validar correo electrónico principal
-    if (!validarEmail(email)) {
-        Swal.fire({
+        // Validar correo electrónico principal
+        if (!validarEmail(email)) {
+          Swal.fire({
             icon: "error",
             title: "Error",
             text: "El correo electrónico ingresado no es válido.",
             timer: 3500,
             showConfirmButton: false,
             timerProgressBar: true,
-        });
-        return; // Detiene el proceso si el correo electrónico no es válido
-    }
+          });
+          return; // Detiene el proceso si el correo electrónico no es válido
+        }
 
-    // Validar correo electrónico adicional solo si está presente y no está vacío
-    if (correoEncargado2Element && email2 && !validarEmail(email2)) {
-        Swal.fire({
+        // Validar correo electrónico adicional solo si está presente y no está vacío
+        if (correoEncargado2Element && email2 && !validarEmail(email2)) {
+          Swal.fire({
             icon: "error",
             title: "Error",
             text: "El correo electrónico adicional ingresado no es válido.",
             timer: 3500,
             showConfirmButton: false,
             timerProgressBar: true,
-        });
-        return; // Detiene el proceso si el correo electrónico adicional no es válido
-    }
-
-    try {
-        // Enviar solicitud para verificar el CI y la especialidad
-        const response = await fetch("/check_ci", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ ci, espe }), // Incluye la especialidad en la solicitud
-        });
-        const data = await response.json();
-
-        if (data.existe) {
-            if (data.espe !== espe) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: `El CI introducido ya pertenece a la especialidad: ${data.espe}.`,
-                    timer: 3000,
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                });
-                return; // Detiene el proceso si el CI ya existe en otra especialidad
-            }
-
-            if (formMode === "add") {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "El CI ya existe en el sistema.",
-                    timer: 3000,
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                });
-                return; // Detiene el proceso si el CI ya existe
-            }
+          });
+          return; // Detiene el proceso si el correo electrónico adicional no es válido
         }
 
-        // Si estás en modo de edición y el CI no existe, mostrar error
-        if (formMode === "edit" && !data.existe) {
-            Swal.fire({
+        try {
+          // Enviar solicitud para verificar el CI y la especialidad
+          const response = await fetch("/check_ci", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ci, espe }), // Incluye la especialidad en la solicitud
+          });
+          const data = await response.json();
+
+          if (data.existe) {
+            if (data.espe !== espe) {
+              Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "El CI que intentas modificar no existe en el sistema.",
+                text: `El CI introducido ya pertenece a la especialidad: ${data.espe}.`,
                 timer: 3000,
                 showConfirmButton: false,
                 timerProgressBar: true,
+              });
+              return; // Detiene el proceso si el CI ya existe en otra especialidad
+            }
+
+            if (formMode === "add") {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "El CI ya existe en el sistema.",
+                timer: 3000,
+                showConfirmButton: false,
+                timerProgressBar: true,
+              });
+              return; // Detiene el proceso si el CI ya existe
+            }
+          }
+
+          // Si estás en modo de edición y el CI no existe, mostrar error
+          if (formMode === "edit" && !data.existe) {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "El CI que intentas modificar no existe en el sistema.",
+              timer: 3000,
+              showConfirmButton: false,
+              timerProgressBar: true,
             });
             return; // Detiene el proceso si el CI no existe
-        }
+          }
 
-        // Si todas las validaciones son correctas, enviar el formulario
-        Swal.fire({
+          // Si todas las validaciones son correctas, enviar el formulario
+          Swal.fire({
             icon: "success",
-            title: formMode === "add" ? "Éxito" : formMode === "edit" ? "Actualización exitosa" : "Operación realizada",
-            text: formMode === "add" ? "Alumno añadido con éxito." : "Alumno modificado con éxito.",
+            title:
+              formMode === "add"
+                ? "Éxito"
+                : formMode === "edit"
+                ? "Actualización exitosa"
+                : "Operación realizada",
+            text:
+              formMode === "add"
+                ? "Alumno añadido con éxito."
+                : "Alumno modificado con éxito.",
             timer: 3000,
             showConfirmButton: false,
             timerProgressBar: true,
-        }).then(() => {
+          }).then(() => {
             document.getElementById("studentForm").submit(); // Envía el formulario después de la alerta
-        });
-    } catch (error) {
-        console.error("Error al validar el CI:", error);
-        Swal.fire({
+          });
+        } catch (error) {
+          console.error("Error al validar el CI:", error);
+          Swal.fire({
             icon: "error",
             title: "Error",
             text: "Error en la validación del CI.",
             timer: 3000,
             showConfirmButton: false,
             timerProgressBar: true,
-        });
-    }
-}
-
-
-      
+          });
+        }
+      }
     </script>
   </body>
 </html>
