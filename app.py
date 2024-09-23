@@ -947,33 +947,35 @@ def crear_app():
     def materia_hora(espe):
         if 'role' in session and session['role'] == 'administrador':
             cur = mysql.connection.cursor()
-
             # Obtener las materias disponibles
             cur.execute(
                 "SELECT id_materia, nombre FROM materia where especialidad = %s or especialidad = 'Plan Comun'", (espe, ))
             materias = cur.fetchall()
-
             # Obtener los horarios disponibles
             cur.execute(
                 "SELECT id_horario, especialidad, curso, seccion FROM horario WHERE especialidad = %s", (espe, ))
             horarios = cur.fetchall()
-
             # Obtener la relación materia-horario
             cur.execute("""
-                SELECT d.id_dethora AS id_dethora, m2.nombre AS materia_nombre, d.horario_id_horario AS id_horario, 
-CONCAT(h.especialidad, ' ', h.curso, ' ', h.seccion) AS horario_info, d.dia, d.horario 
-FROM detalle_horario d 
-JOIN materia m2 ON m2.id_materia = d.id_dethora 
-JOIN horario h ON h.id_horario = d.horario_id_horario 
-WHERE h.especialidad = %s;
-
+                SELECT 
+    dh.id_dethora,
+    CONCAT(h.curso, '° ', h.seccion, '° ', h.especialidad) AS horario_completo,
+    m.nombre AS nombre_materia,
+    dh.horario,
+    dh.dia
+FROM 
+    detalle_horario dh
+JOIN 
+    horario h ON dh.Horario_id_horario = h.id_horario
+JOIN 
+    materia m ON dh.Materia_id_materia = m.id_materia
+WHERE 
+    h.especialidad = %s;
+;
             """, (espe, ))
-
             materia_hora = cur.fetchall()
             print(materia_hora)
-            
             cur.close()
-
             return render_template('detalle_horario.html', materia_hora=materia_hora, materias=materias, horarios=horarios, role=session['role'], espe=espe)
         else:
             flash('Acceso denegado. Por favor, inicie sesión como administrador.')
@@ -1005,20 +1007,22 @@ WHERE h.especialidad = %s;
     @app.route('/edit_dethora', methods=['POST'])
     def edit_dethora():
         if 'role' in session and session['role'] == 'administrador':
+
             if request.method == 'POST':
-                old_materia_id = request.form['old_materia_id']
-                old_horario_id = request.form['old_horario_id']
+                subject_id = request.form['id_rela']
                 materia_id = request.form['materiaa']
                 horario_id = request.form['horarioo']
                 dia = request.form['tian']
                 horario = request.form['horario']
+                print(materia_id,horario_id,dia,horario)
+                print(subject_id)
                 try:
                     cur = mysql.connection.cursor()
                     cur.execute("""
                         UPDATE detalle_horario
                         SET materia_id_materia=%s, horario_id_horario=%s, horario=%s, dia=%s
-                        WHERE materia_id_materia=%s AND horario_id_horario=%s
-                    """, (materia_id, horario_id, horario, dia, old_materia_id, old_horario_id))
+                        WHERE id_dethora=%s
+                    """, (materia_id, horario_id, horario, dia, subject_id))
                     mysql.connection.commit()
                     flash('Relación actualizada exitosamente')
                 except Exception as e:
@@ -1034,12 +1038,15 @@ WHERE h.especialidad = %s;
     def delete_dethora():
         if 'role' in session and session['role'] == 'administrador':
             if request.method == 'POST':
-                old_materia_id = request.form['old_materia_id']
-                old_horario_id = request.form['old_horario_id']
+                iid = request.form['delete_rela_id']
+                print(iid)
                 try:
                     cur = mysql.connection.cursor()
-                    cur.execute("DELETE FROM detalle_horario WHERE materia_id_materia=%s AND horario_id_horario=%s",
-                                (old_materia_id, old_horario_id))
+                    cur.execute("Select * from detalle_horario where id_dethora=%s",(iid,))
+                    aa=cur.fetchone()
+                    print("hola",aa)
+                    cur.execute("DELETE FROM detalle_horario WHERE id_dethora=%s",
+                                (iid,))
                     mysql.connection.commit()
                     flash('Relación eliminada exitosamente')
                 except Exception as e:
@@ -2208,15 +2215,12 @@ WHERE h.especialidad = %s;
     @app.route('/check_materia_horario_edit', methods=['POST'])
     def check_materia_horario_edit():
         if 'role' in session and session['role'] == 'administrador':
-            materia_id = request.form.get('materia_id')
-            horario_id = request.form.get('horario_id')
 
             cur = mysql.connection.cursor()
             # 查询是否存在该关系
             cur.execute("""
-                SELECT * FROM detalle_horario 
-                WHERE materia_id_materia = %s AND horario_id_horario = %s
-            """, (materia_id, horario_id))
+                SELECT id_dethora FROM detalle_horario 
+            """, )
             result = cur.fetchone()
             cur.close()
 
@@ -2226,18 +2230,22 @@ WHERE h.especialidad = %s;
                 return jsonify({'exists': False})  # 关系不存在
     @app.route('/check_materia_horario_delete', methods=['POST'])
     def check_materia_horario_delete():
+        print("hasjdhfjahdskfjahdfjhs")
         if 'role' in session and session['role'] == 'administrador':
+            print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             data = request.get_json()  # 获取 JSON 数据
             materia_id = data.get('materiaId')  # 从 JSON 中提取 materiaId
-            horario_id = data.get('cursoId')  # 从 JSON 中提取 cursoId
+ # 从 JSON 中提取 cursoId
 
             cur = mysql.connection.cursor()
             # 查询是否存在该关系
             cur.execute("""
                 SELECT * FROM detalle_horario 
-                WHERE materia_id_materia = %s AND horario_id_horario = %s
-            """, (materia_id, horario_id))
+                WHERE id_dethora=%s
+            """, (materia_id,))
             result = cur.fetchone()
+            print("aaaaaaa")
+            print(result)
             cur.close()
 
             if not result:

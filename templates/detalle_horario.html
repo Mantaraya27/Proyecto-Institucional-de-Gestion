@@ -472,7 +472,7 @@
                 
                 <select name="horarioo" id="cursoId_edit" required>
                     {% if horarios %}
-                    <option value="" disabled selected>Seleccione el id del curso</option>
+                    <option value="" disabled selected>Seleccione el curso</option>
                     {% for curs in horarios %}
                     <option value="{{ curs[0] }}" id="cursoId_edit">{{curs[1]}} {{ curs[2] }}° {{curs[3]}}°</option>
                     {% endfor %}
@@ -547,9 +547,9 @@
             <form id="deleteForm" action="{{ url_for('delete_dethora') }}" method="POST" class="contact-form"
                 style="display:none;">
                 <h1>Eliminar Relacion</h1>
-                <input type="text" name="old_materia_id" id="delete_old_materia_id" placeholder="id de la materia"
+                <input type="text" name="delete_rela_id" id="delete_rela_id" placeholder="id de la relacion"
                 oninput="this.value = this.value.replace(/[^0-9]/g, '');"required>
-                <input type="text" name="old_horario_id" id="delete_old_horario_id" placeholder="id del curso"oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                <input type="hidden" name="espe" id="espe" value="{{ espe }}">
                 <button type="submit" onclick="adelete(event)">Eliminar</button>
             </form>
         </div>
@@ -576,10 +576,10 @@
                     {% for row in materia_hora %}
                     <tr>
                         <td>{{ row[0] }}</td> <!-- ID Materia -->
-                        <td>{{ row[1] }}</td> <!-- Nombre de Materia -->
-                        <td>{{ row[3] }}</td> <!-- Información del Horario -->
-                        <td>{{ row[4] }}</td> <!-- Hora -->
-                        <td>{{ row[5] }}</td> <!-- Día -->
+                        <td>{{ row[2] }}</td> <!-- Nombre de Materia -->
+                        <td>{{ row[1] }}</td> <!-- Información del Horario -->
+                        <td>{{ row[3] }}</td> <!-- Hora -->
+                        <td>{{ row[4] }}</td> <!-- Día -->
 
                     </tr>
                     {% endfor %}
@@ -887,13 +887,13 @@ function checkAndSubmitForm_edit() {
     console.log("Materia ID:", materiaId);
     
     // 确保 ID 被正确获取后才发起请求
-    if (materiaId && cursoId) {
+    if (materiaId ) {
         $.ajax({
             url: '/check_materia_horario_edit',
             type: 'POST',
             data: {
                 materia_id: materiaId,
-                horario_id: cursoId
+                
             },
             success: function(response) {
                 if (!response.exists) {
@@ -939,7 +939,7 @@ function checkAndSubmitForm_edit() {
 async function adelete(event) {
     event.preventDefault(); // Evita el envío del formulario hasta que se realicen las validaciones
 
-    const materiaId = document.getElementById('id_rela').value;
+    const materiaId = document.getElementById('delete_rela_id').value;
 
     // Verificar que el campo ID no esté vacío
     if (!materiaId) {
@@ -953,6 +953,7 @@ async function adelete(event) {
         });
         return false;
     }
+    console.log("aaaaaaaaaaaaaaaaaaaaaaaa");
 
     try {
         // Enviar una solicitud para verificar si el ID del rasgo conductual existe
@@ -1021,6 +1022,7 @@ async function adelete(event) {
             document.getElementById('editForm').style.display = 'none';
             document.getElementById('deleteForm').style.display = 'none';
         });
+        console.log(mode)
         function setFormMode(mode, materia_id = '', horario_id = '') {
             var formTitle = document.getElementById('formTitle');
             var teacherForm = document.getElementById('addForm');
@@ -1042,7 +1044,6 @@ async function adelete(event) {
                 deleteTeacherForm.style.display = 'none';
             } else if (mode === 'delete') {
                 formTitle.textContent = 'Eliminar Relacion';
-                document.getElementById('id_dethora').value = materia_id;
                 deleteTeacherForm.style.display = 'block';
                 teacherForm.style.display = 'none';
                 editTeacherForm.style.display = 'none';
