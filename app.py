@@ -1074,65 +1074,87 @@ WHERE
         if 'role' in session:   
             if session['role'] == 'administrador' or session['role'] == 'encargado':
                 cur = mysql.connection.cursor()
+
+                # Obtener el id_horario
                 cur.execute(
-                    "SELECT id_horario FROM horario where curso=%s and seccion=%s and especialidad=%s", (curso, seccion, espe))
+                    "SELECT id_horario FROM horario WHERE curso=%s AND seccion=%s AND especialidad=%s", (curso, seccion, espe))
                 s = cur.fetchone()
                 session['cursosec'] = s
+
+                # Obtener todos los reportes
                 cur.execute("SELECT * FROM reporte")
                 reportes = cur.fetchall()
+
+                # Obtener alumnos según la especialidad
                 if espe:
-                    cur.execute("SELECT row_number() over (order by apellido asc) as n_lista, CONCAT(apellido, ' ', nombre) AS nombre_completo, curso, seccion, especialidad, ci FROM alumno WHERE especialidad = %s and curso=%s and seccion=%s order by apellido asc", (espe, curso, seccion))
+                    cur.execute("SELECT row_number() OVER (ORDER BY apellido ASC) AS n_lista, CONCAT(apellido, ' ', nombre) AS nombre_completo, curso, seccion, especialidad, ci FROM alumno WHERE especialidad = %s AND curso=%s AND seccion=%s ORDER BY apellido ASC", (espe, curso, seccion))
                 else:
                     cur.execute("SELECT * FROM alumno")
                 alumnos = cur.fetchall()
-                cur.execute(
-                    "SELECT id_horario FROM horario WHERE curso=%s and seccion=%s and especialidad=%s", (curso, seccion, espe))
+
+                # Obtener id_horario
+                cur.execute("SELECT id_horario FROM horario WHERE curso=%s AND seccion=%s AND especialidad=%s", (curso, seccion, espe))
                 a = cur.fetchone()
                 if a:
                     hor = a[0]
-                    cur.execute(
-                        "SELECT materia_id_materia FROM detalle_horario WHERE horario_id_horario = %s", (hor,))
+                    cur.execute("SELECT materia_id_materia FROM detalle_horario WHERE horario_id_horario = %s", (hor,))
                     materiasid = cur.fetchall()
                 else:
                     cur.execute("SELECT * FROM materia")
                     materiasid = []
+
+                # Obtener materias
                 if materiasid:
                     materias = []
                     for mid in materiasid:
                         aa = mid[0]
-                        cur.execute(
-                            "SELECT * FROM materia WHERE id_materia = %s", (aa,))
+                        cur.execute("SELECT * FROM materia WHERE id_materia = %s", (aa,))
                         materias.extend(cur.fetchall())
                 else:
                     cur.execute("SELECT * FROM materia")
                     materias = cur.fetchall()
-                cur.execute("SELECT * FROM detalle_horario")
+                # Obtener detalle_horario sin la clave primaria
+                cur.execute("SELECT Horario_id_horario, Materia_id_materia, horario, dia FROM detalle_horario")
                 detalle_horario = cur.fetchall()
+
+                # Imprimir los resultados para verificar
+                for row in detalle_horario:
+                    print(f"Horario_id_horario: {row[0]}, Materia_id_materia: {row[1]}, horario: {row[2]}, dia: {row[3]}")
+                print("Materias:", materias)
+                # Obtener rasgos conductuales
                 cur.execute("SELECT * FROM rasgos_conductuales")
                 rasgos_conductuales = cur.fetchall()
+
+                # Obtener el id de detalle_horario si existe
                 if a:
                     cur.execute(
-                        "SELECT * FROM detalle_horario WHERE horario_id_horario = %s", (a,))
+                        "SELECT Horario_id_horario, Materia_id_materia, horario, dia FROM detalle_horario WHERE horario_id_horario = %s", (a,))
                     elid = cur.fetchall()
                 else:
                     elid = []
+                print("Detalle Horario (elid):", elid)
+
+                # Obtener detalle reporte
                 cur.execute("SELECT * FROM detalle_reporte")
                 detr = cur.fetchall()
-                cur.execute(
-                    "SELECT id_alumno FROM alumno WHERE especialidad = %s and curso=%s and seccion=%s order by apellido asc", (espe, curso, seccion))
+
+                # Obtener id_alumno
+                cur.execute("SELECT id_alumno FROM alumno WHERE especialidad = %s AND curso=%s AND seccion=%s ORDER BY apellido ASC", (espe, curso, seccion))
                 ida = cur.fetchall()
 
-    # 这里确保我们只传递单个值而不是一个元组
+                # Obtener id_reporte para cada id_alumno
                 a = []
                 for id_alumno in ida:
-                    cur.execute(
-                        "SELECT id_reporte FROM reporte WHERE alumno_id_alumno = %s", (id_alumno[0],))
+                    cur.execute("SELECT id_reporte FROM reporte WHERE alumno_id_alumno = %s", (id_alumno[0],))
                     a.extend(cur.fetchall())
 
-                a = cur.fetchall()
                 cur.close()
+
+                # Retornar la plantilla
                 return render_template('reportes.html', role=session['role'], reportes=reportes, alumnos=alumnos, materias=materias, detalle_horario=detalle_horario, rasgos_conductuales=rasgos_conductuales, elid=elid, curso=int(curso), seccion=int(seccion), espe=espe, detr=detr, a=a)
+
         return redirect(url_for('login'))
+
 
     @app.route('/get_rasgos', methods=['GET'])
     def get_rasgos():
